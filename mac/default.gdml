@@ -5,20 +5,17 @@
 
 <define>
   <position name="targetPos" unit="cm" x="0" y="0" z="0" />
-  <position name="detectorPos1" unit="cm" x="0" y="0" z="-1" />
-  <position name="detectorPos2" unit="cm" x="0" y="0" z="1" />
+  <position name="detectorPos1" unit="cm" x="0" y="0" z="-10" />
+  <position name="detectorPos2" unit="cm" x="0" y="0" z="10" />
 </define>
 
 <materials>
 </materials>
 
 <solids>
-  <box aunit="radian" lunit="cm" name="targetS" x="1" y="1" z="1" />
+  <box aunit="radian" lunit="cm" name="targetS" x="1" y="1" z="5" />
   <box aunit="radian" lunit="cm" name="detectorS" x="5" y="5" z="0.1" />
-  <box aunit="radian" lunit="cm" name="worldS" x="6" y="6" z="6" />
-
-  <trd name = "triBarModuleS"  x1="0." x2="20" y1="50" y2="50" z="10" lunit= "mm"/>
-  <trd name = "triBarScintS"  x1="0." x2="20-2*0.12*(1.414+1)" y1="50" y2="50" z="10-0.12*(1+1.414)" lunit= "mm"/>
+  <box aunit="radian" lunit="cm" name="worldS" x="6" y="6" z="24" />
 </solids>
 
 <structure>
@@ -38,8 +35,8 @@
         <positionref ref="detectorPos2" />
     </physvol>
     <physvol>
-      <volumeref ref="Target" />
-      <positionref ref="targetPos" />
+        <volumeref ref="Target" />
+        <positionref ref="targetPos" />
     </physvol>
   </volume>
 </structure>
