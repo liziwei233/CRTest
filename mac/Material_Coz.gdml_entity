@@ -1,0 +1,190 @@
+<!-- this is a file defining G4Material in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be refered in <materials></materials>-->
+<!-- Dependencies : Config/Material_Coz/Property_Coz.gdml_entity-->
+
+  <element Z="6" formula="C" name="Carbon" >
+    <atom value="12.0107" />
+  </element>
+  <element Z="1" formula="H" name="Hydrogen" >
+    <atom value="1.008" />
+  </element>
+  <element Z="7" formula="N" name="Nitrogen" >
+   <atom value="14.01" />
+  </element>
+  <element Z="8" formula="O" name="Oxygen" >
+   <atom value="16" />
+  </element>
+  <element Z="14" formula="Si" name="Silicon" >
+   <atom value="28" />
+  </element>
+  
+  <element Z="55" formula="Cs" name="Cesium" >
+   <atom value="132.9" />
+  </element>
+  <element Z="52" formula="Te" name="Tellurium" >
+   <atom value="127.60" />
+  </element>
+
+  <material formula=" " name="AIR" >
+		<D value="0.00129" />
+		<fraction n="0.7" ref="Nitrogen" />
+		<fraction n="0.3" ref="Oxygen" />
+		<property name="RINDEX" ref="AIR_RINDEX"/>
+  </material>  
+
+<!-- Medium -->
+<material formula=" " name="SiO2" >
+  <D value="2.2" />
+  <composite n="2" ref="Oxygen" />
+  <composite n="1" ref="Silicon" />
+  <property name="RINDEX" ref="SiO2_RINDEX"/>
+  <property name="ABSLENGTH" ref="SiO2_ABSLENGTH"/>
+  <property name="TRANSMITTANCE" ref="SiO2_TRANSMITTANCE"/>
+</material>
+
+<!-- Scintillator -->
+<material formula=" " name="EJ200_PVT" >
+  <D value="1.023" />
+  <composite n="517" ref="Hydrogen" />
+  <composite n="469" ref="Carbon" />
+  <property name="RINDEX" ref="EJ200_RINDEX"/>
+  <property name="SCINTILLATIONYIELD" ref="EJ200_SCINTILLATIONYIELD"/>
+  <property name="FASTCOMPONENT" ref="EJ200_FASTCOMPONENT"/>
+  <property name="FASTTIMECONSTANT" ref="EJ200_FASTTIMECONSTANT"/>
+  <property name="ABSLENGTH" ref="EJ200_ABSLENGTH"/>
+  <property name="RESOLUTIONSCALE" ref="EJ200_RESOLUTIONSCALE"/>
+</material>
+<material formula=" " name="EJ230_PVT" >
+  <D value="1.023" />
+  <composite n="517" ref="Hydrogen" />
+  <composite n="469" ref="Carbon" />
+  <property name="RINDEX" ref="EJ230_RINDEX"/>
+  <property name="SCINTILLATIONYIELD" ref="EJ230_SCINTILLATIONYIELD"/>
+  <property name="FASTCOMPONENT" ref="EJ230_FASTCOMPONENT"/>
+  <property name="FASTTIMECONSTANT" ref="EJ230_FASTTIMECONSTANT"/>
+  <property name="ABSLENGTH" ref="EJ230_ABSLENGTH"/>
+  <property name="RESOLUTIONSCALE" ref="EJ230_RESOLUTIONSCALE"/>
+</material>
+<material formula=" " name="BC408_PVT" >
+  <D value="1.32" />
+  <composite n="11" ref="Hydrogen" />
+  <composite n="10" ref="Carbon" />
+  <property name="RINDEX" ref="BC408_RINDEX"/>
+  <property name="SCINTILLATIONYIELD" ref="BC408_SCINTILLATIONYIELD"/>
+  <property name="FASTCOMPONENT" ref="BC408_FASTCOMPONENT"/>
+  <property name="FASTTIMECONSTANT" ref="BC408_FASTTIMECONSTANT"/>
+  <property name="ABSLENGTH" ref="BC408_ABSLENGTH"/>
+  <property name="RESOLUTIONSCALE" ref="BC408_RESOLUTIONSCALE"/>
+</material>
+<material formula=" " name="BC420_PVT" >
+  <D value="1.32" />
+  <composite n="11" ref="Hydrogen" />
+  <composite n="10" ref="Carbon" />
+  <property name="RINDEX" ref="BC420_RINDEX"/>
+  <property name="SCINTILLATIONYIELD" ref="BC420_SCINTILLATIONYIELD"/>
+  <property name="FASTCOMPONENT" ref="BC420_FASTCOMPONENT"/>
+  <property name="FASTTIMECONSTANT" ref="BC420_FASTTIMECONSTANT"/>
+  <property name="ABSLENGTH" ref="BC420_ABSLENGTH"/>
+  <property name="RESOLUTIONSCALE" ref="BC420_RESOLUTIONSCALE"/>
+</material>
+
+
+
+<!--SiPM window -->
+<material formula=" " name="Resin" >
+  <D value="1.25" />
+  <fraction n="0.74" ref="Carbon" />
+  <fraction n="0.07" ref="Hydrogen" />
+  <fraction n="0.08" ref="Nitrogen" />
+  <fraction n="0.11" ref="Oxygen" />
+
+  <property name="RINDEX" ref="Resin_RINDEX"/>
+  <property name="EFFICIENCY" ref="Resin_EFFICIENCY" />
+
+</material>
+
+<!-- photocathod -->
+
+<material formula=" " name="Metal" >
+  <D value="3.0" />
+  <composite n="3" ref="Cesium" />
+  <composite n="2" ref="Tellurium" />
+  <property name="EFFICIENCY" ref="PMT_3805U_EFFICIENCY" />
+  <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+  <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+</material>
+
+<!-- Optical Glue -->
+<material formula=" " name="EJ500" >
+  <D value="1.17" />
+  <composite n="3" ref="Hydrogen" />
+  <composite n="2" ref="Carbon" />
+  <composite n="1" ref="Oxygen" />
+  <property name="RINDEX" ref="EJ500_RINDEX"/>
+  <property name="ABSLENGTH" ref="EJ500_ABSLENGTH"/>
+  <property name="EFFICIENCY" ref="EJ500_EFFICIENCY" />
+  <property name="REFLECTIVITY" ref="EJ500_REFLECTIVITY" />
+  <property name="TRANSMITTANCE" ref="EJ500_TRANSMITTANCE" />
+</material>
+
+  <!-- For OpticalSurface MPT-->
+  <material name="OpWrapper_Quartz">
+    <D value="0.00129" />
+    <fraction n="0.7" ref="Nitrogen" />
+    <fraction n="0.3" ref="Oxygen" />
+    <property name="REFLECTIVITY" ref="OpWrapper_Quartz_REFLECTIVITY" />
+    <property name="EFFICIENCY" ref="OpWrapper_Quartz_EFFICIENCY" />
+    
+    <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
+    <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
+    <property name="BACKSCATTERCONSTANT" ref="OpWrapper_Quartz_BACKSCATTER"/>
+    <property name="LAMBERTIANCONSTANT" ref="OpWrapper_Quartz_LAMBERTIAN"/>
+
+    <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />
+    <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
+    <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
+    <property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />
+    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
+  </material>
+ 
+
+
+
+<material name="endWrapper_Quartz">
+    <D value="0.00129" />
+    <fraction n="0.7" ref="Nitrogen" />
+    <fraction n="0.3" ref="Oxygen" />
+    <property name="REFLECTIVITY" ref="endWrapper_Quartz_REFLECTIVITY" />
+    <property name="EFFICIENCY" ref="endWrapper_Quartz_EFFICIENCY" />
+    <property name="TRANSMITTANCE" ref="endWrapper_Quartz_TRANSMITTANCE" />
+    <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />
+    <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
+    <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
+    
+    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
+</material>
+
+
+
+
+<material name="OpBorder_MCP">
+  <D value="0.00129" />
+  <fraction n="0.7" ref="Nitrogen" />
+  <fraction n="0.3" ref="Oxygen" />
+  <property name="EFFICIENCY" ref="PMT_3805U_EFFICIENCY" />
+  
+  <!--<property name="EFFICIENCY" ref="TOPMCP_EFFICIENCY" />-->
+  <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+  <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+</material>
+
+<material name="OpBorder_SiPM">
+  <D value="0.00129" />
+  <fraction n="0.7" ref="Nitrogen" />
+  <fraction n="0.3" ref="Oxygen" />
+  <property name="EFFICIENCY" ref="S13360_3050_EFFICIENCY" />
+  <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+  <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+</material>
+

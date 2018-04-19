@@ -1,0 +1,19 @@
+# Geant4 Macro file for batch mode
+
+#/process/em/verbose 0
+/analysis/verbose 1
+/run/verbose 0
+/run/initialize
+
+
+/gun/particle mu-
+/gun/energy 500 MeV
+/gun/position  0 1 0. cm
+#/gun/position  0 0 124.80 cm
+/gun/direction 0 -1 0    #90deg
+#/gun/direction 0 0 1    #0 deg
+#/gun/direction 0 -1 -1    #45deg
+#/gun/direction 0 -1 -1.73  #30deg
+#/gun/direction 0 -1 -0.577 #60deg
+#/gun/direction 0 0 1
+/run/beamOn 1000

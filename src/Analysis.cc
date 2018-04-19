@@ -61,6 +61,8 @@ G4bool Analysis::CreateNtupleForRun(){
 		// or Call OpRecorder::CreateEntry ?
 	for(G4int i = 0 ; i < fRecorder->size() ; i++)
 		(*fRecorder)[i]->CreateEntry(fCurrentNtuple, rootData);
+	
+	//rootData->FinishNtuple();
 
 	return true;
 }
@@ -137,9 +139,9 @@ G4bool Analysis::FillOpPhotonTrackForEvent(
 G4bool Analysis::RegisterSD(VirtualSD* sd){
 
 	if(std::find(fSD->begin(),fSD->end(),sd)
-		== fSD->end())
+		== fSD->end())// if sd don't belong fSD  [**fSD->end() is NOT the last element but a value after the last one!!**]
 	{
-		fSD->push_back(sd);
+		fSD->push_back(sd); //add data in the end
 		return true;
 	}
 	else

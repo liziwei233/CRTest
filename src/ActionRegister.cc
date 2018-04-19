@@ -8,7 +8,7 @@
 #include "Generator.hh"
 #include "CryGenerator.hh"
 #include "PduGenerator.hh"
-
+#include "GPSgenerator.hh"
 #include "RunAction.hh"
 #include "EventAction.hh"
 #include "StackAction.hh"
@@ -29,6 +29,7 @@ void ActionRegister::BuildForMaster() const
 
 void ActionRegister::Build() const
 {
+    SetUserAction(new GPSgenerator);
     SetUserAction(new Generator);
     SetUserAction(new RunAction);
     SetUserAction(new EventAction);

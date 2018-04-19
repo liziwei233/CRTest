@@ -11,6 +11,7 @@
 #include "G4EmStandardPhysics_option3.hh"
 #include "G4EmStandardPhysics_option4.hh"
 #include "G4OpticalPhysics.hh"
+#include "G4OpticalProcessIndex.hh"
 #include "G4DecayPhysics.hh"
 #include "G4StepLimiterPhysics.hh"
 
@@ -26,6 +27,13 @@ PhysicsList::PhysicsList()
 
 	fOpPhys = new G4OpticalPhysics;
 	RegisterPhysics(fOpPhys);
+  	//G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  	//RegisterPhysics( opticalPhysics );
+  	//opticalPhysics->SetMaxNumPhotonsPerStep(100);
+  	//opticalPhysics->SetMaxBetaChangePerStep(10.0);
+
+  	//opticalPhysics->SetTrackSecondariesFirst(kCerenkov,true);
+	//fOpPhys->SetTrackSecondariesFirst(kCerenkov,true);
 
 	fDecayPhys = new G4DecayPhysics;
 	RegisterPhysics(fDecayPhys);

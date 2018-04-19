@@ -37,6 +37,7 @@ private:
 	static MuonRecorder* fgInstance;
 
 private: // Muon Track Information
+	std::vector<double>* fCount;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
 	std::vector<double>* fX;

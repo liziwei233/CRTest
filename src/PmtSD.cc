@@ -14,8 +14,9 @@ PmtSD::PmtSD(G4String &name)
 	: VirtualSD(name), fHCID(0), fHC(NULL), fFirstColID(-1),
 	fCounter(NULL)
 {
-    collectionName.insert("PmtHC");
-
+	fname=name;
+    //collectionName.insert("PmtHC");
+    collectionName.insert(fname.replace(4,10,"HC"));
 	fCounter = new std::vector<int>;
 
 }
@@ -36,21 +37,26 @@ void PmtSD::Initialize(G4HCofThisEvent *hce)
 
     hce->AddHitsCollection(fHCID, fHC);
 
-	fCounter->clear();
-	fHitCopyNo->clear();
-	fHitEk->clear();
-	fHitTime->clear();
-	fHitX->clear();
-	fHitY->clear();
-	fHitZ->clear();
-	fHitPX->clear();
-	fHitPY->clear();
-	fHitPZ->clear();
+	std::vector<int>().swap(*fCounter);
+	std::vector<int>().swap(*fHitCopyNo);
+	std::vector<double>().swap(*fHitEk);
+	std::vector<double>().swap(*fHitTime);
+	std::vector<double>().swap(*fHitX);
+	std::vector<double>().swap(*fHitY);
+	std::vector<double>().swap(*fHitZ);
+	std::vector<double>().swap(*fHitPX);
+	std::vector<double>().swap(*fHitPY);
+	std::vector<double>().swap(*fHitPZ);
+	std::vector<int>().swap(*fHitID);
+	
+
+
 }
 
 G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 {
-	
+
+	G4Track *theTrack = theStep->GetTrack();	
     G4double edep = theStep->GetTotalEnergyDeposit();
     if(edep <= 0) return false;
     
@@ -72,6 +78,8 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	fHitEk->push_back(theParticle->GetKineticEnergy());
 	fHitTime->push_back(theParticle->GetGlobalTime());
 
+	fHitID->push_back(theTrack->GetTrackID());
+
 	G4ThreeVector pos = theParticle->GetPosition();
 	fHitX->push_back(pos.x());
 	fHitY->push_back(pos.y());
@@ -86,6 +94,7 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 }
 
 void PmtSD::EndOfEvent(G4HCofThisEvent*){
+	G4cout << "fNvolume= "<< fNvolume << G4endl;
 
 	for(int i = 0 ; i < fNvolume ; i++)
 		fCounter->push_back(0);
@@ -101,19 +110,21 @@ void PmtSD::CreateEntry(
 	G4int ntupleID, G4RootAnalysisManager* rootData)
 {
 	fFirstColID = 
-		rootData->CreateNtupleIColumn(ntupleID, "sd.pmt", *fCounter);
+	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".count"), *fCounter);
 	// TODO : #ifdef CRTest_SD_MORE
-	rootData->CreateNtupleIColumn(ntupleID, "pmt.id", *fHitCopyNo);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.E", *fHitEk);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.t", *fHitTime);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.x", *fHitX);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.y", *fHitY);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.z", *fHitZ);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.px", *fHitPX);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.py", *fHitPY);
-	rootData->CreateNtupleDColumn(ntupleID, "pmt.pz", *fHitPZ);
+	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".id"), *fHitCopyNo);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".E"), *fHitEk);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".t"), *fHitTime);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".x"), *fHitX);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".y"), *fHitY);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".z"), *fHitZ);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".px"), *fHitPX);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".py"), *fHitPY);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".pz"), *fHitPZ);
+	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".trackID"), *fHitID);
 }
 
 void PmtSD::FillEntry(
 	G4int, G4RootAnalysisManager*)
-{}
+{
+}

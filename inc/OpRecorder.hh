@@ -14,16 +14,19 @@
 #include "G4RootAnalysisManager.hh"
 #include "G4Track.hh"
 #include "globals.hh"
+#include<vector>
 
 enum OpPhotonType{
 	Nothing = 0,
-	Scintillation,
-	Scint2Groove,
-	Groove2Cladding,
-	Cladding2Core,
-	OpWLS,
-	Fiber2Pmt,
-	Detected
+	Quartz2Air,
+	Quartz2GlueL,
+	Quartz2GlueR,
+	Glue2PmtL,
+	Glue2PmtR,
+	CathodL,
+	CathodR,
+	DetectedL,
+	DetectedR
 };
 
 class OpRecorder : public VirtualRecorder{
@@ -45,24 +48,54 @@ public: // for class Analysis
 
 // TODO : Convert to 'private' and add Increment method
 public:
+    G4int nCerenkov;
     G4int nScintTotal;
-    G4int nScint2Groove;
-	G4int nGroove2Cladding;
-	G4int nCladding2Core;
+    G4int nQuartz2Air;
+	G4int nQuartz2GlueL;
+	G4int nQuartz2GlueR;
     G4int nWlsEmit;
-    G4int nCore2PMT;
-	G4int nDetection; // Detected by PmtSD
+    G4int nGlue2PMTL;
+	G4int nGlue2PMTR;
+	G4int nCathodL;
+	G4int nCathodR;
+	G4int nDetectionL; // Detected by PmtSD
+	G4int nDetectionR;
 // For deatil probe
-    G4int nBoundaryReflection;
-    G4int nBoundaryAbsorption;
+    
+    G4int nBoundaryRefraction;
+	G4int nBoundaryAbsorption;
     G4int nBoundaryTransmission;
     G4int nBoundaryUndefined;
     G4int nBoundaryWARNNING;
+	G4int nFresnelReflection;
+	G4int nTotalInternalReflection;
+	G4int nLambertianReflection;
+	G4int nLobeReflection;
+	G4int nSpikeReflection;
+	G4int nBackScattering;
 
     G4int nDebug; // use for debug
+
+	std::vector<int>* fID;
+	std::vector<double>* fL;
+	std::vector<int>* fBounce;
+	std::vector<double>* fWaveL;
+
 private:
     static OpRecorder* fgInstance;
 	G4String boundaryName;
+
+	std::vector<double>* fCount;
+	std::vector<double>* fEk;
+	std::vector<double>* fTime;
+	std::vector<double>* fX;
+	std::vector<double>* fY;
+	std::vector<double>* fZ;
+	std::vector<double>* fPX;
+	std::vector<double>* fPY;
+	std::vector<double>* fPZ;
+
+	
 };
 
 

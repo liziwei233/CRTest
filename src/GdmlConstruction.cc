@@ -16,22 +16,35 @@
 #include "G4LogicalVolumeStore.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4RotationMatrix.hh"
+#include "G4UserLimits.hh"
 
 #include "G4LogicalSurface.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
 #include "G4OpticalSurface.hh"
 
+//#include "cadmeshConstruction.hh"
+#include "G4VSolid.hh"
+#include "G4ThreeVector.hh"
+#include "G4Transform3D.hh"
+
+#include "G4SystemOfUnits.hh"
+#include <string>
+
+
 #include<vector>
 
 GdmlConstruction::GdmlConstruction(G4GDMLParser *gdml)
-	: SysConstruction(), fWorldPV(NULL), fGdml(gdml)
+	: SysConstruction(), fWorldPV(NULL), fGdml(gdml),fStepLimit(NULL),
+	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
 {
 	Init();
 }
 
 GdmlConstruction::GdmlConstruction(G4String gdmlFileName)
-	: SysConstruction(), fWorldPV(NULL), fGdml(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(NULL),fStepLimit(NULL),
+	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
 {
 	fGdml = new G4GDMLParser;
 	fGdml->Read(gdmlFileName, false);
@@ -43,6 +56,7 @@ GdmlConstruction::~GdmlConstruction()
 {
 	G4cout << "[-] INFO - GdmlConstruction deleted. " << G4endl;
 	delete fGdml;fGdml = NULL;
+	delete fStepLimit;
 }
 
 void GdmlConstruction::Init(){
@@ -57,10 +71,43 @@ void GdmlConstruction::Init(){
   fWorld = lvStore->GetVolume("World", false);
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
-  fDetector = lvStore->GetVolume("Detector",false);
-  fTarget = lvStore->GetVolume("Target", false);
-  fPmt = lvStore->GetVolume("PMT",false);
+  //fDetector = lvStore->GetVolume("Detector",false);
+  //fTarget = lvStore->GetVolume("Target", false);
+  fRadianer = lvStore->GetVolume("medium",false);
+  fPmtL = lvStore->GetVolume("PMT_left",false);
+  fPmtR = lvStore->GetVolume("PMT_right",false);
+
   
+  fStepLimit = new G4UserLimits();
+  fStepLimit->SetUserMaxTime(200*ns);
+  fRadianer->SetUserLimits(fStepLimit);
+
+/*
+  G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
+  flgPV = pvStore->GetVolume("lightguide_right_PV",false);
+  fLightguide = lvStore->GetVolume("lightguide_right",false);
+  cadmeshConstruction cad("../models/lightguidepos.STL");
+  G4cout << "[?]lightguide.STL has been read succesfully! - ";
+  fLightguide->SetSolid(cad.GetCADSolid());
+  G4RotationMatrix* rotm  = new G4RotationMatrix();
+  rotm->rotateZ(180*deg);
+  rotm->rotateY(180*deg);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  flgPV->SetRotation(rotm);
+  flgPV->SetTranslation(pos1);
+
+  flgPV = pvStore->GetVolume("lightguide_left_PV",false);
+  fLightguide = lvStore->GetVolume("lightguide_left",false);
+  //cadmeshConstruction cad("../models/lightguidepos.STL");
+  //G4cout << "[?]lightguide.STL has been read succesfully! - ";
+  fLightguide->SetSolid(cad.GetCADSolid());
+  //G4RotationMatrix* rotm  = new G4RotationMatrix();
+  //rotm->rotateZ(180*deg);
+  //rotm->rotateY(180*deg);
+  G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
+  //flgPV->SetRotation(rotm);
+  flgPV->SetTranslation(pos2);
+*/
   DumpStructure();
   
   ReadAuxiliary();
@@ -73,22 +120,34 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
-	if(fDetector){
+	/*if(fDetector){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
-
+        G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
 		SetSensitiveDetector(fDetector, crySD);
 
 		Analysis::Instance()->RegisterSD(crySD);
-	}
-	if(fPmt){
+		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
+	}*/
+	if(fPmtL){
 		// Create, Set & Register PmtSD
-		G4String sdName = "PmtSD";
-		PmtSD* pmtSD = new PmtSD(sdName);
+		G4String sdName = "PmtLSD";
+		PmtSD* pmtLSD = new PmtSD(sdName);
 
-		SetSensitiveDetector(fPmt, pmtSD);
+		SetSensitiveDetector(fPmtL, pmtLSD);
 
-		Analysis::Instance()->RegisterSD(pmtSD);
+		Analysis::Instance()->RegisterSD(pmtLSD);
+		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
+	}
+	if(fPmtR){
+		// Create, Set & Register PmtSD
+		G4String sdName = "PmtRSD";
+		PmtSD* pmtRSD = new PmtSD(sdName);
+
+		SetSensitiveDetector(fPmtR, pmtRSD);
+
+		Analysis::Instance()->RegisterSD(pmtRSD);
+		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
 	}
 	return;
 }

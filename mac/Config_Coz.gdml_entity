@@ -1,0 +1,50 @@
+<!-- this is a file defining Configuration in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be refered in <define></define>-->
+
+<!-- Units : mm, deg, g/cm3 -->
+
+
+<!-- entire size,  not half! -->
+<variable name="mediumX" value="10"/>
+<variable name="mediumY" value="10"/>
+<variable name="mediumZ" value="2500"/>
+
+<variable name="SiPMX" value="3"/>
+<variable name="SiPMY" value="3"/>
+<variable name="interval " value="0.2"/>
+
+<variable name="SOZ" value="0.01"/>
+<variable name="pmtZ" value="0.1"/>
+<variable name="lgZ" value="38"/>
+
+<!-- Detector Configuration -->
+<variable name="detectorX" value="mediumX+0.1" />
+<variable name="detectorY" value="mediumY+0.1" />
+<variable name="detectorZ" value="mediumZ+0.1+pmtZ*4+SOZ*2" />
+
+<!-- PMT Configuration,R is radius
+<variable name="pmtZ" value="0.1"/>
+<variable name="pmtR" value="5"/>
+-->
+
+<!-- Placement -->
+<position name="detectorPos" unit="mm" x="0" y="0" z="0" />
+<!--<constant name="detectorN" value="4" />
+<matrix name="detectorPosZ" coldim="1" values="-50. -10. 10. 50." />-->
+
+
+<!-- World Configuration-->
+<variable name="worldX" value="detectorX*10." />
+<variable name="worldY" value="detectorY*10." />
+<variable name="worldZ" value="detectorZ*4." />
+
+<!-- Others-->
+<variable name="iDetector" value="0" />
+<constant name="detectorN" value="4" />
+<matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />
+
+<variable name="iSiPM" value="0" />
+<constant name="SiPMN" value="16" />
+<matrix name="SiPMPosX" coldim="1" values="-4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 " />
+<matrix name="SiPMPosY" coldim="1" values="-4.8 -4.8 -4.8 -4.8 -1.6 -1.6 -1.6 -1.6 1.6 1.6 1.6 1.6 4.8 4.8 4.8 4.8 " />

@@ -12,6 +12,7 @@ MuonRecorder* MuonRecorder::fgInstance = NULL;
 MuonRecorder::MuonRecorder()
 	: VirtualRecorder()
 {
+	fCount = new std::vector<double>;
 	fEk = new std::vector<double>;
 	fTime = new std::vector<double>;
 	fX = new std::vector<double>;
@@ -23,6 +24,7 @@ MuonRecorder::MuonRecorder()
 }
 
 MuonRecorder::~MuonRecorder(){
+	fCount->clear();delete fCount;
 	fEk->clear();delete fEk;
 	fTime->clear();delete fTime;
 	fX->clear();delete fX;
@@ -42,8 +44,9 @@ MuonRecorder* MuonRecorder::Instance(){
 void MuonRecorder::CreateEntry(
 	G4int ntupleID, G4RootAnalysisManager* rootData)
 {
-	fFirstColID =
-		rootData->CreateNtupleDColumn(ntupleID, "mu.E", *fEk);
+	fFirstColID = 
+		rootData->CreateNtupleDColumn(ntupleID, "mu.Count", *fCount);
+	rootData->CreateNtupleDColumn(ntupleID, "mu.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.t", *fTime);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.x", *fX);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.y", *fY);
@@ -59,7 +62,7 @@ void MuonRecorder::FillEntry(G4int,G4RootAnalysisManager*)
 G4bool MuonRecorder::Record(const G4Track* theMuon){
 	if(theMuon->GetParentID() != 0)
 		return false;
-	
+	fCount->push_back(0);
 	fEk->push_back(theMuon->GetKineticEnergy() / GeV );
 	fTime->push_back(theMuon->GetGlobalTime() / ns );
 

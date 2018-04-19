@@ -1,0 +1,9 @@
+<!-- this is a file defining G4OpticalSurface in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be referenced in <solids></solids>-->
+<!-- Dependencies : MaterialDB.gdml_entity-->
+
+<opticalsurface name="quartz_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
+<opticalsurface name="photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<opticalsurface name="lg_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
+<opticalsurface name="det_surf" model="unified" finish="polished" type="dielectric_metal" value="0.01"/>

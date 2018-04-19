@@ -1,0 +1,42 @@
+<!-- this is a file defining Configuration in split.gdml -->
+<!-- it is _not_ a standalone GDML file -->
+<!-- This file should be refered in <define></define>-->
+
+<!-- Units : mm, deg, g/cm3 -->
+
+<!-- Detector Configuration -->
+<variable name="detectorX" value="550" />
+<variable name="detectorY" value="50" />
+<variable name="detectorZ" value="3000" />
+
+<!-- entire size,  not half! -->
+<variable name="mediumX" value="20"/>
+<variable name="mediumY" value="3"/>
+<variable name="mediumZ" value="2500"/>
+
+<!-- PMT Configuration,R is radius
+<variable name="pmtZ" value="0.1"/>
+<variable name="pmtR" value="5"/>
+-->
+
+<variable name="pmtZ" value="0.1"/>
+
+<variable name="lgZ" value="38"/>
+
+
+
+<variable name="SOZ" value="0.1"/>
+
+<!-- Placement -->
+<position name="detectorPos" unit="mm" x="0" y="0" z="0" />
+<!--<constant name="detectorN" value="4" />
+<matrix name="detectorPosZ" coldim="1" values="-50. -10. 10. 50." />-->
+
+
+<!-- World Configuration-->
+<variable name="worldX" value="detectorX*1.4" />
+<variable name="worldY" value="detectorY*1.4" />
+<variable name="worldZ" value="detectorZ*1.4" />
+
+<!-- Others-->
+<variable name="iDetector" value="0" />

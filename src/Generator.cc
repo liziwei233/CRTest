@@ -40,10 +40,12 @@ Generator::~Generator()
 void Generator::GeneratePrimaries(G4Event *anEvent)
 {
     G4ThreeVector position = GetWorldBoundary();
-    position.setX(0.);
+    position.setX(0. );
+    //position.setY(0.75 *cm);
     position.setY(0.);
-    position.setZ(-position.z());
-    fParticleGun->SetParticlePosition(position);
+    //position.setZ(-position.z());
+    position.setZ(0.);
+    //fParticleGun->SetParticlePosition(position);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }

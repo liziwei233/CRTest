@@ -12,6 +12,7 @@
 
 #include "VirtualSD.hh"
 #include "PmtHit.hh"
+#include "G4String.hh"
 
 class PmtSD : public VirtualSD {
 
@@ -36,6 +37,7 @@ private:
 	G4int fFirstColID;
 
 	std::vector<int>* fCounter;
+	G4String fname;
 };
 
 #endif /*CRTest_PmtSD_h*/
