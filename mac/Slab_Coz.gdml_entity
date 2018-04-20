@@ -7,7 +7,7 @@
     <- PMT -->
 
 <volume name="medium">
-  <materialref ref="BC408_PVT" />
+  <materialref ref="SiO2" />
   <solidref ref="mediumS" />
 </volume>
 
@@ -23,7 +23,7 @@
 </volume>
 
 <volume name="Window_left">
-  <materialref ref="Resin" />
+  <materialref ref="SiO2" />
   <solidref ref="windowS" />
   
 </volume>
@@ -31,7 +31,7 @@
 
 
 <volume name="Window_right">
-  <materialref ref="Resin" />
+  <materialref ref="SiO2" />
   <solidref ref="windowS" />
    
 </volume>
@@ -96,26 +96,26 @@
        <volumeref ref="Window_left" />
 	    <position unit="mm" x="0"/>
       <position unit="mm" y="0"/>
-      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2."/>
+      <position unit="mm" z="mediumZ/2.+SOZ+windowZ/2."/>
       </physvol>
 
       <physvol >
       <volumeref ref="Window_right" />
       <position unit="mm" x="0" />
 	    <position unit="mm" y="0" />
-      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2." />
+      <position unit="mm" z="-mediumZ/2.-SOZ-windowZ/2." />
       </physvol>
 
       <physvol>
       <volumeref ref="PMT_left" />
       <position unit="mm" x="0" />
 	    <position unit="mm" y="0" />
-      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2.+pmtZ"/>
+      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2.+windowZ"/>
       </physvol>
 
       <physvol>
       <volumeref ref="PMT_right" />
-      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2.-pmtZ"/>
+      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2.-windowZ"/>
       </physvol>
   
 

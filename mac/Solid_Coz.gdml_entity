@@ -16,7 +16,7 @@
 <!--<tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />-->
 <box aunit="radian"  lunit="mm" name="pmtS" x="SiPMX" y="SiPMY" z="pmtZ" />
 
-<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="pmtZ" />
+<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="windowZ" />
 
 
  <!-- rectangular quartz -->

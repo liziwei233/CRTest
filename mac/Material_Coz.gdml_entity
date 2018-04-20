@@ -167,10 +167,19 @@
     <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
 </material>
 
+<material name="OpBorder_R10754">
+  <D value="0.00129" />
+  <fraction n="0.7" ref="Nitrogen" />
+  <fraction n="0.3" ref="Oxygen" />
+  <property name="EFFICIENCY" ref="PMT_R10754_EFFICIENCY" />
+  
+  <!--<property name="EFFICIENCY" ref="TOPMCP_EFFICIENCY" />-->
+  <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+  <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+</material>
 
 
-
-<material name="OpBorder_MCP">
+<material name="OpBorder_3805U">
   <D value="0.00129" />
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />

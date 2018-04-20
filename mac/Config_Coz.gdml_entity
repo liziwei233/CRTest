@@ -6,22 +6,23 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="10"/>
-<variable name="mediumY" value="10"/>
+<variable name="mediumX" value="23"/>
+<variable name="mediumY" value="23"/>
 <variable name="mediumZ" value="500"/>
 
-<variable name="SiPMX" value="6"/>
-<variable name="SiPMY" value="6"/>
+<variable name="SiPMX" value="23"/>
+<variable name="SiPMY" value="23"/>
 <variable name="interval " value="0.2"/>
 
 <variable name="SOZ" value="0.01"/>
 <variable name="pmtZ" value="0.1"/>
+<variable name="windowZ" value="1.5"/>
 <variable name="lgZ" value="38"/>
 
 <!-- Detector Configuration -->
-<variable name="detectorX" value="mediumX+0.1" />
-<variable name="detectorY" value="mediumY+0.1" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*4+SOZ*2" />
+<variable name="detectorX" value="mediumX+0.01" />
+<variable name="detectorY" value="mediumY+0.01" />
+<variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>

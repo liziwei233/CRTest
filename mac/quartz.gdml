@@ -30,7 +30,7 @@
 <structure>
   &Slab;
 
-
+<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -41,8 +41,9 @@
       </physvol>
     </loop>
   </volume>
+-->
 
-<!--
+
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -50,7 +51,7 @@
           <volumeref ref="Detector" />
       </physvol>
   </volume>
--->
+
   <!--<skinsurface name="det_skin" surfaceproperty="det_surf" >
     <volumeref ref="Detector"/>
   </skinsurface>-->
@@ -186,13 +187,13 @@
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
         <auxiliary auxtype="PVname" auxvalue="Window_left_PV" />
         <auxiliary auxtype="PVname" auxvalue="PMT_left_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_SiPM"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
       </auxiliary>
       <auxiliary auxtype="Border" auxvalue="PhotocathodeR">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
         <auxiliary auxtype="PVname" auxvalue="Window_right_PV" />
         <auxiliary auxtype="PVname" auxvalue="PMT_right_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_SiPM"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
       </auxiliary>
     </auxiliary>
 

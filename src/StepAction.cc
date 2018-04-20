@@ -70,7 +70,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 		G4OpBoundaryProcessStatus status = boundary->GetStatus();
 		G4bool gotThrough = 
 			(status == Transmission || status == FresnelRefraction);
-		//if(gotThrough){
+		if(gotThrough){
 			// OpPthoton got through boundary
 			if (thePrePV->GetName() == "medium_PV" &&
 				thePostPV->GetName() == "SO_left_PV")
@@ -104,7 +104,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
                 //BoundaryStats(boundary);
 			}
         
-		//}
+		}
         //else if (thePrePV->GetName() == "lightguide_left_PV" &&
         //         thePostPV->GetName() == "PMT_left_PV")
         else if (thePrePV->GetName() == "Window_left_PV" &&
