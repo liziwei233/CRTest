@@ -6,8 +6,8 @@
 /run/initialize
 
 
-/gun/particle opticalphoton
-/gun/energy 2.5 eV
+/gun/particle mu-
+/gun/energy 500 MeV
 /gun/position  0 0 124. cm
 #/gun/position  0 0 124.80 cm
 /gun/direction 0 0  1    #90deg

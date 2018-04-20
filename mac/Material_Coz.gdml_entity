@@ -101,6 +101,8 @@
 
   <property name="RINDEX" ref="Resin_RINDEX"/>
   <property name="EFFICIENCY" ref="Resin_EFFICIENCY" />
+  <property name="ABSLENGTH" ref="Resin_ABSLENGTH" />
+  
 
 </material>
 

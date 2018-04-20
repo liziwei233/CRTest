@@ -25,10 +25,7 @@
 <volume name="Window_left">
   <materialref ref="Resin" />
   <solidref ref="windowS" />
-  <physvol>
-      <volumeref ref="PMT_left" />
-      <position unit="mm" z="pmtZ"/>
-  </physvol>
+  
 </volume>
 
 
@@ -36,12 +33,7 @@
 <volume name="Window_right">
   <materialref ref="Resin" />
   <solidref ref="windowS" />
-  <physvol>
-      <volumeref ref="PMT_right" />
-      <position unit="mm" z="-pmtZ"/>
-  </physvol>
-  
-  
+   
 </volume>
 
 <!--
@@ -58,13 +50,13 @@
 
 <volume name="SO_left">
   <!--<materialref ref="EJ500" />-->
-  <materialref ref="AIR" />
+  <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
 <volume name="SO_right">
   <!--<materialref ref="EJ500" />-->
-  <materialref ref="AIR" />
+  <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
@@ -102,16 +94,28 @@
   
     <physvol >
        <volumeref ref="Window_left" />
-	    <position x="0"/>
-      <position y="0"/>
-      <position z="mediumZ/2.+SOZ+pmtZ/2."/>
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="0"/>
+      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2."/>
       </physvol>
 
       <physvol >
       <volumeref ref="Window_right" />
-      <position x="0" />
-	    <position y="0" />
-      <position z="-mediumZ/2.-SOZ-pmtZ/2." />
+      <position unit="mm" x="0" />
+	    <position unit="mm" y="0" />
+      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2." />
+      </physvol>
+
+      <physvol>
+      <volumeref ref="PMT_left" />
+      <position unit="mm" x="0" />
+	    <position unit="mm" y="0" />
+      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2.+pmtZ"/>
+      </physvol>
+
+      <physvol>
+      <volumeref ref="PMT_right" />
+      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2.-pmtZ"/>
       </physvol>
   
 
