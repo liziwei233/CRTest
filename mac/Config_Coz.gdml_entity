@@ -6,8 +6,8 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="10"/>
-<variable name="mediumY" value="10"/>
+<variable name="mediumX" value="10.1"/>
+<variable name="mediumY" value="10.1"/>
 <variable name="mediumZ" value="500"/>
 
 <variable name="SiPMX" value="6"/>
@@ -42,6 +42,7 @@
 <!-- Others-->
 <variable name="iDetector" value="0" />
 <constant name="detectorN" value="4" />
+<!--<matrix name="detectorPosY" coldim="1" values="0. -24. -48 -72" />-->
 <matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />
 
 <variable name="iSiPM" value="0" />
