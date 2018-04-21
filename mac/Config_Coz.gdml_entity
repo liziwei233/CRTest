@@ -14,7 +14,7 @@
 <variable name="SiPMY" value="6"/>
 <variable name="interval " value="0.2"/>
 
-<variable name="SOZ" value="0.01"/>
+<variable name="SOZ" value="0.1"/>
 <variable name="pmtZ" value="0.1"/>
 <variable name="lgZ" value="38"/>
 
