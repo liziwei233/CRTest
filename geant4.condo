@@ -10,11 +10,11 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = TTest
+RUN = Qz_MCP_L500_Ref100
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 1
+N_JOBS = 40
 
 initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
 
