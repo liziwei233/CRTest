@@ -10,7 +10,7 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Qz_MCP_L500_Ref100
+RUN = Qz_MCP_L500_Ref997_ignoreCEGE
 
 #N_EVENT = 1 multiplay 8
 

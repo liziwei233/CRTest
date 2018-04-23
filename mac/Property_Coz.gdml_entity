@@ -291,7 +291,7 @@
 <matrix name="OpWrapper_Quartz_BACKSCATTER" coldim="2" values="2.6*eV 0.0"/>  
 <matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.0"/>
 <!--<matrix name="OpWrapper_Quartz_RINDEX" coldim="2" values="2.6*eV 1.48"/>-->
-<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 1.0"/>
+<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.997"/>
 <!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0.003"/>-->
 <matrix name="OpWrapper_Quartz_EFFICIENCY" coldim="2" values="2.6*eV 1.0"/>
   <!--Tyvek-->
@@ -389,13 +389,13 @@
   2.48*eV 0.10
   1.653*eV 0.01"/>
 
-  <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01*0.54
-  7.1*eV 0.10*0.54       
-  6.212*eV 0.25*0.54
-  4.14*eV 0.25*0.54
-  3.11*eV	0.25*0.54
-  2.48*eV 0.10*0.54
-  1.653*eV 0.01*0.54"/>
+  <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
+  7.1*eV 0.10       
+  6.212*eV 0.25
+  4.14*eV 0.25
+  3.11*eV	0.25
+  2.48*eV 0.10
+  1.653*eV 0.01"/>
 
   <matrix name="LOWMCP_EFFICIENCY" coldim="2" values="4.6323795861*eV	0.0981723
 4.455191196*eV 0.136815
