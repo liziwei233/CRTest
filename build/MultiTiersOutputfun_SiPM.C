@@ -137,13 +137,13 @@ void MultiTiersOutputfun_SiPM(const char *rootname=""){
 	vector<vector<double> > parL(T);
 	//vector<double> parL2;
 
-	Double_t RL = 0e-9;
-	Double_t RR = 15e-9;
+	Double_t RL = 5e-9;
+	Double_t RR = 20e-9;
 	int binNum=0;
 	binNum = (RR-RL)/1e-12;
 
     Int_t range = 5e3; //3ps/Sample
-	Double_t thrd = -2;//Umax = -2
+	Double_t thrd = -0.7;//Umax = -0.71
 	double Rate=0;
 	
 	bool flagR=0,flagL=0;
