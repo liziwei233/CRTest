@@ -16,4 +16,4 @@
 #/gun/direction 0 -1 -1.73  #30deg
 #/gun/direction 0 -1 -0.577 #60deg
 #/gun/direction 0 0 1
-/run/beamOn 25
+/run/beamOn 1

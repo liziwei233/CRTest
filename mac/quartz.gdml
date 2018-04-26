@@ -30,7 +30,7 @@
 <structure>
   &Slab;
 
-
+<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -41,8 +41,8 @@
       </physvol>
     </loop>
   </volume>
+-->
 
-<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -50,7 +50,7 @@
           <volumeref ref="Detector" />
       </physvol>
   </volume>
--->
+
   <!--<skinsurface name="det_skin" surfaceproperty="det_surf" >
     <volumeref ref="Detector"/>
   </skinsurface>-->

@@ -8,7 +8,7 @@
 <!-- entire size,  not half! -->
 <variable name="mediumX" value="10.1"/>
 <variable name="mediumY" value="10.1"/>
-<variable name="mediumZ" value="1000"/>
+<variable name="mediumZ" value="500"/>
 
 <variable name="SiPMX" value="6"/>
 <variable name="SiPMY" value="6"/>

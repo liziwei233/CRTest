@@ -55,7 +55,7 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 			//Analysis::Instance()->FillOpPhotonTrackForEvent(
 			//	theTrack, OpPhotonType::Scintillation);
 			Recorder->nCerenkov++;
-			Recorder->Record(theTrack);
+			//Recorder->Record(theTrack);
 		}
 		else if (theTrack->GetCreatorProcess()->GetProcessName() 
 			== "Scintillation")
@@ -63,6 +63,7 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 			//Analysis::Instance()->FillOpPhotonTrackForEvent(
 			//	theTrack, OpPhotonType::Scintillation);
 			Recorder->nScintTotal++;
+			Recorder->Record(theTrack);
 		}
 		else if (theTrack->GetCreatorProcess()->GetProcessName() 
 			== "OpWLS")

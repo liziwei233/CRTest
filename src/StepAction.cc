@@ -41,11 +41,21 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
     G4VPhysicalVolume *thePrePV = thePrePoint->GetPhysicalVolume();
     G4VPhysicalVolume *thePostPV = thePostPoint->GetPhysicalVolume();
 
-    /*
+    
+    
+    //**********************************************
+    //*****if you want to track these photons*******
+    //**********************************************
     Recorder->fID->push_back(theTrack->GetTrackID());
     Recorder->fL->push_back(aStep->GetStepLength()/cm);
     Recorder->fWaveL->push_back(1240/(theTrack->GetKineticEnergy()/eV));
-    */
+    
+    //**********************************************
+    //**********************************************
+
+    
+    
+    
     const G4VProcess *theProcess = fpSteppingManager->GetfCurrentProcess();
 
 	// for Muon (primary track)

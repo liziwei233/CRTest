@@ -144,6 +144,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
 	fFirstColID = 
 		rootData->CreateNtupleIColumn(ntupleID, "op.crkov");
+		rootData->CreateNtupleIColumn(ntupleID, "op.scint");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2a");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2gL");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2gR");
@@ -171,13 +172,14 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID, nCerenkov);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+1, nQuartz2Air);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+2, nQuartz2GlueL);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+3, nQuartz2GlueR);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+4, nWlsEmit);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nGlue2PMTL);
-    rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTR);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nDetectionL+nDetectionR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+1, nScintTotal);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+2, nQuartz2Air);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+3, nQuartz2GlueL);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+4, nQuartz2GlueR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nWlsEmit);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTL);
+    rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nGlue2PMTR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+8, nDetectionL+nDetectionR);
 }
 
 G4bool OpRecorder::Record(const G4Track* thePhoton)
