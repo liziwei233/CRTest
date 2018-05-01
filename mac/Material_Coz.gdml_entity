@@ -142,12 +142,12 @@
     <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
     <property name="BACKSCATTERCONSTANT" ref="OpWrapper_Quartz_BACKSCATTER"/>
     <property name="LAMBERTIANCONSTANT" ref="OpWrapper_Quartz_LAMBERTIAN"/>
-
+    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>
     <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />
     <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
     <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
     <property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />
-    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
+    -->
   </material>
  
 
