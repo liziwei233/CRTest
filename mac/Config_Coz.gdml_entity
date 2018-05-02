@@ -6,12 +6,12 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="10.1"/>
-<variable name="mediumY" value="10.1"/>
+<variable name="mediumX" value="13"/>
+<variable name="mediumY" value="13"/>
 <variable name="mediumZ" value="500"/>
 
-<variable name="SiPMX" value="6"/>
-<variable name="SiPMY" value="6"/>
+<variable name="SiPMX" value="3"/>
+<variable name="SiPMY" value="3"/>
 <variable name="interval " value="0.2"/>
 
 <variable name="SOZ" value="0.1"/>
