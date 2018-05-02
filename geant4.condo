@@ -10,7 +10,7 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Scint_L1000_thrd0_7
+RUN = Sur_SingleTier_ground
 
 #N_EVENT = 1 multiplay 8
 
@@ -27,7 +27,7 @@ Getenv = True
 
 Executable = $(EXE)
 
-Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/test.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
+Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
 
 Log = $(OUT_DIR)/log/condor_$(Cluster).log
 #Input = inputfile
