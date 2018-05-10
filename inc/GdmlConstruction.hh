@@ -15,8 +15,6 @@
 
 #include "G4VPhysicalVolume.hh"
 
-class G4UserLimits;
-
 class GdmlConstruction : public SysConstruction
 {
 public:
@@ -42,13 +40,11 @@ private:
 
 private:
     G4VPhysicalVolume* fWorldPV;
-	G4LogicalVolume* fRadianer;
 	G4LogicalVolume* fPmtL;
 	G4LogicalVolume* fPmtR;
 	G4LogicalVolume* fLightguide;
     G4VPhysicalVolume* flgPV;
 	G4GDMLParser* fGdml;
-	G4UserLimits* fStepLimit;  
 };
 
 #endif // CRTest_GdmlConstruction_h

@@ -13,11 +13,8 @@
 
 
  <!-- PMT -->
-<!--<tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />-->
-<box aunit="radian"  lunit="mm" name="pmtS" x="SiPMX" y="SiPMY" z="pmtZ" />
-
-<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="windowZ" />
-
+<tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+<!--<box aunit="radian"  lunit="mm" name="pmtS" x="mediumX" y="mediumY" z="pmtZ" />-->
 
  <!-- rectangular quartz -->
 <box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="mediumY" z="mediumZ" /> 
@@ -25,6 +22,9 @@
  <!-- lightguide -->
 <box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 
 
-<!-- optical glue -->
-<box aunit="radian" lunit="mm" name="SiOilS" x="mediumX" y="mediumY" z="SOZ" /> 
-<!-- <tube name="SiOilS" rmin="0" rmax="pmtR" z="SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />-->
+ <!-- end wrapper -->
+<box aunit="radian" lunit="mm" name="EWS" x="mediumX" y="mediumY" z="EWZ" /> 
+
+ <!-- optical glue -->
+ <tube name="SiOilS" rmin="0" rmax="pmtR" z="SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+ <!--<box aunit="radian"  lunit="mm" name="SiOilS" x="mediumX" y="mediumY" z="SOZ" />-->

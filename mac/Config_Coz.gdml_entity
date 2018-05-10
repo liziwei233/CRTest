@@ -4,30 +4,30 @@
 
 <!-- Units : mm, deg, g/cm3 -->
 
+<!-- Detector Configuration -->
+<variable name="detectorX" value="50" />
+<variable name="detectorY" value="50" />
+<variable name="detectorZ" value="1100" />
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="23"/>
-<variable name="mediumY" value="23"/>
-<variable name="mediumZ" value="500"/>
+<variable name="mediumX" value="15"/>
+<variable name="mediumY" value="15"/>
+<variable name="mediumZ" value="320"/>
 
-<variable name="SiPMX" value="23"/>
-<variable name="SiPMY" value="23"/>
-<variable name="interval " value="0.2"/>
 
-<variable name="SOZ" value="0.01"/>
-<variable name="pmtZ" value="0.1"/>
-<variable name="windowZ" value="1.5"/>
-<variable name="lgZ" value="38"/>
-
-<!-- Detector Configuration -->
-<variable name="detectorX" value="mediumX+0.01" />
-<variable name="detectorY" value="mediumY+0.01" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2" />
-
-<!-- PMT Configuration,R is radius
+<!-- PMT Configuration,R is radius-->
 <variable name="pmtZ" value="0.1"/>
 <variable name="pmtR" value="5"/>
+
+<!--
+<variable name="pmtZ" value="0.1"/>
 -->
+<!-- Placement -->
+<variable name="lgZ" value="38"/>
+
+<variable name="EWZ" value="0.1"/>
+
+<variable name="SOZ" value="0.5"/>
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
@@ -36,16 +36,10 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*10." />
-<variable name="worldY" value="detectorY*10." />
-<variable name="worldZ" value="detectorZ*4." />
+<variable name="worldX" value="detectorX*1.4" />
+<variable name="worldY" value="detectorY*1.4" />
+<variable name="worldZ" value="detectorZ*1.4" />
 
 <!-- Others-->
 <variable name="iDetector" value="0" />
-<constant name="detectorN" value="4" />
-<matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />
-
-<variable name="iSiPM" value="0" />
-<constant name="SiPMN" value="16" />
-<matrix name="SiPMPosX" coldim="1" values="-4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 " />
-<matrix name="SiPMPosY" coldim="1" values="-4.8 -4.8 -4.8 -4.8 -1.6 -1.6 -1.6 -1.6 1.6 1.6 1.6 1.6 4.8 4.8 4.8 4.8 " />
+<variable name="detectorN" value="2" />

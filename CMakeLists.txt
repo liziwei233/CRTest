@@ -14,8 +14,7 @@ if(DEFINED ROOTSYS AND NOT DEFINED ROOT_DIR)
 endif()
 find_package(ROOT REQUIRED)
 
-
-#Setup include directories for project
+# Setup include directories for project
 include(${Geant4_USE_FILE}
      ${ROOT_USE_FILE})
 # Locate source and headers for project
@@ -33,13 +32,11 @@ set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
 target_link_libraries(${PROJECT_NAME}
     ${Geant4_LIBRARIES}
     ${ROOT_LIBRARIES}
-    $ENV{CRYHOME}/lib/libCRY.a)
-  #/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libcadmesh.so
-#/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libassimp.so
-#/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libtet.so
-
+    $ENV{CRYHOME}/lib/libCRY.a
+   /media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libcadmesh.so
+/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libassimp.so
+/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libtet.so)
 
 # Add program to the project targets
 add_custom_target(LINK_MAC COMMAND ln -s -f ${PROJECT_SOURCE_DIR}/mac . )
 add_dependencies(${PROJECT_NAME} LINK_MAC)
-
