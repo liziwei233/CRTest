@@ -72,6 +72,7 @@ public:
     G4int nDebug; // use for debug
 
 	std::vector<int>* fID;
+	std::vector<double>* fGt;
 	std::vector<double>* fL;
 	std::vector<int>* fBounce;
 	std::vector<double>* fWaveL;

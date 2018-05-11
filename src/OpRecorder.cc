@@ -16,7 +16,7 @@ OpRecorder::OpRecorder()
       nBoundaryAbsorption(0), nBoundaryTransmission(0),
       nFresnelReflection(0),nTotalInternalReflection(0),nLambertianReflection(0),
       nLobeReflection(0),nSpikeReflection(0),nBackScattering(0),nBoundaryRefraction(0),
-      nDebug(0),fID(NULL),fL(NULL),fBounce(NULL),fWaveL(NULL)
+      nDebug(0),fID(NULL),fGt(NULL),fL(NULL),fBounce(NULL),fWaveL(NULL)
 {
 	boundaryName = "NULL";
     fCount = new std::vector<double>;
@@ -30,6 +30,7 @@ OpRecorder::OpRecorder()
 	fPZ = new std::vector<double>;
 
 	fID = new std::vector<int>;
+	fGt = new std::vector<double>;
 	fL = new std::vector<double>;
 	fWaveL = new std::vector<double>;
 	fBounce = new std::vector<int>;
@@ -47,6 +48,7 @@ OpRecorder::~OpRecorder() {
 	fPZ->clear();delete fPZ;
 
 	fID->clear();delete fID;
+	fGt->clear();delete fGt;
 	fL->clear();delete fL;
 	fWaveL->clear();delete fWaveL;
 	fBounce->clear();delete fBounce;
@@ -98,6 +100,7 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fPZ);
 
 	std::vector<int>().swap(*fID);
+	std::vector<double>().swap(*fGt);
 	std::vector<double>().swap(*fL);
 	std::vector<double>().swap(*fWaveL);
 	std::vector<int>().swap(*fBounce);
@@ -147,6 +150,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->CreateNtupleIColumn(ntupleID, "op.det");
 
 	rootData->CreateNtupleIColumn(ntupleID, "op.ID",*fID);
+	rootData->CreateNtupleDColumn(ntupleID, "op.Gt",*fGt);
 	rootData->CreateNtupleDColumn(ntupleID, "op.L",*fL);
 	rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
