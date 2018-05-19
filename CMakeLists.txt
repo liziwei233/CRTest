@@ -20,7 +20,7 @@ include(${Geant4_USE_FILE}
      ${ROOT_USE_FILE})
 # Locate source and headers for project
 include_directories(${PROJECT_SOURCE_DIR}/inc
-/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/include
+$ENV{CADmeshPATH}/include
     ${Geant4_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIRS}
     $ENV{CRYHOME}/src)
@@ -33,10 +33,10 @@ set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
 target_link_libraries(${PROJECT_NAME}
     ${Geant4_LIBRARIES}
     ${ROOT_LIBRARIES}
-    $ENV{CRYHOME}/lib/libCRY.a)
-  #/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libcadmesh.so
-#/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libassimp.so
-#/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/lib/libtet.so
+    $ENV{CRYHOME}/lib/libCRY.a
+$ENV{CADmeshPATH}/lib/libcadmesh.so
+$ENV{CADmeshPATH}/lib/libassimp.so
+$ENV{CADmeshPATH}/lib/libtet.so)
 
 
 # Add program to the project targets
