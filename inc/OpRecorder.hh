@@ -23,10 +23,8 @@ enum OpPhotonType{
 	Quartz2GlueR,
 	Glue2PmtL,
 	Glue2PmtR,
-	CathodL,
-	CathodR,
-	DetectedL,
-	DetectedR
+	GlueRef,
+	Detected
 };
 
 class OpRecorder : public VirtualRecorder{
@@ -56,10 +54,7 @@ public:
     G4int nWlsEmit;
     G4int nGlue2PMTL;
 	G4int nGlue2PMTR;
-	G4int nCathodL;
-	G4int nCathodR;
-	G4int nDetectionL; // Detected by PmtSD
-	G4int nDetectionR;
+	G4int nDetection; // Detected by PmtSD
 // For deatil probe
     
     G4int nBoundaryRefraction;
@@ -77,6 +72,7 @@ public:
     G4int nDebug; // use for debug
 
 	std::vector<int>* fID;
+	std::vector<double>* fGt;
 	std::vector<double>* fL;
 	std::vector<int>* fBounce;
 	std::vector<double>* fWaveL;

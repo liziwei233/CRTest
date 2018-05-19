@@ -40,79 +40,15 @@
   <composite n="1" ref="Silicon" />
   <property name="RINDEX" ref="SiO2_RINDEX"/>
   <property name="ABSLENGTH" ref="SiO2_ABSLENGTH"/>
-  <property name="TRANSMITTANCE" ref="SiO2_TRANSMITTANCE"/>
-</material>
-
-<!-- Scintillator -->
-<material formula=" " name="EJ200_PVT" >
-  <D value="1.023" />
-  <composite n="517" ref="Hydrogen" />
-  <composite n="469" ref="Carbon" />
-  <property name="RINDEX" ref="EJ200_RINDEX"/>
-  <property name="SCINTILLATIONYIELD" ref="EJ200_SCINTILLATIONYIELD"/>
-  <property name="FASTCOMPONENT" ref="EJ200_FASTCOMPONENT"/>
-  <property name="FASTTIMECONSTANT" ref="EJ200_FASTTIMECONSTANT"/>
-  <property name="ABSLENGTH" ref="EJ200_ABSLENGTH"/>
-  <property name="RESOLUTIONSCALE" ref="EJ200_RESOLUTIONSCALE"/>
-</material>
-<material formula=" " name="EJ230_PVT" >
-  <D value="1.023" />
-  <composite n="517" ref="Hydrogen" />
-  <composite n="469" ref="Carbon" />
-  <property name="RINDEX" ref="EJ230_RINDEX"/>
-  <property name="SCINTILLATIONYIELD" ref="EJ230_SCINTILLATIONYIELD"/>
-  <property name="FASTCOMPONENT" ref="EJ230_FASTCOMPONENT"/>
-  <property name="FASTTIMECONSTANT" ref="EJ230_FASTTIMECONSTANT"/>
-  <property name="ABSLENGTH" ref="EJ230_ABSLENGTH"/>
-  <property name="RESOLUTIONSCALE" ref="EJ230_RESOLUTIONSCALE"/>
-</material>
-<material formula=" " name="BC408_PVT" >
-  <D value="1.32" />
-  <composite n="11" ref="Hydrogen" />
-  <composite n="10" ref="Carbon" />
-  <property name="RINDEX" ref="BC408_RINDEX"/>
-  <property name="SCINTILLATIONYIELD" ref="BC408_SCINTILLATIONYIELD"/>
-  <property name="FASTCOMPONENT" ref="BC408_FASTCOMPONENT"/>
-  <property name="FASTTIMECONSTANT" ref="BC408_FASTTIMECONSTANT"/>
-  <property name="ABSLENGTH" ref="BC408_ABSLENGTH"/>
-  <property name="RESOLUTIONSCALE" ref="BC408_RESOLUTIONSCALE"/>
-</material>
-<material formula=" " name="BC420_PVT" >
-  <D value="1.32" />
-  <composite n="11" ref="Hydrogen" />
-  <composite n="10" ref="Carbon" />
-  <property name="RINDEX" ref="BC420_RINDEX"/>
-  <property name="SCINTILLATIONYIELD" ref="BC420_SCINTILLATIONYIELD"/>
-  <property name="FASTCOMPONENT" ref="BC420_FASTCOMPONENT"/>
-  <property name="FASTTIMECONSTANT" ref="BC420_FASTTIMECONSTANT"/>
-  <property name="ABSLENGTH" ref="BC420_ABSLENGTH"/>
-  <property name="RESOLUTIONSCALE" ref="BC420_RESOLUTIONSCALE"/>
-</material>
-
-
-
-<!--SiPM window -->
-<material formula=" " name="Resin" >
-  <D value="1.25" />
-  <fraction n="0.74" ref="Carbon" />
-  <fraction n="0.07" ref="Hydrogen" />
-  <fraction n="0.08" ref="Nitrogen" />
-  <fraction n="0.11" ref="Oxygen" />
-
-  <property name="RINDEX" ref="Resin_RINDEX"/>
-  <property name="EFFICIENCY" ref="Resin_EFFICIENCY" />
-  <property name="ABSLENGTH" ref="Resin_ABSLENGTH" />
-  
-
+  <property name="TRANSMITTANCE" ref="SiO2_REFLECTIVITY"/>
 </material>
 
 <!-- photocathod -->
-
 <material formula=" " name="Metal" >
   <D value="3.0" />
   <composite n="3" ref="Cesium" />
   <composite n="2" ref="Tellurium" />
-  <property name="EFFICIENCY" ref="PMT_3805U_EFFICIENCY" />
+  <property name="EFFICIENCY" ref="OpBorder_PMT_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
@@ -137,17 +73,15 @@
     <fraction n="0.3" ref="Oxygen" />
     <property name="REFLECTIVITY" ref="OpWrapper_Quartz_REFLECTIVITY" />
     <property name="EFFICIENCY" ref="OpWrapper_Quartz_EFFICIENCY" />
+    <!--<property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />-->
+    <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />-->
     
     <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
     <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
     <property name="BACKSCATTERCONSTANT" ref="OpWrapper_Quartz_BACKSCATTER"/>
     <property name="LAMBERTIANCONSTANT" ref="OpWrapper_Quartz_LAMBERTIAN"/>
 
-    <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />
-    <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
-    <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
-    <property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />
-    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
+    <!--<property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
   </material>
  
 
@@ -167,35 +101,38 @@
     <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
 </material>
 
-<material name="OpBorder_R10754">
+  <material name="OpBorder_PMT">
+    <D value="0.00129" />
+    <fraction n="0.7" ref="Nitrogen" />
+    <fraction n="0.3" ref="Oxygen" />
+    <property name="EFFICIENCY" ref="OpBorder_PMT_EFFICIENCY" />
+    <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+    <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+  </material>
+
+<material name="OpBorder_PMT_R5610A">
   <D value="0.00129" />
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />
-  <property name="EFFICIENCY" ref="PMT_R10754_EFFICIENCY" />
-  
-  <!--<property name="EFFICIENCY" ref="TOPMCP_EFFICIENCY" />-->
+  <property name="EFFICIENCY" ref="PMT_R5610A_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
 
-
-<material name="OpBorder_3805U">
+<material name="OpBorder_PMT_R7546">
   <D value="0.00129" />
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />
-  <property name="EFFICIENCY" ref="PMT_3805U_EFFICIENCY" />
-  
-  <!--<property name="EFFICIENCY" ref="TOPMCP_EFFICIENCY" />-->
+  <property name="EFFICIENCY" ref="PMT_R7546_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
 
-<material name="OpBorder_SiPM">
+<material name="OpBorder_MCP">
   <D value="0.00129" />
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />
-  <property name="EFFICIENCY" ref="S13360_3050_EFFICIENCY" />
+  <property name="EFFICIENCY" ref="MCP_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
-

@@ -30,20 +30,6 @@
 <structure>
   &Slab;
 
-<!--
-  <volume name="World">
-    <materialref ref="AIR" />
-    <solidref ref="worldS" />
-    <loop for="iDetector" to="detectorN-1" step="1">
-      <physvol copynumber="iDetector">
-          <volumeref ref="Detector" />
-	  <position y="detectorPosY[iDetector+1]"/>
-      </physvol>
-    </loop>
-  </volume>
--->
-
-
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -52,62 +38,99 @@
       </physvol>
   </volume>
 
-  <!--<skinsurface name="det_skin" surfaceproperty="det_surf" >
+  <!--<volume name="World">
+    <materialref ref="AIR" />
+    <solidref ref="worldS" />
+    <loop for="iDetector" to="detectorN-1" step="1">
+      <physvol copynumber="iDetector">
+          <volumeref ref="Detector" />
+          <position z="detectorPosZ[iDetector+1]" />
+      </physvol>
+    </loop>
+  </volume>-->
+
+
+  <!-- temporarily useless code!
+  <skinsurface name="det_skin" surfaceproperty="det_surf" >
     <volumeref ref="Detector"/>
-  </skinsurface>-->
+  </skinsurface>
 
-  <!--<skinsurface name="medium_skin" surfaceproperty="quartz_surf" >
+  <skinsurface name="medium_skin" surfaceproperty="quartz_surf" >
     <volumeref ref="medium"/>
-  </skinsurface>-->
+  </skinsurface>
 
-  <!--<skinsurface name="lgL_skin" surfaceproperty="quartz_surf" >
+  <skinsurface name="lgL_skin" surfaceproperty="quartz_surf" >
     <volumeref ref="lightguide_left"/>
   </skinsurface>
     <skinsurface name="lgR_skin" surfaceproperty="quartz_surf" >
     <volumeref ref="lightguide_right"/>
   </skinsurface>
 
-  <bordersurface name="lgR_border" surfaceproperty="lg_surf" >
-    <physvolref ref="medium_PV"/>
-    <physvolref ref="lightguide_right_PV"/>
-  </bordersurface>
 
-  <bordersurface name="lgL_border" surfaceproperty="lg_surf" >
-    <physvolref ref="medium_PV"/>
-    <physvolref ref="lightguide_left_PV"/>
-  </bordersurface>-->
 
-  <!--<bordersurface name="lg_border" surfaceproperty="lg_surf" >
+  <bordersurface name="lg_border" surfaceproperty="lg_surf" >
     <physvolref ref="lightguide_PV"/>
     <physvolref ref="medium_PV"/>
   </bordersurface>-->
-<!--
-  <bordersurface name="medium_border" surfaceproperty="scint_surf" >
+
+ 
+ 
+ 
+ 
+  <!--<bordersurface name="medium_border" surfaceproperty="quartz_surf" >
     <physvolref ref="medium_PV"/>
     <physvolref ref="Detector_PV"/>
+  </bordersurface>-->
+
+
+  <bordersurface name="lgL_border" surfaceproperty="quartz_surf" >
+    <physvolref ref="lightguide_left_PV"/>
+    <physvolref ref="Detector_PV"/>  
   </bordersurface>
--->
-  <skinsurface name="skin" surfaceproperty="Al_surf">
-	<volumeref ref="Detector"/>
-  </skinsurface>
+
+  <bordersurface name="lgR_border" surfaceproperty="quartz_surf" >
+    <physvolref ref="lightguide_right_PV"/>
+    <physvolref ref="Detector_PV"/>  
+  </bordersurface>
+
+  <bordersurface name="endL_border" surfaceproperty="end_surf" >
+    <physvolref ref="lightguide_left_PV"/>
+    <physvolref ref="EW_left_PV"/>  
+  </bordersurface>
+
+  <bordersurface name="endR_border" surfaceproperty="end_surf" >
+    <physvolref ref="lightguide_right_PV"/>
+    <physvolref ref="EW_right_PV"/>  
+  </bordersurface>
 
 <!--
-  <bordersurface name="SOL_border" surfaceproperty="scint_surf" >
+  <bordersurface name="LGSOL_border" surfaceproperty="lg_surf" >
+    <physvolref ref="SO_left_PV"/>
+    <physvolref ref="lightguide_left_PV"/>  
+  </bordersurface>
+
+  <bordersurface name="LGSOR_border" surfaceproperty="lg_surf" >
+    <physvolref ref="SO_right_PV"/>
+    <physvolref ref="lightguide_right_PV"/>  
+  </bordersurface>
+-->
+  <bordersurface name="SOL_border" surfaceproperty="quartz_surf" >
     <physvolref ref="SO_left_PV"/>
     <physvolref ref="Detector_PV"/>  
   </bordersurface>
 
-  <bordersurface name="SOR_border" surfaceproperty="scint_surf" >
+  <bordersurface name="SOR_border" surfaceproperty="quartz_surf" >
     <physvolref ref="SO_right_PV"/>
     <physvolref ref="Detector_PV"/>  
   </bordersurface>
--->
+
+
   <bordersurface name="pmtL_border" surfaceproperty="photocath" >
-    <physvolref ref="Window_left_PV"/>
+    <physvolref ref="SO_left_PV"/>
     <physvolref ref="PMT_left_PV"/>
   </bordersurface>
   <bordersurface name="pmtR_border" surfaceproperty="photocath" >
-    <physvolref ref="Window_right_PV"/>
+    <physvolref ref="SO_right_PV"/>
     <physvolref ref="PMT_right_PV"/>
   </bordersurface>
 
@@ -121,60 +144,88 @@
         <auxiliary auxtype="LVname" auxvalue="Detector" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>-->
-      <auxiliary auxtype="Skin" auxvalue="MediumWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
-        <!--<auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />-->
-        <auxiliary auxtype="LVname" auxvalue="Detector" />
+      <!--<auxiliary auxtype="Skin" auxvalue="MediumWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
+        <auxiliary auxtype="LVname" auxvalue="medium" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>
+      </auxiliary>-->
+      
       <!--<auxiliary auxtype="Border" auxvalue="MediumWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="scint_surf"/>
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
+      </auxiliary>-->
+
+      <auxiliary auxtype="Border" auxvalue="LGLWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_left_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+      </auxiliary>
+
+      <auxiliary auxtype="Border" auxvalue="LGRWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+      </auxiliary>
+
+      <auxiliary auxtype="Border" auxvalue="ENDLWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="end_surf" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_left_PV" />
+        <auxiliary auxtype="PVname" auxvalue="EW_left_PV" />
+        <auxiliary auxtype="Material" auxvalue="endWrapper_Quartz" />
+      </auxiliary>
+
+      <auxiliary auxtype="Border" auxvalue="ENDRWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="end_surf" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
+        <auxiliary auxtype="PVname" auxvalue="EW_right_PV" />
+        <auxiliary auxtype="Material" auxvalue="endWrapper_Quartz" />
+      </auxiliary>
+<!--
+      <auxiliary auxtype="Border" auxvalue="LGSOLBorder">
+        <auxiliary auxtype="SurfaceName" auxvalue="lg_surf" />
+        <auxiliary auxtype="PVname" auxvalue="SO_left_PV" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_left_PV" />
+        <auxiliary auxtype="Material" auxvalue="EJ500" />
+      </auxiliary>
+
+      <auxiliary auxtype="Border" auxvalue="LGSORBorder">
+        <auxiliary auxtype="SurfaceName" auxvalue="lg_surf" />
+        <auxiliary auxtype="PVname" auxvalue="SO_right_PV" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
+        <auxiliary auxtype="Material" auxvalue="EJ500" />
       </auxiliary>
 -->
-<!--
       <auxiliary auxtype="Border" auxvalue="SOLWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="scint_surf" />
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
         <auxiliary auxtype="PVname" auxvalue="SO_left_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="SORWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="scint_surf" />
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
         <auxiliary auxtype="PVname" auxvalue="SO_right_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
--->
-      <!--<auxiliary auxtype="Skin" auxvalue="LGLWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
-        <auxiliary auxtype="LVname" auxvalue="lightguide_left" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>
 
-      <auxiliary auxtype="Skin" auxvalue="LGRWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf" />
-        <auxiliary auxtype="LVname" auxvalue="lightguide_right" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>
-
-      <auxiliary auxtype="Border" auxvalue="LGRBorder">
+      <!--<auxiliary auxtype="Border" auxvalue="LGRBorder">
         <auxiliary auxtype="SurfaceName" auxvalue="lg_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
         <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
+        <auxiliary auxtype="Material" auxvalue="SiO2"/>
       </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="LGLBorder">
         <auxiliary auxtype="SurfaceName" auxvalue="lg_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
         <auxiliary auxtype="PVname" auxvalue="lightguide_left_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
+        <auxiliary auxtype="Material" auxvalue="SiO2"/>
       </auxiliary>-->
-
 
       <!--<auxiliary auxtype="Border" auxvalue="LGBorder">
         <auxiliary auxtype="SurfaceName" auxvalue="lg_surf"/>
@@ -185,15 +236,15 @@
 
       <auxiliary auxtype="Border" auxvalue="PhotocathodeL">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
-        <auxiliary auxtype="PVname" auxvalue="Window_left_PV" />
+        <auxiliary auxtype="PVname" auxvalue="SO_left_PV" />
         <auxiliary auxtype="PVname" auxvalue="PMT_left_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP"/>
       </auxiliary>
       <auxiliary auxtype="Border" auxvalue="PhotocathodeR">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
-        <auxiliary auxtype="PVname" auxvalue="Window_right_PV" />
+        <auxiliary auxtype="PVname" auxvalue="SO_right_PV" />
         <auxiliary auxtype="PVname" auxvalue="PMT_right_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP"/>
       </auxiliary>
     </auxiliary>
 

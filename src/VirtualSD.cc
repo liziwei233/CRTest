@@ -74,7 +74,7 @@ int VirtualSD::CalculateCopyNo(const G4StepPoint* thePoint){
     G4TouchableHistory* touchable
 		= (G4TouchableHistory*)(thePoint->GetTouchable());
 	int factor = 1;
-	for(int i = 0 ; i < fNphysvol->size() ; i++){
+	for(int i = 0 ; i < 1 ; i++){
 		G4VPhysicalVolume* thePV = touchable->GetVolume(i);
 		if(thePV->GetName() == "World_PV")
 			break;

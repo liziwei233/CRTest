@@ -5,23 +5,13 @@
   
 <matrix name="AIR_RINDEX" coldim="2" values="2.91*eV 1.00" />
 
-
-<matrix name="Resin_RINDEX" coldim="2" values="2.7*eV	1.55"/>
-<matrix name="Resin_EFFICIENCY" coldim="2" values="2.7*eV	1.0"/>
-<matrix name="Resin_ABSLENGTH" coldim="2" values="3.875*eV 15*cm
-1.38*eV	46.6628*cm"/>
 <!-- Quartz -->
 <variable name="SiO2_Density" value="2.2" />
-<!--<matrix name="SiO2_RINDEX" coldim="2" values="4.14*eV	1.488
-3.55*eV	1.477
-3.11*eV	1.47
-2.76*eV	1.466
-2.48*eV	1.462
-2.26*eV	1.46
-2.07*eV	1.458
-1.91*eV	1.456" />-->
-
-<matrix name="SiO2_RINDEX" coldim="2" values="6.212*eV	1.55
+<matrix name="SiO2_RINDEX" coldim="2" values="7.765*eV	1.647
+7.308*eV	1.61
+6.902*eV	1.585
+6.539*eV	1.565
+6.212*eV	1.55
 5.916*eV	1.538
 5.647*eV	1.528
 4.97*eV	1.507
@@ -31,9 +21,7 @@
 2.76*eV	1.466
 2.48*eV	1.462
 2.26*eV	1.46
-2.07*eV	1.458
-1.91*eV	1.456" />
-
+2.07*eV	1.458" />
 <!--<matrix name="SiO2_ABSLENGTH" coldim="2" values="2.91*eV 380.*cm" />-->
 <!--relationship between wavelength and energy is lambda(A)*energy(eV)=12400
     7.765eV = 160nm
@@ -59,10 +47,10 @@
 1.77*eV	50.6*cm
 1.66*eV	49.7*cm
 1.55*eV	53.1*cm"/>-->
-
+<!--ideal 
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.21*eV 50000*cm
 3.54*eV	50000*cm
-1.24*eV	50000*cm" />
+1.24*eV	50000*cm" />-->
 <!--TOP
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.9*eV 5*cm
 6.52*eV 50*cm
@@ -76,213 +64,25 @@
 3.5428571429*eV	100000*cm
 1.24*eV	100000*cm"/>
 -->
-<!--domestic
+<!--domestic-->
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.526315789*eV	12.6764*cm
 6.2*eV	12.0358*cm
 5.904761905*eV	13.2417*cm
 5.636363636*eV	15.6426*cm
 4.96*eV	33.891*cm
-4.133333333*eV	60.0405*cm
+4.133333333*eV	36.0405*cm
 3.542857143*eV	130.9307*cm
 3.1*eV	250.248*cm
 2.755555556*eV	576.385*cm
-2.48*eV	361.799*cm
 2.254545455*eV	607.863*cm
 2.066666667*eV	882.354*cm
 1.907692308*eV	1605.91*cm
 1.771428571*eV	3787.745*cm
 1.653333333*eV	8834.69*cm
 1.55*eV	16669.157*cm"/>
--->
 
 <matrix name="SiO2_TRANSMITTANCE" coldim="2" values="2.91*eV 1.0"/>
-
-
-<!-- Scintillator BC-408 -->
-<variable name="BC408_Density" value="1.032" />
-<matrix name="BC408_RINDEX" coldim="2" values="2.76*eV	1.58" />
-<matrix name="BC408_SCINTILLATIONYIELD" coldim="1" values="9700/MeV" />
-<matrix name="BC408_FASTCOMPONENT" coldim="2" values="3.43918*eV	0.02727
-  3.34937*eV	0.04141
-  3.27122*eV	0.06364
-  3.18701*eV	0.10606
-  3.16761*eV	0.12626
-  3.14202*eV	0.14848
-  3.10187*eV	0.21919
-  3.08392*eV	0.26768
-  3.01059*eV	0.61919
-  3.00249*eV	0.66067
-  2.98445*eV	0.78384
-  2.96619*eV	0.86818
-  2.93994*eV	0.9202
-  2.92103*eV	0.96869
-  2.91363*eV	0.98485
-  2.89801*eV	0.99949
-  2.85856*eV	0.92626
-  2.82658*eV	0.74747
-  2.80774*eV	0.6399
-  2.78854*eV	0.58485
-  2.77877*eV	0.55885
-  2.76781*eV	0.53636
-  2.69549*eV	0.38687
-  2.67612*eV	0.33838
-  2.64113*eV	0.24949
-  2.58189*eV	0.16667
-  2.54507*eV	0.12828
-  2.51557*eV	0.09949
-  2.47874*eV	0.07374
-  2.43714*eV	0.04747
-  2.39325*eV	0.02929" />
-<!--<matrix name="BC408_YIELDRATIO" coldim="1" values="0.27/MeV" />-->
-<matrix name="BC408_ABSLENGTH" coldim="2" values="2.91*eV 210.*cm" />
-<matrix name="BC408_FASTTIMECONSTANT" coldim="1" values="2.1*ns" />
-<matrix name="BC408_SLOWTIMECONSTANT" coldim="1" values="14.2*ns" />
-<matrix name="BC408_RESOLUTIONSCALE" coldim="1" values="1." />
-
-<variable name="BC420_Density" value="1.032" />
-<matrix name="BC420_RINDEX" coldim="2" values="2.76*eV	1.58" />
-<matrix name="BC420_SCINTILLATIONYIELD" coldim="1" values="9700/MeV" />
-<matrix name="BC420_FASTCOMPONENT" coldim="2" values="3.5418*eV	0.0046
-3.4367*eV	0.1019
-3.3992*eV	0.2037
-3.3625*eV	0.3997
-3.3348*eV	0.5957
-3.3022*eV	0.7978
-3.2914*eV	0.8472
-3.2755*eV	0.8935
-3.257*eV	0.9244
-3.2414*eV	0.9398
-3.2233*eV	0.9491
-3.1954*eV	0.9367
-3.1878*eV	0.929
-3.1803*eV	0.9182
-3.1728*eV	0.9105
-3.1679*eV	0.8951
-3.158*eV	0.8688
-3.1482*eV	0.8395
-3.1409*eV	0.8256
-3.136*eV	0.8117
-3.1312*eV	0.7978
-3.1215*eV	0.7716
-3.1095*eV	0.7515
-3.0976*eV	0.7022
-3.0835*eV	0.6559
-3.0765*eV	0.6327
-3.0648*eV	0.5988
-3.0533*eV	0.5586
-3.0259*eV	0.5
-3.0124*eV	0.4614
-2.9858*eV	0.3997
-2.9639*eV	0.341
-2.936*eV	0.2948
-2.9107*eV	0.25
-2.8817*eV	0.2052
-2.8613*eV	0.1775
-2.8274*eV	0.1435
-2.7846*eV	0.1034
-2.7173*eV	0.0617
-2.6867*eV	0.0509
-2.6602*eV	0.0386
-2.6292*eV	0.034
-2.5626*eV	0.017
-2.5071*eV	0.0077
-2.478*eV	0.0031" />
-<matrix name="BC420_ABSLENGTH" coldim="2" values="2.91*eV 140.*cm" />
-<matrix name="BC420_FASTTIMECONSTANT" coldim="1" values="1.5*ns" />
-<matrix name="BC420_RESOLUTIONSCALE" coldim="1" values="1." />
-
-<!-- Scintillator EJ-200 -->
-<variable name="EJ230_Density" value="1.023" />
-<matrix name="EJ230_RINDEX" coldim="2" values="2.91*eV 1.58" />
-<matrix name="EJ230_FASTCOMPONENT" coldim="2" values="3.5429*eV	0
-3.5016*eV	0.0099
-3.4747*eV	0.023
-3.4415*eV	0.0395
-3.4176*eV	0.0658
-3.3898*eV	0.125
-3.3645*eV	0.1875
-3.3479*eV	0.2434
-3.3314*eV	0.3257
-3.3212*eV	0.3947
-3.309*eV	0.4803
-3.2989*eV	0.5461
-3.2829*eV	0.6612
-3.273*eV	0.7336
-3.2632*eV	0.7961
-3.2436*eV	0.8914
-3.2147*eV	0.9572
-3.2014*eV	0.977
-3.1566*eV	0.9901
-3.1438*eV	0.977
-3.1275*eV	0.9539
-3.1077*eV	0.9145
-3.0847*eV	0.8586
-3.0794*eV	0.8388
-3.0637*eV	0.7796
-3.0465*eV	0.7204
-3.0278*eV	0.6546
-3.0026*eV	0.5724
-2.9729*eV	0.4868
-2.9358*eV	0.3882
-2.8827*eV	0.2862
-2.8314*eV	0.2007
-2.792*eV	0.148
-2.7565*eV	0.1086
-2.7164*eV	0.0855
-2.6867*eV	0.0625
-2.5978*eV	0.0362
-2.5792*eV	0.0329
-2.5286*eV	0.0164
-2.5018*eV	0.0099" />
-<matrix name="EJ230_ABSLENGTH" coldim="2" values="2.91*eV 120.*cm" />
-<matrix name="EJ230_SCINTILLATIONYIELD" coldim="1" values="9700/MeV" />
-<matrix name="EJ230_FASTTIMECONSTANT" coldim="1" values="1.5*ns" />
-<matrix name="EJ230_RESOLUTIONSCALE" coldim="1" values="1." />
-
-<!-- Scintillator EJ-200 -->
-<variable name="EJ200_Density" value="1.023" />
-<matrix name="EJ200_RINDEX" coldim="2" values="2.91*eV 1.58" />
-<matrix name="EJ200_FASTCOMPONENT" coldim="2" values="3.1344*eV	0.00
-  3.10754*eV	0.0087
-  3.0839*eV	0.02435
-  3.06512*eV	0.06609
-  3.05289*eV	0.12174
-  3.04077*eV	0.17739
-  3.01857*eV	0.29565
-  3.00758*eV	0.35826
-  2.99744*eV	0.44696
-  2.98288*eV	0.55652
-  2.96924*eV	0.6887
-  2.96378*eV	0.74957
-  2.939*eV	0.93565
-  2.93295*eV	0.96348
-  2.92445*eV	0.97913
-  2.91853*eV	0.98783
-  2.9085*eV	0.99304
-  2.90434*eV	0.99304
-  2.88632*eV	0.96522
-  2.86616*eV	0.92174
-  2.84081*eV	0.85217
-  2.83226*eV	0.81391
-  2.79845*eV	0.68696
-  2.7639*eV	0.57043
-  2.72934*eV	0.49043
-  2.69339*eV	0.43304
-  2.67298*eV	0.4
-  2.64541*eV	0.3287
-  2.62446*eV	0.26609
-  2.60577*eV	0.22261
-  2.59256*eV	0.19652
-  2.58344*eV	0.1687
-  2.55948*eV	0.13739
-  2.53596*eV	0.10609
-  2.50728*eV	0.07652
-  2.48165*eV	0.05391" />
-<matrix name="EJ200_ABSLENGTH" coldim="2" values="2.91*eV 380.*cm" />
-<matrix name="EJ200_SCINTILLATIONYIELD" coldim="1" values="10000/MeV" />
-<matrix name="EJ200_FASTTIMECONSTANT" coldim="1" values="2.1*ns" />
-<matrix name="EJ200_RESOLUTIONSCALE" coldim="1" values="1." />
-
+<matrix name="SiO2_REFLECTIVITY" coldim="2" values="2.6*eV 1.0"/>
 
 <!-- Medium Wrapper -->
 <matrix name="OpWrapper_Quartz_ROUGHNESS" coldim="1" values="0.0"/>
@@ -291,15 +91,21 @@
 <matrix name="OpWrapper_Quartz_BACKSCATTER" coldim="2" values="2.6*eV 0.0"/>  
 <matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.0"/>
 <!--<matrix name="OpWrapper_Quartz_RINDEX" coldim="2" values="2.6*eV 1.48"/>-->
+<!--<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="1" values="1"/>-->
+<!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.91*eV 0.9"/>-->
 <matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.997"/>
 <!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0.003"/>-->
 <matrix name="OpWrapper_Quartz_EFFICIENCY" coldim="2" values="2.6*eV 1.0"/>
   <!--Tyvek-->
 
+
+
 <!-- Medium-end Wrapper -->
 <matrix name="endWrapper_Quartz_ROUGHNESS" coldim="1" values="0.01"/>
+
 <matrix name="endWrapper_Quartz_SPIKE" coldim="1" values="0.7"/>  
 <matrix name="endWrapper_Quartz_LOBE" coldim="1" values="0.3"/>
+
 <matrix name="endWrapper_Quartz_RINDEX" coldim="2" values="2.91*eV 1.15"/>
 <!--<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="1" values="1"/>-->
 <!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.91*eV 0.9"/>-->
@@ -311,12 +117,9 @@
 
 
 <!-- Optical Cement -->
-<matrix name="EJ500_RINDEX" coldim="2" values="6.212*eV 1.40
-5.647*eV	1.40
-4.97*eV	1.40
-2.76*eV	1.40
-1.91*eV	1.40" />
-<matrix name="EJ500_REFLECTIVITY" coldim="2" values="2.6*eV 0.0"/>
+<matrix name="Optical_Cement_RINDEX" coldim="2" values="2.91*eV 1.58" />
+<matrix name="EJ500_RINDEX" coldim="2" values="2.91*eV 1.40" />
+<matrix name="EJ500_REFLECTIVITY" coldim="2" values="2.6*eV 0.9"/>
 <matrix name="EJ500_TRANSMITTANCE" coldim="2" values="2.6*eV 0.1"/>
 <matrix name="EJ500_EFFICIENCY" coldim="2" values="2.6*eV 1.0"/>
 <matrix name="EJ500_ABSLENGTH" coldim="2" values="9.538461538*eV	0.644172*cm
@@ -381,145 +184,19 @@
   1.87936*eV	0.00178439
   1.79663*eV	0.000188044"/>-->
 
-  <matrix name="PMT_3805U_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
-  7.1*eV 0.10       
+  <matrix name="PMT_R5610A_EFFICIENCY" coldim="2" values="5*eV	1.
+  1*eV	1."/>
+  <matrix name="MCP_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
+  7.1*eV 0.10   
   6.212*eV 0.25
   4.14*eV 0.25
   3.11*eV	0.25
   2.48*eV 0.10
   1.653*eV 0.01"/>
-
-  <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
-  7.1*eV 0.10       
-  6.212*eV 0.25
-  4.14*eV 0.25
-  3.11*eV	0.25
-  2.48*eV 0.10
-  1.653*eV 0.01"/>
-
-  <matrix name="LOWMCP_EFFICIENCY" coldim="2" values="4.6323795861*eV	0.0981723
-4.455191196*eV 0.136815
-4.3137636892*eV	0.176501
-4.1596919144*eV	0.18799
-4.0162593726*eV	0.193211
-3.9009535315*eV	0.194256
-3.7920953162*eV	0.192167
-3.63973653*eV	0.18799
-3.5447814528*eV	0.193211
-3.3970834395*eV	0.190078
-3.3551417547*eV	0.18799
-3.2742991283*eV	0.183812
-3.1972524257*eV	0.183812
-3.1237561656*eV	0.179634
-3.0650356063*eV	0.177546
-2.9864477889*eV	0.173368
-2.9117823865*eV	0.168146
-2.8407659071*eV	0.158747
-2.7825962071*eV	0.150392
-2.735905673*eV 0.14517
-2.6731166384*eV	0.138903
-2.5800652507*eV	0.123238
-2.5086132426*eV	0.115927
-2.4192856084*eV	0.104439
-2.3909099148*eV	0.0992167"/>
-
-
-
-<matrix name="TOPMCP_EFFICIENCY" coldim="2" values="3.9009535315*eV	0.105483
-3.7920953162*eV	0.130548
-3.6725180146*eV	0.155614
-3.5447814528*eV	0.182768
-3.38298685*eV	0.215144
-3.1972524257*eV	0.259008
-3.111832744*eV 0.277807
-3.0421609156*eV	0.301828
-2.9433197323*eV	0.330026
-2.8607022563*eV	0.348825
-2.7176652625*eV	0.371802
-2.5557999138*eV	0.381201
-2.4264862718*eV	0.378068
-2.3161941195*eV	0.37389
-2.246006546*eV 0.36658
-2.1683515108*eV	0.354047
-2.1121770413*eV	0.345692
-2.0484931185*eV	0.339426
-2.0130850528*eV	0.328982
-1.9933992763*eV	0.31436
-1.9551544335*eV	0.293473
-1.9365801244*eV	0.276762
-1.9049052847*eV	0.259008
-1.8742527551*eV	0.241253
-1.8445710852*eV	0.226632
-1.8239371154*eV	0.213055
-1.7918686734*eV	0.203655
-1.7647176025*eV	0.197389
-1.7420941939*eV	0.176501
-1.7236777723*eV	0.147258
-1.6950102452*eV	0.100261"/>
-
-<matrix name="S10362_EFFICIENCY" coldim="2" values="3.8769*eV	0.3927
-3.8201*eV	0.4245
-3.7289*eV	0.4616
-3.6676*eV	0.5
-3.4875*eV	0.5424
-3.4414*eV	0.5662
-3.3892*eV	0.5887
-3.36*eV	0.606
-3.3032*eV	0.6298
-3.2686*eV	0.6536
-3.2214*eV	0.6695
-3.1821*eV	0.6841
-3.1311*eV	0.6987
-2.9931*eV	0.7199
-2.7604*eV	0.7358
-2.6437*eV	0.7291
-2.5446*eV	0.7053
-2.4879*eV	0.6828
-2.4299*eV	0.655
-2.3673*eV	0.6245
-2.3147*eV	0.5967
-2.2943*eV	0.5808
-2.2545*eV	0.557
-2.2099*eV	0.5278
-2.155*eV	0.4921
-2.0972*eV	0.4497
-2.0291*eV	0.402
-1.9678*eV	0.3543
-1.8446*eV	0.2828
-1.7496*eV	0.2285
-1.6639*eV	0.1834
-1.5718*eV	0.1384
-1.5169*eV	0.1146
-1.4255*eV	0.0762
-1.3814*eV	0.0589"/>
-<matrix name="S13360_3050_EFFICIENCY" coldim="2" values="3.875*eV	0.0268293*0.74
-3.75262911*eV	0.0756098*0.74
-3.665808355*eV	0.123577*0.74
-3.582914123*eV	0.181301*0.74
-3.569464954*eV	0.202439*0.74
-3.403339664*eV	0.258537*0.74
-3.331774922*eV	0.281301*0.74
-3.274394237*eV	0.299187*0.74
-3.197310134*eV	0.329268*0.74
-3.093272133*eV	0.352033*0.74
-2.737047035*eV	0.398374*0.74
-2.705881583*eV	0.400813*0.74
-2.560142707*eV	0.394309*0.74
-2.473548984*eV	0.386179*0.74
-2.423110218*eV	0.377236*0.74
-2.392616847*eV	0.369106*0.74
-2.357024599*eV	0.360976*0.74
-2.267088638*eV	0.331707*0.74
-2.173779659*eV	0.301626*0.74
-2.125187239*eV	0.286179*0.74
-2.065169419*eV	0.263415*0.74
-1.9791803*eV	0.231707*0.74
-1.958792689*eV	0.21626*0.74
-1.8376278*eV	0.17561*0.74
-1.557618702*eV	0.0861789*0.74
-1.525134587*eV	0.0747967*0.74
-1.475426416*eV	0.0601626*0.74
-1.397354717*eV	0.0406504*0.74
-1.381113935*eV	0.0357724*0.74"/>
-
-
+  <!--<matrix name="MCP_EFFICIENCY" coldim="2" values="7.7658*eV 0.01/30
+  7.1*eV 0.10/30    
+  6.212*eV 0.25/30
+  4.14*eV 0.25/30
+  3.11*eV	0.25/30
+  2.48*eV 0.10/30
+  1.653*eV 0.01/30"/>-->

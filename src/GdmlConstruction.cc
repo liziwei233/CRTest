@@ -17,14 +17,13 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RotationMatrix.hh"
-#include "G4UserLimits.hh"
 
 #include "G4LogicalSurface.hh"
 #include "G4LogicalBorderSurface.hh"
 #include "G4LogicalSkinSurface.hh"
 #include "G4OpticalSurface.hh"
 
-//#include "cadmeshConstruction.hh"
+#include "cadmeshConstruction.hh"
 #include "G4VSolid.hh"
 #include "G4ThreeVector.hh"
 #include "G4Transform3D.hh"
@@ -33,18 +32,16 @@
 #include <string>
 
 
-#include<vector>
+#include <vector>
 
 GdmlConstruction::GdmlConstruction(G4GDMLParser *gdml)
-	: SysConstruction(), fWorldPV(NULL), fGdml(gdml),fStepLimit(NULL),
-	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(gdml)
 {
 	Init();
 }
 
 GdmlConstruction::GdmlConstruction(G4String gdmlFileName)
-	: SysConstruction(), fWorldPV(NULL), fGdml(NULL),fStepLimit(NULL),
-	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(NULL)
 {
 	fGdml = new G4GDMLParser;
 	fGdml->Read(gdmlFileName, false);
@@ -56,7 +53,6 @@ GdmlConstruction::~GdmlConstruction()
 {
 	G4cout << "[-] INFO - GdmlConstruction deleted. " << G4endl;
 	delete fGdml;fGdml = NULL;
-	delete fStepLimit;
 }
 
 void GdmlConstruction::Init(){
@@ -71,18 +67,13 @@ void GdmlConstruction::Init(){
   fWorld = lvStore->GetVolume("World", false);
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
-  //fDetector = lvStore->GetVolume("Detector",false);
-  //fTarget = lvStore->GetVolume("Target", false);
-  fRadianer = lvStore->GetVolume("medium",false);
+  fDetector = lvStore->GetVolume("Detector",false);
+  fTarget = lvStore->GetVolume("Target", false);
   fPmtL = lvStore->GetVolume("PMT_left",false);
   fPmtR = lvStore->GetVolume("PMT_right",false);
 
-  
-  fStepLimit = new G4UserLimits();
-  fStepLimit->SetUserMaxTime(200*ns);
-  fRadianer->SetUserLimits(fStepLimit);
 
-/*
+
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
   flgPV = pvStore->GetVolume("lightguide_right_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_right",false);
@@ -90,9 +81,11 @@ void GdmlConstruction::Init(){
   G4cout << "[?]lightguide.STL has been read succesfully! - ";
   fLightguide->SetSolid(cad.GetCADSolid());
   G4RotationMatrix* rotm  = new G4RotationMatrix();
-  rotm->rotateZ(180*deg);
-  rotm->rotateY(180*deg);
-  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  //rotm->rotateZ(180*deg);
+  //rotm->rotateY(180*deg);
+  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,-7.5*mm,-160*mm);
+  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,0.1*mm);
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
 
@@ -104,10 +97,11 @@ void GdmlConstruction::Init(){
   //G4RotationMatrix* rotm  = new G4RotationMatrix();
   //rotm->rotateZ(180*deg);
   //rotm->rotateY(180*deg);
+  //G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   //flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos2);
-*/
+
   DumpStructure();
   
   ReadAuxiliary();
@@ -120,7 +114,7 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
-	/*if(fDetector){
+	if(fDetector){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
         G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
@@ -128,7 +122,7 @@ void GdmlConstruction::ConstructSDandField(){
 
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
-	}*/
+	}
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";

@@ -25,14 +25,14 @@ PhysicsList::PhysicsList()
 	fEmPhys = new G4EmStandardPhysics_option1;
 	RegisterPhysics(fEmPhys);
 
-	fOpPhys = new G4OpticalPhysics;
-	RegisterPhysics(fOpPhys);
-  	//G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
-  	//RegisterPhysics( opticalPhysics );
-  	//opticalPhysics->SetMaxNumPhotonsPerStep(100);
-  	//opticalPhysics->SetMaxBetaChangePerStep(10.0);
+	//fOpPhys = new G4OpticalPhysics;
+	//RegisterPhysics(fOpPhys);
+  	G4OpticalPhysics* opticalPhysics = new G4OpticalPhysics();
+  	RegisterPhysics( opticalPhysics );
+  	opticalPhysics->SetMaxNumPhotonsPerStep(100);
+  	opticalPhysics->SetMaxBetaChangePerStep(10.0);
 
-  	//opticalPhysics->SetTrackSecondariesFirst(kCerenkov,true);
+  	opticalPhysics->SetTrackSecondariesFirst(kCerenkov,true);
 	//fOpPhys->SetTrackSecondariesFirst(kCerenkov,true);
 
 	fDecayPhys = new G4DecayPhysics;

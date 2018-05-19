@@ -17,7 +17,7 @@
 #include "GdmlConstruction.hh"
 #include "ActionRegister.hh"
 #include "SysMessenger.hh"
-#include "PhysicsList.hh"
+//#include "PhysicsList.hh"
 #include "CerenPhysicsList.hh"
 
 #include "G4RunManager.hh"
@@ -56,8 +56,8 @@ int main (int argc, char** argv){
         // Detector Construction
     runManager->SetUserInitialization(new GdmlConstruction(args.Gdml()));
 		// Physics List
-    runManager->SetUserInitialization(new PhysicsList);
-    //runManager->SetUserInitialization(new CerenPhysicsList);
+    //runManager->SetUserInitialization(new PhysicsList);
+	runManager->SetUserInitialization(new CerenPhysicsList);
 		// User Actions
     runManager->SetUserInitialization(new ActionRegister);
 		// User Messenger
