@@ -6,13 +6,13 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="40"/>
-<variable name="mediumY" value="1"/>
-<variable name="mediumZ" value="500"/>
+<variable name="mediumX" value="10"/>
+<variable name="mediumY" value="5"/>
+<variable name="mediumZ" value="100"/>
 
 <variable name="SiPMX" value="6"/>
 <variable name="SiPMY" value="6"/>
-<variable name="interval " value="0.2"/>
+<variable name="interval " value="1"/>
 
 <variable name="SOZ" value="0.1"/>
 <variable name="pmtZ" value="0.1"/>
@@ -43,7 +43,7 @@
 <variable name="idetector" value="0" />
 <constant name="detectorN" value="4" />
 <!--<matrix name="detectorPosY" coldim="1" values="0. -24. -48 -72" />-->
-<matrix name="detectorPosY" coldim="1" values="2.1 0.7 -0.7 -2.1" />
+<matrix name="detectorPosY" coldim="1" values="9 3 -3 -9" />
 
 <!--
 <variable name="iSiPM" value="0" />
@@ -54,5 +54,5 @@
 
 <variable name="iSiPM" value="0" />
 <constant name="SiPMN" value="4" />
-<matrix name="SiPMPosX" coldim="1" values="-15 -5 5 15 "/>
-<matrix name="SiPMPosY" coldim="1" values="0 0 0 0" />
+<matrix name="SiPMPosX" coldim="1" values="0 0 0 0 "/>
+<matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9" />
