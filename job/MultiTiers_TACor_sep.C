@@ -88,8 +88,8 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 			TT+=T0[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/1;
-		UU=UU/1;
+		TT=TT/T;
+		UU=UU/T;
 
 		h->Fill(TT);
 		hU->Fill(UU);
@@ -183,8 +183,8 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 			TT+=T0[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/1;
-		UU=UU/1;
+		TT=TT/T;
+		UU=UU/T;
 		
 		T0_cor = fit2->Eval(UU);
 		//cout<<"T0-T0_cor="<<T0<<"-"<<T0_cor<<"="<<T0-T0_cor<<endl;

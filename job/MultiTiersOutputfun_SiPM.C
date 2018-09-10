@@ -64,18 +64,19 @@ Double_t outputfunc(Double_t x, vector<double> par){
     double SPEpar[7];
 	
 	r.SetSeed(0);
-	tts = r.Gaus(0,170e-12);
 	//tts = 0;
+//-----------------SiPM+BJT650 output----------//
+	tts = r.Gaus(0,400e-12);
 
-    SPEpar[0]=1.7e6;  //Gain
+        SPEpar[0]=3.7e6;  //Gain
 	SPEpar[1]=1.6e-19; //e
 	//SPEpar[2]=150e-12;  //Ca  ??
 	//SPEpar[3]=3e-12; //C
-	SPEpar[2]=35e-11;  //Ca  ??
-	SPEpar[3]=80e-11; //C
+	SPEpar[2]=32e-11;  //Ca  ??
+	SPEpar[3]=70e-11; //C
 	SPEpar[4]=10e3;    //R   ??
 	SPEpar[5]=50;      //Z
-	SPEpar[6]=0.65e-9;  //rise time 1.5ns
+	SPEpar[6]=0.7e-9;  //rise time 1.5ns
 	//int N;
 	//N=sizeof(par)/sizeof(par[0]);
 	int n=0;
@@ -143,7 +144,7 @@ void MultiTiersOutputfun_SiPM(const char *rootname="",int npethrd=1){
 	binNum = (RR-RL)/4e-12;
 
         Int_t range = 5e3; //3ps/Sample
-	Double_t Umax = -0.7;//Umax = -0.71
+	Double_t Umax = -1.7;//Umax = -1.71mV
 	double thrd=0;
         int TH[6]={1,3,5,10,20,30};
 	double Rate=0;
