@@ -7,6 +7,9 @@
 
 void MultiTiers_TACor_sep(const char *rootname=""){
 	
+	
+	TF1* gausfit(TH1* hU,int rbU,float* U_RL,float* U_RR);
+	TF1* prfxfit(TH2* ht,int rbU,int rbt,float RL, float RR, float U_RL, float U_RR, char* name);
 	//void MygStyle();
 	//MygStyle();
 	gStyle->SetOptFit(111);
@@ -18,15 +21,15 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 //***************************************************//
 //--------------Configuration-----------------------//
 //***************************************************//
-	float init_tL = -2.e-9;
-	float init_tR = 16.e-9;
-	
-	float init_UL = -6e3;
-	float init_UR = 0; 
+
 	
 	int rbt = 5;
 	int rbU = 12;
-	
+
+	float RL = -2.e-9;
+	float RR = 16.e-9;
+	float U_RL = -6e3;
+	float U_RR = 0;
 	// the range set After Correct
 	float L2 = -500e-12;
 	float R2 = 500e-12;
@@ -35,10 +38,9 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 //***************************************************//
 
 
-	float RL,RR;
-	float U_RL,U_RR;
-	int binT = (init_tR-init_tL)/10e-12;
-	int binU = (init_UR-init_UL)/1;
+
+	int binT = (RR-RL)/10e-12;
+	int binU = (U_RR-U_RL)/1;
 	
 	
 	const int T = 4;
@@ -56,7 +58,7 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 
 	//t->SetBranchAddress("UL",&UL);
 	t->SetBranchAddress("UR",UR);
-	//t->SetBranchAddress("T0L",&T0L);
+	t->SetBranchAddress("T0L",T0L);
 	t->SetBranchAddress("T0R",T0R);
 	t->SetBranchAddress("T0",T0);
 	/*
@@ -72,10 +74,9 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 	
 	
 	
-	TH1D *h = new TH1D("h","",binT, init_tL, init_tR);
-	TH1D *hU = new TH1D("hU","",binU, init_UL, init_UR);
-	TH1D *hpfx;
-	TH2D *ht = new TH2D("ht","",binU, init_UL, init_UR, binT, init_tL, init_tR);
+	TH1D *h = new TH1D("h","",binT, RL, RR);
+	TH1D *hU = new TH1D("hU","",binU, U_RL, U_RR);
+	TH2D *ht = new TH2D("ht","",binU, U_RL, U_RR, binT, RL, RR);
 	//t->Draw("T0>>h");
 
 	int N = 0;
@@ -88,8 +89,8 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 			TT+=T0[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/1;
-		UU=UU/1;
+		TT=TT/T;
+		UU=UU/T;
 
 		h->Fill(TT);
 		hU->Fill(UU);
@@ -97,20 +98,7 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 	}
 	
 	c1->cd();
-	h->Draw();
-	h->Rebin(rbt);
-	//RL = h->GetMean();
-	//cout<<"RL = "<<RL<<endl;
-	//return;
-	TF1 *fit1 = new TF1("fit1","gaus",init_tL,init_tR);
-	fit1->SetParameter(1,h->GetMean());
-	h->Fit(fit1);
-	RL = fit1->GetParameter(1)-5*fit1->GetParameter(2);
-	RR = fit1->GetParameter(1)+5*fit1->GetParameter(2);
-	//cout<<RL<<endl;
-	//cout<<RR<<endl;	
-	h->GetXaxis()->SetRangeUser(RL,RR);
-	h->Fit(fit1);
+	TF1* fit1 = gausfit(h, rbt, &RL, &RR);
 	sprintf(buff,"%s_T0.png",name);
 	c1->SaveAs(buff);
 	//return;
@@ -119,41 +107,15 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 	output<<fit1->GetParameter(2)<<"\t"<<fit1->GetParError(2)<<endl;
 	
 	cU->cd();
-	hU->Draw();
-	hU->Rebin(rbU);
-	TF1 *fitU = new TF1("fitU","gaus",init_UL,init_UR);
-	fitU->SetParameter(1,hU->GetMean());
-	hU->Fit(fitU,"R");
-	U_RL = fitU->GetParameter(1)-5*fitU->GetParameter(2);
-	U_RR = fitU->GetParameter(1)+5*fitU->GetParameter(2);
-	
-	hU->GetXaxis()->SetRangeUser(U_RL,U_RR);
-	hU->Fit(fitU);
+	gausfit(hU, rbU, &U_RL, &U_RR);
 	sprintf(buff,"%s_U.png",name);
 	cU->SaveAs(buff);	
 	//return;
 	cU->Close();
 	
-	c2->cd();
-	//t->Draw("T0:UR>>ht","","colz");
-	ht->Draw("colz");
-	ht->RebinX(rbU);
-	ht->RebinY(rbt);
-	ht->GetYaxis()->SetRangeUser(RL,RR);
-	ht->GetXaxis()->SetRangeUser(U_RL,U_RR);
-	//return;
-	sprintf(buff,"%s_T0U.png",name);
-	c2->SaveAs(buff);
-	ht->ProfileX();
-	c3->cd();
-	hpfx=(TH1D*)gDirectory->Get("ht_pfx");
-	hpfx->GetYaxis()->SetRangeUser(RL,RR);
-	hpfx->Draw();
 	
-	TF1 *fit2 = new TF1("fit2","[0]+[1]/TMath::Sqrt(abs(x))+[2]/abs(x)+[3]/abs(x)/TMath::Sqrt(abs(x))+[4]/abs(x)/abs(x)",U_RL,U_RR);
-	hpfx->Fit(fit2,"R");
-	sprintf(buff,"%s_profileX.png",name);
-	c3->SaveAs(buff);
+	sprintf(buff,"%s_beforeCor.png",name);
+	TF1* fit2 = prfxfit(ht, rbU, rbt, RL, RR, U_RL, U_RR, buff);
 	//return;
 	//h->Reset();
 
@@ -169,8 +131,6 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 	h->GetXaxis()->SetRangeUser(L2,R2);
 	//TH2D *ht_cor= new TH2D("ht_cor","",binU,U_RL,U_RR,binT2,L2,R2);
 	//hpfx->GetYaxis()->SetRangeUser(-0.3e-9,0.3e-9);
-	hpfx->Reset();
-	hpfx->GetYaxis()->SetRangeUser(L2,R2);
 	
 	//TH1D *h_cor = new TH1D("h_cor","",3600,-1e-9,2.6e-9);
 	//nt n=t->GetEntries();
@@ -183,8 +143,8 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 			TT+=T0[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/1;
-		UU=UU/1;
+		TT=TT/T;
+		UU=UU/T;
 		
 		T0_cor = fit2->Eval(UU);
 		//cout<<"T0-T0_cor="<<T0<<"-"<<T0_cor<<"="<<T0-T0_cor<<endl;
@@ -195,37 +155,67 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 	}
 	c1->cd();
 	c1->Clear();
-	ht->Draw();
+	fit1 = gausfit(h, 1, &L2, &R2);
 	//return;
-	h->Draw();
 	//h->GetXaxis()->SetRangeUser(-0.1e-9,0.1e-9);
-	fit1->SetRange(L2,R2);
-	h->Fit(fit1,"R");
 	sprintf(buff,"%s_T0_AfterCorrect.png",name);
 	c1->SaveAs(buff);
 	
 	//output("timeres.dat",ios::app);
 	output<<fit1->GetParameter(2)<<"\t"<<fit1->GetParError(2)<<endl;
-	
-	c2->cd();
-	c2->Clear();
-	ht->Draw("colz");
-	
-	sprintf(buff,"%s_T0U_AfterCorrect.png",name);
-	c2->SaveAs(buff);
-	ht->ProfileX();
-	c3->cd();
-	c3->Clear();
-	hpfx=(TH1D*)gDirectory->Get("ht_pfx");
-	
-	hpfx->Draw();
 
-	
-	hpfx->Fit(fit2,"R");
-	sprintf(buff,"%s_profileX_AfterCorrect.png",name);
-	c3->SaveAs(buff);
+	sprintf(buff,"%s_AfterCor",name);	
+	prfxfit(ht, 1, 1, L2, R2, U_RL, U_RR, buff);
+
 	}
 	
+}
+
+TF1* gausfit(TH1* hU,int rbU,float* U_RL, float* U_RR){
+	
+	
+	
+	hU->Draw();
+	hU->Rebin(rbU);
+	TF1 *fitU = new TF1("fitU","gaus",*U_RL,*U_RR);
+	fitU->SetParameter(1,hU->GetMean());
+	hU->Fit(fitU,"R");
+	*U_RL = fitU->GetParameter(1)-5*fitU->GetParameter(2);
+	*U_RR = fitU->GetParameter(1)+5*fitU->GetParameter(2);
+
+	hU->GetXaxis()->SetRangeUser(*U_RL,*U_RR);
+	hU->Fit(fitU);
+	return fitU;
+
+}
+
+TF1* prfxfit(TH2* ht,int rbU,int rbt,float RL, float RR, float U_RL, float U_RR, char* name){
+	char buff[1024];
+	TCanvas *c2 = new TCanvas("c2","c2",1600,600);	
+	c2->Clear();
+	c2->Divide(2,1);
+	c2->cd(1);
+	//t->Draw("T0:UR>>ht","","colz");
+	ht->Draw("colz");
+	ht->RebinX(rbU);
+	ht->RebinY(rbt);
+	ht->GetYaxis()->SetRangeUser(RL,RR);
+	ht->GetXaxis()->SetRangeUser(U_RL,U_RR);
+	//return;
+
+	c2->cd(2);
+	TH1* hpfx=ht->ProfileX();
+	hpfx->GetYaxis()->SetRangeUser(RL,RR);
+	hpfx->GetXaxis()->SetRangeUser(U_RL,U_RR);
+	hpfx->Draw();
+	
+	TF1 *fit2 = new TF1("fit2","[0]+[1]/TMath::Sqrt(abs(x))+[2]/abs(x)+[3]/abs(x)/TMath::Sqrt(abs(x))+[4]/abs(x)/abs(x)",U_RL,U_RR);
+	hpfx->Fit(fit2,"R");
+
+	sprintf(buff,"%s.png",name);
+	c2->SaveAs(buff);
+	hpfx->Reset();
+	return fit2;
 }
 
 /*
