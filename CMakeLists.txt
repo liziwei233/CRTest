@@ -33,7 +33,6 @@ target_link_libraries(${PROJECT_NAME}
     ${Geant4_LIBRARIES}
     ${ROOT_LIBRARIES}
     $ENV{CRYHOME}/lib/libCRY.a
-<<<<<<< HEAD
 $ENV{CADmeshPATH}/lib/libcadmesh.so
 $ENV{CADmeshPATH}/lib/libassimp.so
 $ENV{CADmeshPATH}/lib/libtet.so)
