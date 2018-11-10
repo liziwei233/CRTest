@@ -142,7 +142,30 @@
   <solidref ref="detectorS" />
 
   
-  <loop for="idetector" to="detectorN-1" step="1">
+      <physvol>
+      <volumeref ref="medium" />
+        <position unit="mm" x="0"/>
+      <position unit="mm" y="0"/>
+      <position unit="mm" z="0"/>
+      </physvol>
+
+      <physvol>
+
+       <volumeref ref="Module_left" />
+	<position unit="mm" x="0"/>
+      <position unit="mm" y="0"/>
+      <position unit="mm" z="mediumZ/2.+(SOZ+pmtZ*2)/2."/>
+      </physvol>
+
+      <physvol>
+      <volumeref ref="Module_right" />
+      <position unit="mm" x="0" />
+	    <position unit="mm" y="0" />
+      <position unit="mm" z="-mediumZ/2.-(SOZ+pmtZ*2)/2." />
+      </physvol>
+
+<!--      
+<loop for="idetector" to="detectorN-1" step="1">
   
       <physvol copynumber="idetector">
       <volumeref ref="medium" />
@@ -152,6 +175,7 @@
       </physvol>
 
   </loop>
+-->
  <!-- 
   <loop for="iSiPM" to="SiPMN-1" step="1">
   
@@ -171,7 +195,7 @@
 
   </loop>
 -->
-
+<!--
   <loop for="iSiPM" to="SiPMN-1" step="1">
   
       <physvol copynumber="iSiPM">
@@ -189,6 +213,6 @@
       </physvol>
 
   </loop>
-  
+-->  
 
 </volume>

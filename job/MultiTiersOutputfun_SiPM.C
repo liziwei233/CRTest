@@ -66,7 +66,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 	r.SetSeed(0);
 	//tts = 0;
 //-----------------SiPM+BJT650 output----------//
-	tts = r.Gaus(0,400e-12);
+	tts = r.Gaus(0,170e-12);
 
         SPEpar[0]=3.7e6;  //Gain
 	SPEpar[1]=1.6e-19; //e
@@ -138,10 +138,10 @@ void MultiTiersOutputfun_SiPM(const char *rootname="",int npethrd=1){
 	vector<vector<double> > parL(T);
 	//vector<double> parL2;
 
-	Double_t RL = 0e-9;
+	Double_t RL = -5e-9;
 	Double_t RR = 20e-9;
 	int binNum=0;
-	binNum = (RR-RL)/4e-12;
+	binNum = (RR-RL)/25e-12;
 
         Int_t range = 5e3; //3ps/Sample
 	Double_t Umax = -1.7;//Umax = -1.71mV

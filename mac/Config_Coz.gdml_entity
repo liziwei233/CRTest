@@ -41,7 +41,8 @@
 
 <!-- Others-->
 <variable name="idetector" value="0" />
-<constant name="detectorN" value="4" />
+<!--<constant name="detectorN" value="4" />-->
+<constant name="detectorN" value="1" />
 <!--<matrix name="detectorPosY" coldim="1" values="0. -24. -48 -72" />-->
 <matrix name="detectorPosY" coldim="1" values="9 3 -3 -9" />
 
@@ -53,6 +54,7 @@
 -->
 
 <variable name="iSiPM" value="0" />
-<constant name="SiPMN" value="4" />
+<!--<constant name="SiPMN" value="4" />-->
+<constant name="SiPMN" value="1" />
 <matrix name="SiPMPosX" coldim="1" values="0 0 0 0 "/>
 <matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9" />

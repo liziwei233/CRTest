@@ -24,15 +24,15 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 
 	
 	int rbt = 5;
-	int rbU = 12;
+	int rbU = 40;
 
 	float RL = -2.e-9;
 	float RR = 16.e-9;
 	float U_RL = -6e3;
 	float U_RR = 0;
 	// the range set After Correct
-	float L2 = -500e-12;
-	float R2 = 500e-12;
+	float L2 = -2e-9;
+	float R2 = 2e-9;
 	int binT2 = 2e3;
 //---------------------------------------------------//	
 //***************************************************//
@@ -85,12 +85,12 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 		t->GetEntry(i);
 		TT=0;
 		UU=0;
-		for (int iT=0;iT<T;iT++){
-			TT+=T0[iT];
+		for (int iT=0;iT<1;iT++){
+			TT+=T0R[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/T;
-		UU=UU/T;
+		TT=TT/1;
+		UU=UU/1;
 
 		h->Fill(TT);
 		hU->Fill(UU);
@@ -139,12 +139,12 @@ void MultiTiers_TACor_sep(const char *rootname=""){
 		t->GetEntry(i);
 		TT = 0;
 		UU = 0;
-		for (int iT=0;iT<T;iT++){
-			TT+=T0[iT];
+		for (int iT=0;iT<1;iT++){
+			TT+=T0R[iT];
 			UU+=UR[iT];
 		}
-		TT=TT/T;
-		UU=UU/T;
+		TT=TT/1;
+		UU=UU/1;
 		
 		T0_cor = fit2->Eval(UU);
 		//cout<<"T0-T0_cor="<<T0<<"-"<<T0_cor<<"="<<T0-T0_cor<<endl;

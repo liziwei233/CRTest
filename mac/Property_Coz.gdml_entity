@@ -291,7 +291,7 @@
 <matrix name="OpWrapper_Quartz_BACKSCATTER" coldim="2" values="2.6*eV 0.0"/>  
 <matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.0"/>
 <matrix name="OpWrapper_Quartz_RINDEX" coldim="2" values="2.6*eV 1.0"/>
-<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.97"/>
+<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.9"/>
 <!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0.003"/>-->
 <matrix name="OpWrapper_Quartz_EFFICIENCY" coldim="2" values="2.6*eV 1.0"/>
   <!--Tyvek-->
