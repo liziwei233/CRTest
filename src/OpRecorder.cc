@@ -86,6 +86,7 @@ void OpRecorder::Reset()
 	nLobeReflection = 0;
 	nSpikeReflection = 0;
 	nBackScattering = 0;
+	nBoundaryRefraction = 0;
 
     nDebug = 0;
 
