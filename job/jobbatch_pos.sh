@@ -17,7 +17,7 @@ echo $macname
 cp $gwk/mac/cdor_poschange.mac $macname
 sed -i "/position/s/z/$pos/" $macname
 
-cp geant4.condo $condoname
+cp g4batch_template.condo $condoname
 sed -i "/Arguments/s/filename/$filename/" $condoname
 sed -i "/Arguments/s#macname#$macname#" $condoname
 

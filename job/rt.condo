@@ -10,7 +10,7 @@ EXE = rtexe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = BeamTest
+RUN = Trigger/baseline
 
 #N_EVENT = 1 multiplay 8
 
@@ -27,7 +27,7 @@ Getenv = True
 
 Executable = $(EXE)
 
-Arguments = $(OUT_DIR)/data/quartz/$(RUN)/$(Process) thrd 
+Arguments = $(OUT_DIR)/data/quartz/$(RUN)/$(Process) 7 $(Cluster) 
 
 Log = $(OUT_DIR)/log/condor_$(Cluster).log
 #Input = inputfile

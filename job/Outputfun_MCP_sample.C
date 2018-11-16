@@ -53,7 +53,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
 	Double_t tts = 0;
     double SPEpar[7];
 	
-	//tts = r.Gaus(0,10.6e-12);
+	//cout<<"tts is "<<tts<<endl;
+        //tts = 0;
 	//
 	//----MCP R10754------
 	//------------------------------
@@ -72,15 +73,14 @@ Double_t outputfunc(Double_t x, vector<double> par){
 	//while(par[n]>5e-9){
 		if (x-par.at(n)<-30e-9){
 		val+=0;}
-		else{
+		else 
+                {
 
 	        r.SetSeed(par.at(n));
 	        tts = r.Gaus(0,30e-12);
-                //cout<<"tts= "<<tts<<endl;
                 val+=response(x-tts-par.at(n),SPEpar);
 		//cout<<"    [-] x : par : val "<<x<<"\t"<<par[n]<<"\t"<<val<<endl;
-                }
-		
+		}
 	}
 	//cout<<"n = "<<n<<endl;
 	
@@ -91,7 +91,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 }
 
 
-void Outputfun_MCP(const char *rootname=""){
+void Outputfun_MCP_sample(const char *rootname="",int sample = 10){
 	
 	
 	TLegend* DrawMyLeg(Double_t xlow=0.2, Double_t ylow=0.2, Double_t xup=0.5, Double_t yup=0.5, Int_t textFont=62, Size_t textSize=0.05);
@@ -127,10 +127,8 @@ void Outputfun_MCP(const char *rootname=""){
 	vector<double> parR;
 	vector<double> parL;
 
-	//Double_t RL = -5e-9;
-	//Double_t RR = 20e-9;
-	Double_t RL = -0e-9;
-	Double_t RR = 5e-9;
+	Double_t RL = -5e-9;
+	Double_t RR = 20e-9;
 	int binNum=0;
 	binNum = (RR-RL)/25e-12;
 
@@ -202,8 +200,8 @@ void Outputfun_MCP(const char *rootname=""){
 
 	N = t1->GetEntries();
 	cout<<"Entries = "<<N<<endl;
-
-
+        int pickup=0;
+        TRandom r1;
 	//count->clear();
 	//for(int i = certain; i < certain+1; i++){
 	for(int i = 0; i < N; i++){
@@ -228,14 +226,17 @@ void Outputfun_MCP(const char *rootname=""){
 		//par[i]=4e-9;
 		t1->GetEntry(i);
 		temp = TR->size();
-		//cout<<"counterR = "<< temp <<endl;
+		cout<<"counterR = "<< temp <<endl;
 		//myFun = new TF1("myFun",outputfunc,RL,RR,temp);
 
 		
 		
-		for(int k=0;k<temp;k++){
+		for(int k=0;k<sample;k++){
+                        r1.SetSeed(k);
+                        pickup = r1.Rndm()*temp;
+                        //cout<<"the ID of sample event catched by PMTR is: "<<pickup<<endl;
 			//cout<< T[][k] <<endl;
-			parR.push_back((*TR)[k]*1e-9);
+			parR.push_back((*TR)[pickup]*1e-9);
 			//parR[k]=8.3e-9;
 			//cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
 			//cout<<"par"<<k<<" = "<<par[k]<<endl;
@@ -246,10 +247,13 @@ void Outputfun_MCP(const char *rootname=""){
 			}
 			
 		temp = TL->size();	
-		//cout<<"counterL = "<< temp <<endl;
-		for(int k=0;k<temp;k++){
+		cout<<"counterL = "<< temp <<endl;
+		for(int k=0;k<sample;k++){
+                        r1.SetSeed(k*2);
+                        pickup = r1.Rndm()*temp;
+                        //cout<<"the ID of sample event catched by PMTL is: "<<pickup<<endl;
 			//cout<< T[][k] <<endl;
-			parL.push_back((*TL)[k]*1e-9);
+			parL.push_back((*TL)[pickup]*1e-9);
 			//cout<<" [+] par "<<k<<"\t"<<parL.at(k)<<endl;
 			
 			

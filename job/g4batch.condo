@@ -28,7 +28,7 @@ Getenv = True
 Executable = $(EXE)
 
 #Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
-Arguments = $(initialdir)/mac/quartz.gdml /data2/R710liziwei/g4/FTOF_server/CRTest/mac/cdor_angle75.mac $(OUT_DIR)/data/quartz/$(RUN)/theta75/$(Process) $(Process)
+Arguments = $(initialdir)/mac/quartz.gdml /data2/R710liziwei/g4/FTOF_server/CRTest/mac/cdor_angle25.mac $(OUT_DIR)/data/quartz/$(RUN)/theta25/$(Process) $(Process) $(Cluster)
 
 Log = $(OUT_DIR)/log/condor_$(Cluster).log
 #Input = inputfile
