@@ -32,10 +32,8 @@
 
 // add option for each type 
 static std::vector<OpPhotonType> TypeList = {
-	Glue2PmtL,
-	Glue2PmtR,
-	DetectedL,
-	DetectedR
+	Glue2Pmt,
+	Detected,
 };
 // #endif CRTest_DEBUG_OPTICAL_MORE
 

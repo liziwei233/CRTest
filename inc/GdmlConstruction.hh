@@ -43,8 +43,7 @@ private:
 private:
     G4VPhysicalVolume* fWorldPV;
 	G4LogicalVolume* fRadianer;
-	G4LogicalVolume* fPmtL;
-	G4LogicalVolume* fPmtR;
+	G4LogicalVolume* fPmt;
 	G4LogicalVolume* fLightguide;
     G4VPhysicalVolume* flgPV;
 	G4GDMLParser* fGdml;

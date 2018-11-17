@@ -21,7 +21,7 @@ RunAction::RunAction()
 		// [TODO] Build-option : CRTest_DEBUG_OPTICAL
 	Analysis::Instance()->RegisterRecorder(OpRecorder::Instance());
 		// Default for resolution estimation
-	//Analysis::Instance()->RegisterRecorder(MuonRecorder::Instance());
+	Analysis::Instance()->RegisterRecorder(MuonRecorder::Instance());
 }
 
 RunAction::~RunAction()
