@@ -76,10 +76,10 @@ public:
 
     G4int nDebug; // use for debug
 
-	std::vector<int>* fID;
-	std::vector<double>* fL;
+	//std::vector<int>* fID;
+	//std::vector<double>* fL;
 	std::vector<int>* fBounce;
-	std::vector<double>* fWaveL;
+	//std::vector<double>* fWaveL;
 
 private:
     static OpRecorder* fgInstance;
@@ -88,6 +88,7 @@ private:
 	std::vector<double>* fCount;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
+	std::vector<double>* fFlyTime;
 	std::vector<double>* fX;
 	std::vector<double>* fY;
 	std::vector<double>* fZ;
