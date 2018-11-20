@@ -86,6 +86,7 @@ private:
 	G4String boundaryName;
 
 	std::vector<double>* fCount;
+	std::vector<int>* fID;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
 	std::vector<double>* fFlyTime;

@@ -17,7 +17,7 @@ OpRecorder::OpRecorder()
       nBoundaryAbsorption(0), nBoundaryTransmission(0),
       nFresnelReflection(0),nTotalInternalReflection(0),nLambertianReflection(0),
       nLobeReflection(0),nSpikeReflection(0),nBackScattering(0),nBoundaryRefraction(0),
-      nDebug(0),fFlyTime(NULL),fBounce(NULL)
+      nDebug(0),fFlyTime(NULL),fBounce(NULL),fID(NULL)
 {
 	boundaryName = "NULL";
     fCount = new std::vector<double>;
@@ -31,7 +31,7 @@ OpRecorder::OpRecorder()
 	fPY = new std::vector<double>;
 	fPZ = new std::vector<double>;
 
-	//fID = new std::vector<int>;
+	fID = new std::vector<int>;
 	//fL = new std::vector<double>;
 	//fWaveL = new std::vector<double>;
 	fBounce = new std::vector<int>;
@@ -49,7 +49,7 @@ OpRecorder::~OpRecorder() {
 	fPY->clear();delete fPY;
 	fPZ->clear();delete fPZ;
 
-	//fID->clear();delete fID;
+	fID->clear();delete fID;
 	//fL->clear();delete fL;
 	//fWaveL->clear();delete fWaveL;
 	fBounce->clear();delete fBounce;
@@ -96,7 +96,7 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fCount);
     std::vector<double>().swap(*fEk);
     std::vector<double>().swap(*fTime);
-    std::vector<double>().swap(*fFLyTime);
+    std::vector<double>().swap(*fFlyTime);
     std::vector<double>().swap(*fX);
     std::vector<double>().swap(*fY);
     std::vector<double>().swap(*fZ);
@@ -104,7 +104,7 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fPY);
     std::vector<double>().swap(*fPZ);
 
-	//std::vector<int>().swap(*fID);
+	std::vector<int>().swap(*fID);
 	//std::vector<double>().swap(*fL);
 	//std::vector<double>().swap(*fWaveL);
 	std::vector<int>().swap(*fBounce);
@@ -162,6 +162,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
 
     rootData->CreateNtupleDColumn(ntupleID, "ph.Count", *fCount);
+	rootData->CreateNtupleIColumn(ntupleID, "ph.ID",*fID);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.t", *fTime);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.flyt", *fFlyTime);
@@ -192,6 +193,7 @@ G4bool OpRecorder::Record(const G4Track* thePhoton)
     if(thePhoton->GetParentID() != 1)
 		return false;
 	fCount->push_back(1);
+	fID->push_back(thePhoton->GetTrackID() )
 	fEk->push_back(thePhoton->GetKineticEnergy() );
 	fTime->push_back(thePhoton->GetGlobalTime()  );
 	fFlyTime->push_back(thePhoton->GetLocalTime()  );
