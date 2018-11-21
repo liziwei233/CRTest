@@ -389,13 +389,14 @@
   2.48*eV 0.10
   1.653*eV 0.01"/>
 
-  <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
-  7.1*eV 0.10       
+  <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 1"/>
+  <!--<matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
+  7.1*eV 010       
   6.212*eV 0.25
   4.14*eV 0.25
   3.11*eV	0.25
-  2.48*eV 0.10
-  1.653*eV 0.01"/>
+  2.48*eV 0
+  1.653*eV 0.01"/>-->
 
   <matrix name="LOWMCP_EFFICIENCY" coldim="2" values="4.6323795861*eV	0.0981723
 4.455191196*eV 0.136815

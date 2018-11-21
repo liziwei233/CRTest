@@ -37,14 +37,14 @@
 
 GdmlConstruction::GdmlConstruction(G4GDMLParser *gdml)
 	: SysConstruction(), fWorldPV(NULL), fGdml(gdml),fStepLimit(NULL),
-	fPmt(NULL),fRadianer(NULL)
+	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
 {
 	Init();
 }
 
 GdmlConstruction::GdmlConstruction(G4String gdmlFileName)
 	: SysConstruction(), fWorldPV(NULL), fGdml(NULL),fStepLimit(NULL),
-	fPmt(NULL),fRadianer(NULL)
+	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
 {
 	fGdml = new G4GDMLParser;
 	fGdml->Read(gdmlFileName, false);
@@ -74,7 +74,8 @@ void GdmlConstruction::Init(){
   //fDetector = lvStore->GetVolume("Detector",false);
   //fTarget = lvStore->GetVolume("Target", false);
   fRadianer = lvStore->GetVolume("medium",false);
-  fPmt = lvStore->GetVolume("PMT",false);
+  fPmtL = lvStore->GetVolume("PMT_left",false);
+  fPmtR = lvStore->GetVolume("PMT_right",false);
 
   
   fStepLimit = new G4UserLimits();
@@ -128,17 +129,17 @@ void GdmlConstruction::ConstructSDandField(){
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}*/
-	if(fPmt){
+	if(fPmtL){
 		// Create, Set & Register PmtSD
-		G4String sdName = "PmtSD";
-		PmtSD* pmtSD = new PmtSD(sdName);
+		G4String sdName = "PmtLSD";
+		PmtSD* pmtLSD = new PmtSD(sdName);
 
-		SetSensitiveDetector(fPmt, pmtSD);
+		SetSensitiveDetector(fPmtL, pmtLSD);
 
-		Analysis::Instance()->RegisterSD(pmtSD);
+		Analysis::Instance()->RegisterSD(pmtLSD);
 		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
 	}
-/*	if(fPmtR){
+	if(fPmtR){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtRSD";
 		PmtSD* pmtRSD = new PmtSD(sdName);
@@ -147,7 +148,7 @@ void GdmlConstruction::ConstructSDandField(){
 
 		Analysis::Instance()->RegisterSD(pmtRSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
-	}*/
+	}
 	return;
 }
 
@@ -239,7 +240,6 @@ G4bool GdmlConstruction::ReadSkinProperty(
 			if(!lvptr){
 				G4cerr << "[#] ERROR - Logical Volume NOT FOUND" << G4endl;
 				return false;
-				
 			}
 		}else if(auxIter->type == "Material"){
 			G4cout << "Material-" << auxIter->value << " | ";

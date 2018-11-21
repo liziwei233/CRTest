@@ -36,7 +36,7 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*10." />
+<variable name="worldX" value="detectorX*200." />
 <variable name="worldY" value="detectorY*10." />
 <variable name="worldZ" value="detectorZ*4." />
 

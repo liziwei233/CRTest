@@ -11,7 +11,7 @@
 #include "G4ios.hh"
 
 PmtSD::PmtSD(G4String &name)
-	: VirtualSD(name), fHCID(0), fHC(NULL), fFirstColID(-1),
+	: VirtualSD(name), fHCID(0),fHC(NULL), fFirstColID(-1),
 	fCounter(NULL)
 {
 	fname=name;
@@ -41,6 +41,7 @@ void PmtSD::Initialize(G4HCofThisEvent *hce)
 	std::vector<int>().swap(*fHitCopyNo);
 	std::vector<double>().swap(*fHitEk);
 	std::vector<double>().swap(*fHitTime);
+	std::vector<double>().swap(*fFlyTime);
 	std::vector<double>().swap(*fHitX);
 	std::vector<double>().swap(*fHitY);
 	std::vector<double>().swap(*fHitZ);
@@ -77,6 +78,7 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	fHitCopyNo->push_back(copyNo);
 	fHitEk->push_back(theParticle->GetKineticEnergy());
 	fHitTime->push_back(theParticle->GetGlobalTime());
+	fFlyTime->push_back(theParticle->GetLocalTime());
 
 	fHitID->push_back(theTrack->GetTrackID());
 
@@ -115,6 +117,7 @@ void PmtSD::CreateEntry(
 	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".id"), *fHitCopyNo);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".E"), *fHitEk);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".t"), *fHitTime);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".flyt"), *fFlyTime);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".x"), *fHitX);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".y"), *fHitY);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".z"), *fHitZ);

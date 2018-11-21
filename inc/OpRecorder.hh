@@ -19,10 +19,14 @@
 enum OpPhotonType{
 	Nothing = 0,
 	Quartz2Air,
-	Quartz2Glue,
-	Glue2Pmt,
-	Cathod,
-	Detected,
+	Quartz2GlueL,
+	Quartz2GlueR,
+	Glue2PmtL,
+	Glue2PmtR,
+	CathodL,
+	CathodR,
+	DetectedL,
+	DetectedR
 };
 
 class OpRecorder : public VirtualRecorder{
@@ -47,11 +51,15 @@ public:
     G4int nCerenkov;
     G4int nScintTotal;
     G4int nQuartz2Air;
-	G4int nQuartz2Glue;
+	G4int nQuartz2GlueL;
+	G4int nQuartz2GlueR;
     G4int nWlsEmit;
-    G4int nGlue2PMT;
-	G4int nCathod;
-	G4int nDetection; // Detected by PmtSD
+    G4int nGlue2PMTL;
+	G4int nGlue2PMTR;
+	G4int nCathodL;
+	G4int nCathodR;
+	G4int nDetectionL; // Detected by PmtSD
+	G4int nDetectionR;
 // For deatil probe
     
     G4int nBoundaryRefraction;
@@ -78,6 +86,7 @@ private:
 	G4String boundaryName;
 
 	std::vector<double>* fCount;
+	std::vector<int>* fTrackID;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
 	std::vector<double>* fX;

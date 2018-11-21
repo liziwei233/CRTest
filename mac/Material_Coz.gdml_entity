@@ -123,7 +123,8 @@
   <composite n="3" ref="Hydrogen" />
   <composite n="2" ref="Carbon" />
   <composite n="1" ref="Oxygen" />
-  <property name="RINDEX" ref="EJ500_RINDEX"/>
+  <!--<property name="RINDEX" ref="EJ500_RINDEX"/>-->
+  <property name="RINDEX" ref="SiO2_RINDEX"/>
   <property name="ABSLENGTH" ref="EJ500_ABSLENGTH"/>
   <property name="EFFICIENCY" ref="EJ500_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="EJ500_REFLECTIVITY" />

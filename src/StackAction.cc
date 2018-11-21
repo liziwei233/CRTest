@@ -37,7 +37,7 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 	
 	// Record muon
 	if(theTrack->GetParentID() == 0){
-		//MuonRecorder::Instance()->Record(theTrack);
+		MuonRecorder::Instance()->Record(theTrack);
 		return fUrgent;
 	}
 
