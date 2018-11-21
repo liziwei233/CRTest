@@ -193,7 +193,7 @@ G4bool OpRecorder::Record(const G4Track* thePhoton)
     if(thePhoton->GetParentID() != 1)
 		return false;
 	fCount->push_back(1);
-	fID->push_back(thePhoton->GetTrackID() )
+	fID->push_back(thePhoton->GetTrackID() );
 	fEk->push_back(thePhoton->GetKineticEnergy() );
 	fTime->push_back(thePhoton->GetGlobalTime()  );
 	fFlyTime->push_back(thePhoton->GetLocalTime()  );
