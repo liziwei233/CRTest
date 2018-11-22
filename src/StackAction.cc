@@ -27,26 +27,22 @@ StackAction::~StackAction()
 G4ClassificationOfNewTrack
 StackAction::ClassifyNewTrack(const G4Track *theTrack)
 {
-	// Record muon
-	
 
 
     //theTrack->GetUserInformation()->Print();
-    //G4cout<<theTrack->GetDefinition()->GetParticleName()<<G4endl;
-	G4cout<<"particle name is : "<<theTrack->GetParticleDefinition()->GetParticleName()<<G4endl;
+	//G4cout<<"particle name is : "<<theTrack->GetParticleDefinition()->GetParticleName()<<G4endl;
 	//G4cout<<"particle process is : "<<theTrack->GetCreatorProcess()->GetProcessName() <<G4endl;
-	
 	//G4cout<<"particle ParentID is : "<<theTrack->GetParentID()<<G4endl;
 	//G4cout<<"particle TrackID is : "<<theTrack->GetTrackID()<<G4endl;
-
-    OpRecorder *Recorder = OpRecorder::Instance();
 	
+	// Record muon
 	if(theTrack->GetParentID() == 0){
 		//MuonRecorder::Instance()->Record(theTrack);
-		//Recorder->Record(theTrack);
 		return fUrgent;
 	}
 
+    OpRecorder *Recorder = OpRecorder::Instance();
+	
 
 	//Count what process generated the optical photons
 	if (theTrack->GetDefinition() == G4OpticalPhoton::OpticalPhotonDefinition())

@@ -35,7 +35,8 @@ target_link_libraries(${PROJECT_NAME}
     $ENV{CRYHOME}/lib/libCRY.a
 $ENV{CADmeshPATH}/lib/libcadmesh.so
 $ENV{CADmeshPATH}/lib/libassimp.so
-$ENV{CADmeshPATH}/lib/libtet.so)
+$ENV{CADmeshPATH}/lib/libtet.so
+)
 
 
 # Add program to the project targets

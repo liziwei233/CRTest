@@ -12,16 +12,18 @@ OpRecorder *OpRecorder::fgInstance = 0;
 OpRecorder::OpRecorder()
     : VirtualRecorder(),
 	nCerenkov(0),nScintTotal(0),nQuartz2Air(0),nQuartz2GlueL(0),
-	nQuartz2GlueR(0),nWlsEmit(0),nGlue2PMTL(0),nGlue2PMTR(0),nDetection(0),
+	nQuartz2GlueR(0),nWlsEmit(0),nGlue2PMTL(0),nGlue2PMTR(0),
+	nDetectionL(0),nDetectionR(0),nCathodL(0),nCathodR(0),
       nBoundaryAbsorption(0), nBoundaryTransmission(0),
       nFresnelReflection(0),nTotalInternalReflection(0),nLambertianReflection(0),
       nLobeReflection(0),nSpikeReflection(0),nBackScattering(0),nBoundaryRefraction(0),
-      nDebug(0),fID(NULL),fGt(NULL),fL(NULL),fBounce(NULL),fWaveL(NULL)
+      nDebug(0),fFlyTime(NULL),fBounce(NULL),fID(NULL)
 {
 	boundaryName = "NULL";
     fCount = new std::vector<double>;
 	fEk = new std::vector<double>;
 	fTime = new std::vector<double>;
+	fFlyTime = new std::vector<double>;
     fX = new std::vector<double>;
 	fY = new std::vector<double>;
 	fZ = new std::vector<double>;
@@ -30,9 +32,8 @@ OpRecorder::OpRecorder()
 	fPZ = new std::vector<double>;
 
 	fID = new std::vector<int>;
-	fGt = new std::vector<double>;
-	fL = new std::vector<double>;
-	fWaveL = new std::vector<double>;
+	//fL = new std::vector<double>;
+	//fWaveL = new std::vector<double>;
 	fBounce = new std::vector<int>;
 }
 
@@ -40,6 +41,7 @@ OpRecorder::~OpRecorder() {
     fCount->clear();delete fCount;
 	fEk->clear();delete fEk;
 	fTime->clear();delete fTime;
+	fFlyTime->clear();delete fFlyTime;
     fX->clear();delete fX;
 	fY->clear();delete fY;
 	fZ->clear();delete fZ;
@@ -48,9 +50,8 @@ OpRecorder::~OpRecorder() {
 	fPZ->clear();delete fPZ;
 
 	fID->clear();delete fID;
-	fGt->clear();delete fGt;
-	fL->clear();delete fL;
-	fWaveL->clear();delete fWaveL;
+	//fL->clear();delete fL;
+	//fWaveL->clear();delete fWaveL;
 	fBounce->clear();delete fBounce;
 }
 
@@ -71,8 +72,10 @@ void OpRecorder::Reset()
 	nWlsEmit = 0;
 	nGlue2PMTL = 0;
     nGlue2PMTR = 0;
-	nDetection = 0;
-
+	nCathodL = 0;
+	nCathodR = 0;
+	nDetectionL = 0;
+	nDetectionR = 0;
     
     nBoundaryAbsorption = 0;
     nBoundaryTransmission = 0;
@@ -85,6 +88,7 @@ void OpRecorder::Reset()
 	nLobeReflection = 0;
 	nSpikeReflection = 0;
 	nBackScattering = 0;
+	nBoundaryRefraction = 0;
 
     nDebug = 0;
 
@@ -92,6 +96,7 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fCount);
     std::vector<double>().swap(*fEk);
     std::vector<double>().swap(*fTime);
+    std::vector<double>().swap(*fFlyTime);
     std::vector<double>().swap(*fX);
     std::vector<double>().swap(*fY);
     std::vector<double>().swap(*fZ);
@@ -100,9 +105,8 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fPZ);
 
 	std::vector<int>().swap(*fID);
-	std::vector<double>().swap(*fGt);
-	std::vector<double>().swap(*fL);
-	std::vector<double>().swap(*fWaveL);
+	//std::vector<double>().swap(*fL);
+	//std::vector<double>().swap(*fWaveL);
 	std::vector<int>().swap(*fBounce);
 
 }
@@ -118,11 +122,14 @@ void OpRecorder::Print()
            << " | + Quartz. to air Boundary\t: " << nQuartz2Air << G4endl
 		   << " | + Quartz. to silicone Oil (LEFT)\t\t: " << nQuartz2GlueL << G4endl
            << " | + Quartz. to silicone Oil (Right)\t\t: " << nQuartz2GlueR << G4endl
-		   << " | + Glue to PMT (Left)\t\t: " << nGlue2PMTL << G4endl
-           << " | + Glue to PMT (Right)\t\t: " << nGlue2PMTR << G4endl
-           << " | + Detected by PMT\t\t: " << nDetection << G4endl
+		   << " | + Oil to Window (LEFT)\t\t: " << nGlue2PMTL << G4endl
+           << " | + Oil to Window (Right)\t\t: " << nGlue2PMTR << G4endl
+		   << " | + PMT (Left) Hits\t\t: " << nCathodL << G4endl
+           << " | + PMT (Right) Hits\t\t: " <<  nCathodR << G4endl
+           << " | + Detected by PMT (Left)\t\t: " << nDetectionL << G4endl
+		   << " | + Detected by PMT (Right)\t\t: " << nDetectionR << G4endl
 		   << " | + Boundary Details for " << boundaryName <<G4endl
-		   
+		   << " | + + Boundary Transmission\t: " << nBoundaryTransmission << G4endl
 		   << " | + + Boundary FresnelRefraction\t: " << nBoundaryRefraction << G4endl
            << " | + + Boundary FresnelReflection\t: " << nFresnelReflection << G4endl
            << " | + + Boundary TotalInternalReflection\t: " << nTotalInternalReflection << G4endl
@@ -149,15 +156,16 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
     rootData->CreateNtupleIColumn(ntupleID, "op.g2pR");
 	rootData->CreateNtupleIColumn(ntupleID, "op.det");
 
-	rootData->CreateNtupleIColumn(ntupleID, "op.ID",*fID);
-	rootData->CreateNtupleDColumn(ntupleID, "op.Gt",*fGt);
-	rootData->CreateNtupleDColumn(ntupleID, "op.L",*fL);
-	rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
+	//rootData->CreateNtupleIColumn(ntupleID, "op.ID",*fID);
+	//rootData->CreateNtupleDColumn(ntupleID, "op.L",*fL);
+	//rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
 
     rootData->CreateNtupleDColumn(ntupleID, "ph.Count", *fCount);
+	rootData->CreateNtupleIColumn(ntupleID, "ph.ID",*fID);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.t", *fTime);
+	rootData->CreateNtupleDColumn(ntupleID, "ph.flyt", *fFlyTime);
     rootData->CreateNtupleDColumn(ntupleID, "ph.x", *fX);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.y", *fY);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.z", *fZ);
@@ -175,18 +183,20 @@ void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+4, nWlsEmit);
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nGlue2PMTL);
     rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTR);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nDetection);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nDetectionL+nDetectionR);
 }
 
 G4bool OpRecorder::Record(const G4Track* thePhoton)
 {
     //more details refers to StepAction.C
     
-   // if(thePhoton->GetParentID() != 1)
-	//	return false;
+    if(thePhoton->GetParentID() != 1)
+		return false;
 	fCount->push_back(1);
+	fID->push_back(thePhoton->GetTrackID() );
 	fEk->push_back(thePhoton->GetKineticEnergy() );
 	fTime->push_back(thePhoton->GetGlobalTime()  );
+	fFlyTime->push_back(thePhoton->GetLocalTime()  );
 
 	G4ThreeVector pos = thePhoton->GetPosition();
 	fX->push_back(pos.x() );

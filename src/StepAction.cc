@@ -41,17 +41,11 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
     G4VPhysicalVolume *thePrePV = thePrePoint->GetPhysicalVolume();
     G4VPhysicalVolume *thePostPV = thePostPoint->GetPhysicalVolume();
 
-    
-    //***********************************************//
-    //--------------optical photon track-------------//
+    /*
     Recorder->fID->push_back(theTrack->GetTrackID());
-    Recorder->fL->push_back(theTrack->GetStepLength()/cm);
+    Recorder->fL->push_back(aStep->GetStepLength()/cm);
     Recorder->fWaveL->push_back(1240/(theTrack->GetKineticEnergy()/eV));
-    Recorder->fGt->push_back(theTrack->GetGlobalTime());
-    //------------------------------------------------//
-    //************************************************//
-
-
+    */
     const G4VProcess *theProcess = fpSteppingManager->GetfCurrentProcess();
 
 	// for Muon (primary track)
@@ -74,64 +68,77 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         assert(theProcess->GetProcessName() == "OpBoundary");
         G4OpBoundaryProcess *boundary = (G4OpBoundaryProcess *)theProcess;
 		G4OpBoundaryProcessStatus status = boundary->GetStatus();
-		//G4bool gotThrough = 
-		//	(status == Transmission || status == FresnelRefraction);
-		//if(gotThrough){
+		G4bool gotThrough = 
+			(status == Transmission || status == FresnelRefraction);
+		if(gotThrough){
 			// OpPthoton got through boundary
-			if (thePrePV->GetName() == "lightguide_left_PV" &&
+			if (thePrePV->GetName() == "medium_PV" &&
 				thePostPV->GetName() == "SO_left_PV")
 			{
 				type = Quartz2GlueL;
 				Recorder->nQuartz2GlueL += 1;
+                //Recorder->SetBoundaryName("Quartz2GlueL");
+                //BoundaryStats(boundary);
 			}
-			else if (thePrePV->GetName() == "lightguide_right_PV" &&
+			else if (thePrePV->GetName() == "medium_PV" &&
 				thePostPV->GetName() == "SO_right_PV")
 			{
 				type = Quartz2GlueR;
 				Recorder->nQuartz2GlueR += 1;
 			}
-		
-		//}
-        else if((thePrePV->GetName() == "lightguide_left_PV" &&
-				thePostPV->GetName() == "SO_left_PV")||(thePrePV->GetName() == "lightguide_right_PV" &&
-				thePostPV->GetName() == "SO_right_PV"))
-        {
-                //Recorder->SetBoundaryName("GlueRef");
+		else if (thePrePV->GetName() == "SO_right_PV" &&
+				thePostPV->GetName() == "Window_right_PV")
+			{
+				type = Glue2PmtR;
+				Recorder->nGlue2PMTR += 1;
+                
+                //Recorder->SetBoundaryName("Glue2PmtR");
                 //BoundaryStats(boundary);
-        }
-
+			}
+        else if (thePrePV->GetName() == "SO_left_PV" &&
+				thePostPV->GetName() == "Window_left_PV")
+			{
+				type = Glue2PmtL;
+				Recorder->nGlue2PMTL += 1;
+                //Recorder->SetBoundaryName("Glue2PmtL");
+                //BoundaryStats(boundary);
+			}
+        
+		}
         //else if (thePrePV->GetName() == "lightguide_left_PV" &&
         //         thePostPV->GetName() == "PMT_left_PV")
-        else if (thePrePV->GetName() == "SO_left_PV" &&
+        else if (thePrePV->GetName() == "Window_left_PV" &&
                  thePostPV->GetName() == "PMT_left_PV")
         {
 			// OpPhoton hit PMT photocathode
-            type = Glue2PmtL;
-            Recorder->nGlue2PMTL += 1;
+            type = CathodL;
+            Recorder->nCathodL+= 1;
             if (status == Detection){
-				type = Detected;
-				Recorder->nDetection += 1;
-                //Recorder->SetBoundaryName("Medium2PMTL");
-                //BoundaryStats(boundary);
+				type = DetectedL;
+				Recorder->nDetectionL += 1;
+                
                 //return;
 			}
+            //Recorder->SetBoundaryName("CathodL");
+            //BoundaryStats(boundary);
         }
-        else if (thePrePV->GetName() == "SO_right_PV" &&
+        else if (thePrePV->GetName() == "Window_right_PV" &&
                  thePostPV->GetName() == "PMT_right_PV")
         {
 			// OpPhoton hit PMT photocathode
-            type = Glue2PmtR;
-            Recorder->nGlue2PMTR += 1;
+            type = CathodR;
+            Recorder->nCathodR += 1;
             if (status == Detection){
-				type = Detected;
-				Recorder->nDetection += 1;
+				type = DetectedR;
+				Recorder->nDetectionR += 1;
                 //Recorder->SetBoundaryName("Medium2PMTR");
                 //BoundaryStats(boundary);
                 //return;
 			}
+            
         }
 		// For Debug boundary details
-        else if (thePrePV->GetName() == "lightguide_left_PV" &&
+        else if (thePrePV->GetName() == "medium_PV" &&
 				thePostPV->GetName() == "Detector_PV")
 		{
 				type = Quartz2Air;
