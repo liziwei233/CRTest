@@ -77,8 +77,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 			{
 				type = Quartz2GlueL;
 				Recorder->nQuartz2GlueL += 1;
-                Recorder->SetBoundaryName("Quartz2GlueL");
-                BoundaryStats(boundary);
+                //Recorder->SetBoundaryName("Quartz2GlueL");
+                //BoundaryStats(boundary);
 			}
 			else if (thePrePV->GetName() == "medium_PV" &&
 				thePostPV->GetName() == "SO_right_PV")
@@ -145,8 +145,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 				Recorder->nQuartz2Air ++;
                 Recorder->fBounce->push_back(theTrack->GetTrackID());
                 
-                //Recorder->SetBoundaryName("Quartz2Air");
-                //BoundaryStats(boundary);
+                Recorder->SetBoundaryName("Quartz2Air");
+                BoundaryStats(boundary);
 
 		}
 		
