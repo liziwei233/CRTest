@@ -33,7 +33,7 @@
   <solidref ref="lgS" />
 </volume>
 
-<volume name="EW_left">
+<!--<volume name="EW_left">
   <materialref ref="G4_Al" />
   <solidref ref="EWS" />
 </volume>
@@ -41,6 +41,16 @@
 <volume name="EW_right">
   <materialref ref="G4_Al" />
   <solidref ref="EWS" />
+</volume>
+-->
+<volume name="Window_left">
+  <materialref ref="SiO2" />
+  <solidref ref="windowS" />
+</volume>
+
+<volume name="Window_right">
+  <materialref ref="SiO2" />
+  <solidref ref="windowS" />
 </volume>
 
 <volume name="SO_left">
@@ -58,9 +68,10 @@
   <materialref ref="AIR" />
   <solidref ref="detectorS" />
   
-  <!--<physvol>
+  <physvol>
     <volumeref ref="medium" />
-  </physvol>-->
+  </physvol>
+
 
   <physvol>
     <volumeref ref="lightguide_left" />
@@ -68,26 +79,9 @@
   </physvol>
   <physvol>
     <volumeref ref="lightguide_right" />
-    <position unit="mm" z="-mediumZ/2.+lgZ/2." />
+    <position unit="mm" z="-mediumZ/2.-lgZ/2." />
   </physvol>
 
-  <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+pmtZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="PMT_right" />
-    <position unit="mm" z="-mediumZ/2.+lgZ+SOZ+pmtZ/2." />
-  </physvol>
-
-  <physvol>
-    <volumeref ref="EW_left" />
-    <position unit="mm" z="mediumZ/2.-EWZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="EW_right" />
-    <position unit="mm" z="-mediumZ/2.-EWZ/2." />
-  </physvol>
 
   <physvol>
     <volumeref ref="SO_left" />
@@ -95,8 +89,27 @@
   </physvol>
   <physvol>
     <volumeref ref="SO_right" />
-    <position unit="mm" z="-mediumZ/2.+lgZ+SOZ/2." />
+    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ/2." />
   </physvol>
 
+
+  <physvol>
+    <volumeref ref="Window_left" />
+    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="Window_right" />
+    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ/2." />
+  </physvol>
+
+
+  <physvol>
+    <volumeref ref="PMT_left" />
+    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ+pmtZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="PMT_right" />
+    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ+pmtZ/2." />
+  </physvol>
 
 </volume>

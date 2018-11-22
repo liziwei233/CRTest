@@ -81,10 +81,17 @@ void GdmlConstruction::Init(){
   G4cout << "[?]lightguide.STL has been read succesfully! - ";
   fLightguide->SetSolid(cad.GetCADSolid());
   G4RotationMatrix* rotm  = new G4RotationMatrix();
-  //rotm->rotateZ(180*deg);
-  //rotm->rotateY(180*deg);
-  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  rotm->rotateZ(180*deg);
+  
+  // LG_right faces outward.
+  rotm->rotateY(180*deg);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  
+  /*
+  // two Lg have the same direction.
   G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,-7.5*mm,-160*mm);
+  */
+
   //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,0.1*mm);
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);

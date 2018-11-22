@@ -295,7 +295,7 @@ void CerenPhysicsList::ConstructOp()
 //  theScintillationProcess->DumpPhysicsTable();
 //  theRayleighScatteringProcess->DumpPhysicsTable();
 
-  SetVerbose(1);
+  SetVerbose(0);
   
   theCerenkovProcess->SetMaxNumPhotonsPerStep(200);
   theCerenkovProcess->SetMaxBetaChangePerStep(10.0);
