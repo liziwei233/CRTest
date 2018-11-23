@@ -17,13 +17,12 @@ OpRecorder::OpRecorder()
       nBoundaryAbsorption(0), nBoundaryTransmission(0),
       nFresnelReflection(0),nTotalInternalReflection(0),nLambertianReflection(0),
       nLobeReflection(0),nSpikeReflection(0),nBackScattering(0),nBoundaryRefraction(0),
-      nDebug(0),fFlyTime(NULL),fBounce(NULL),fID(NULL)
+      nDebug(0),fBounce(NULL),fID(NULL)
 {
 	boundaryName = "NULL";
     fCount = new std::vector<double>;
 	fEk = new std::vector<double>;
 	fTime = new std::vector<double>;
-	fFlyTime = new std::vector<double>;
     fX = new std::vector<double>;
 	fY = new std::vector<double>;
 	fZ = new std::vector<double>;
@@ -41,7 +40,6 @@ OpRecorder::~OpRecorder() {
     fCount->clear();delete fCount;
 	fEk->clear();delete fEk;
 	fTime->clear();delete fTime;
-	fFlyTime->clear();delete fFlyTime;
     fX->clear();delete fX;
 	fY->clear();delete fY;
 	fZ->clear();delete fZ;
@@ -96,7 +94,6 @@ void OpRecorder::Reset()
     std::vector<double>().swap(*fCount);
     std::vector<double>().swap(*fEk);
     std::vector<double>().swap(*fTime);
-    std::vector<double>().swap(*fFlyTime);
     std::vector<double>().swap(*fX);
     std::vector<double>().swap(*fY);
     std::vector<double>().swap(*fZ);
@@ -165,7 +162,6 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->CreateNtupleIColumn(ntupleID, "ph.ID",*fID);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.t", *fTime);
-	rootData->CreateNtupleDColumn(ntupleID, "ph.flyt", *fFlyTime);
     rootData->CreateNtupleDColumn(ntupleID, "ph.x", *fX);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.y", *fY);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.z", *fZ);
@@ -196,7 +192,6 @@ G4bool OpRecorder::Record(const G4Track* thePhoton)
 	fID->push_back(thePhoton->GetTrackID() );
 	fEk->push_back(thePhoton->GetKineticEnergy() );
 	fTime->push_back(thePhoton->GetGlobalTime()  );
-	fFlyTime->push_back(thePhoton->GetLocalTime()  );
 
 	G4ThreeVector pos = thePhoton->GetPosition();
 	fX->push_back(pos.x() );
