@@ -7,7 +7,8 @@
     <- PMT -->
 
 <volume name="medium">
-  <materialref ref="SiO2" />
+  <!--<materialref ref="SiO2" />-->
+  <materialref ref="AIR" />
   <solidref ref="mediumS" />
 </volume>
 
@@ -67,7 +68,8 @@
 <volume name="Detector">
   <materialref ref="AIR" />
   <solidref ref="detectorS" />
-  
+ 
+  <!--
   <physvol>
     <volumeref ref="medium" />
   </physvol>
@@ -78,15 +80,25 @@
     <position unit="mm" z="mediumZ/2.+lgZ/2." />
   </physvol>
   <physvol>
+    <volumeref ref="SO_left" />
+    <position unit="mm" z="mediumZ/2.+lgZ+SOZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="Window_left" />
+    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="PMT_left" />
+    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ+pmtZ/2." />
+  </physvol>
+-->  
+  
+  <physvol>
     <volumeref ref="lightguide_right" />
     <position unit="mm" z="-mediumZ/2.-lgZ/2." />
   </physvol>
 
 
-  <physvol>
-    <volumeref ref="SO_left" />
-    <position unit="mm" z="mediumZ/2.+lgZ+SOZ/2." />
-  </physvol>
   <physvol>
     <volumeref ref="SO_right" />
     <position unit="mm" z="-mediumZ/2.-lgZ-SOZ/2." />
@@ -94,19 +106,11 @@
 
 
   <physvol>
-    <volumeref ref="Window_left" />
-    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ/2." />
-  </physvol>
-  <physvol>
     <volumeref ref="Window_right" />
     <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ/2." />
   </physvol>
 
 
-  <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ+pmtZ/2." />
-  </physvol>
   <physvol>
     <volumeref ref="PMT_right" />
     <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ+pmtZ/2." />

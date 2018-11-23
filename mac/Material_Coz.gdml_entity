@@ -40,7 +40,7 @@
   <composite n="1" ref="Silicon" />
   <property name="RINDEX" ref="SiO2_RINDEX"/>
   <property name="ABSLENGTH" ref="SiO2_ABSLENGTH"/>
-  <property name="TRANSMITTANCE" ref="SiO2_REFLECTIVITY"/>
+  <property name="TRANSMITTANCE" ref="SiO2_TRANSMITTANCE"/>
 </material>
 
 <!-- photocathod -->
@@ -118,14 +118,6 @@
     <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
   </material>
 
-<material name="OpBorder_PMT_R5610A">
-  <D value="0.00129" />
-  <fraction n="0.7" ref="Nitrogen" />
-  <fraction n="0.3" ref="Oxygen" />
-  <property name="EFFICIENCY" ref="PMT_R5610A_EFFICIENCY" />
-  <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
-  <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
-</material>
 
 <material name="OpBorder_PMT_R7546">
   <D value="0.00129" />

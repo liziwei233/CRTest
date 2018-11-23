@@ -13,7 +13,7 @@
 
 <!-- PMT Configuration,R is radius-->
 <variable name="pmtZ" value="0.1"/>
-<variable name="pmtR" value="5.5"/>
+<variable name="pmtR" value="5.0"/>
 
 
 
@@ -36,9 +36,9 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*10" />
-<variable name="worldY" value="detectorY*10" />
-<variable name="worldZ" value="detectorZ*2" />
+<variable name="worldX" value="detectorX*10." />
+<variable name="worldY" value="detectorY*10." />
+<variable name="worldZ" value="detectorZ*4." />
 
 <!-- Others-->
 <variable name="iDetector" value="0" />

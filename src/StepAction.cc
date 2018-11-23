@@ -70,9 +70,24 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 		G4OpBoundaryProcessStatus status = boundary->GetStatus();
 		G4bool gotThrough = 
 			(status == Transmission || status == FresnelRefraction);
+        
+        if (thePrePV->GetName() == "lightguide_right_PV" &&
+				thePostPV->GetName() == "Detector_PV")
+		{
+				type = Quartz2Air;
+                
+                Recorder->SetBoundaryName("Quartz2Air");
+                BoundaryStats(boundary);
+				Recorder->nQuartz2Air ++;
+                
+                if(!gotThrough)
+                Recorder->fBounce->push_back(theTrack->GetTrackID());
+
+		}
+
 		if(gotThrough){
 			// OpPthoton got through boundary
-			if (thePrePV->GetName() == "medium_PV" &&
+			if (thePrePV->GetName() == "lightguide_left_PV" &&
 				thePostPV->GetName() == "SO_left_PV")
 			{
 				type = Quartz2GlueL;
@@ -80,7 +95,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
                 //Recorder->SetBoundaryName("Quartz2GlueL");
                 //BoundaryStats(boundary);
 			}
-			else if (thePrePV->GetName() == "medium_PV" &&
+			else if (thePrePV->GetName() == "lightguide_right_PV" &&
 				thePostPV->GetName() == "SO_right_PV")
 			{
 				type = Quartz2GlueR;
@@ -104,9 +119,10 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
                 //BoundaryStats(boundary);
 			}
         
-		}
+		
         //else if (thePrePV->GetName() == "lightguide_left_PV" &&
         //         thePostPV->GetName() == "PMT_left_PV")
+        }
         else if (thePrePV->GetName() == "Window_left_PV" &&
                  thePostPV->GetName() == "PMT_left_PV")
         {
@@ -122,6 +138,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
             //Recorder->SetBoundaryName("CathodL");
             //BoundaryStats(boundary);
         }
+        
         else if (thePrePV->GetName() == "Window_right_PV" &&
                  thePostPV->GetName() == "PMT_right_PV")
         {
@@ -138,19 +155,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
             
         }
 		// For Debug boundary details
-        else if (thePrePV->GetName() == "medium_PV" &&
-				thePostPV->GetName() == "Detector_PV")
-		{
-				type = Quartz2Air;
-				Recorder->nQuartz2Air ++;
-                Recorder->fBounce->push_back(theTrack->GetTrackID());
-                
-                Recorder->SetBoundaryName("Quartz2Air");
-                BoundaryStats(boundary);
-
-		}
 		
-    }
+    }    
 	//Analysis::Instance()->FillOpPhotonTrackForEvent(theTrack, type);
 }
 

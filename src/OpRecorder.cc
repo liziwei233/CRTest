@@ -138,7 +138,6 @@ void OpRecorder::Print()
            << " | + + Boundary SpikeReflection\t: " << nSpikeReflection << G4endl
            << " | + + Boundary BackScattering\t: " << nBackScattering << G4endl
            << " | + + Boundary Absorption\t: " << nBoundaryAbsorption << G4endl
-           << " | + + Boundary Transmission\t: " << nBoundaryTransmission << G4endl
            << " | + + Boundary Undefined\t: " << nBoundaryUndefined << G4endl
            << " | + + Boundary WARNNING\t: " << nBoundaryWARNNING << G4endl
            << " | + X Count for Debug\t\t: " << nDebug << G4endl;

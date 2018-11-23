@@ -74,6 +74,8 @@ void GdmlConstruction::Init(){
 
 
 
+//	replace the lg model from a box to a cadmesh model
+//------------------------------------------------------
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
   flgPV = pvStore->GetVolume("lightguide_right_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_right",false);
@@ -81,21 +83,28 @@ void GdmlConstruction::Init(){
   G4cout << "[?]lightguide.STL has been read succesfully! - ";
   fLightguide->SetSolid(cad.GetCADSolid());
   G4RotationMatrix* rotm  = new G4RotationMatrix();
-  rotm->rotateZ(180*deg);
   
-  // LG_right faces outward.
+  
+ 
+  
+  // >>CASE1 :two Lg have the same direction.
+  //--------------------------------------------------------//
+  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,-7.5*mm,-160*mm);
+  //--------------------------------------------------------//
+  // >>CASE2: LG_right faces outward.
+  //--------------------------------------------------------//
+  rotm->rotateZ(180*deg);
   rotm->rotateY(180*deg);
   G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
-  
-  /*
-  // two Lg have the same direction.
-  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,-7.5*mm,-160*mm);
-  */
-
+  //--------------------------------------------------------//
+ 
+ 
+ 
   //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,0.1*mm);
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
 
+/*
   flgPV = pvStore->GetVolume("lightguide_left_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_left",false);
   //cadmeshConstruction cad("../models/lightguidepos.STL");
@@ -108,6 +117,8 @@ void GdmlConstruction::Init(){
   G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   //flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos2);
+*/
+
 
   DumpStructure();
   
