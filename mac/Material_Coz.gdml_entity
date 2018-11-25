@@ -81,7 +81,7 @@
     <property name="BACKSCATTERCONSTANT" ref="OpWrapper_Quartz_BACKSCATTER"/>
     <property name="LAMBERTIANCONSTANT" ref="OpWrapper_Quartz_LAMBERTIAN"/>
 
-    <!--<property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
+    <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>
   </material>
  
 

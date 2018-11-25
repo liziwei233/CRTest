@@ -89,7 +89,6 @@ private:
 	std::vector<int>* fID;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
-	std::vector<double>* fFlyTime;
 	std::vector<double>* fX;
 	std::vector<double>* fY;
 	std::vector<double>* fZ;
