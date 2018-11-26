@@ -1,0 +1,38 @@
+####################
+#
+# HTCondor Submit Script @ R710.star.ustc
+#
+###########
+
+# Pre-defined Macro : $(Cluster) $(Process)
+
+EXE = g4exe.sh 
+
+OUT_DIR = /data2/R710liziwei/g4/output
+
+RUN = Trigger
+
+#N_EVENT = 1 multiplay 8
+
+N_JOBS = 40
+
+initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
+
+Universe = vanilla
+
+# ENV on R710
+Getenv = True
+
+# ENV on Node
+
+Executable = $(EXE)
+
+#Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
+Arguments = $(initialdir)/mac/quartz.gdml /data2/R710liziwei/g4/FTOF_server/CRTest/mac/cdor_angle25.mac $(OUT_DIR)/data/quartz/$(RUN)/theta25/$(Process) $(Process) $(Cluster)
+
+Log = $(OUT_DIR)/log/condor_$(Cluster).log
+#Input = inputfile
+Error = $(OUT_DIR)/log/$(Cluster)_$(Process).err
+Output = $(OUT_DIR)/log/$(Cluster)_$(Process).out
+
+Queue $(N_JOBS)
