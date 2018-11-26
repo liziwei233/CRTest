@@ -14,12 +14,12 @@
 
 
 #/gun/position  0 -0.05 -15 cm
-/gun/position 0 5 -17. cm
+/gun/position 0 0 17. cm
 #/gun/position  0 0 -18 cm
 #/gun/direction 0 -1 0    #90deg
-/gun/direction 0 -1 0    #0 deg
+/gun/direction 0 0 -1    #0 deg
 #/gun/direction 0 -1 -1    #45deg
 #/gun/direction 0 -1 -1.73  #30deg
 #/gun/direction 0 -1 -0.577 #60deg
 #/gun/direction 0 0 1
-/run/beamOn 1
+/run/beamOn 25
