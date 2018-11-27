@@ -100,12 +100,11 @@ void GdmlConstruction::Init(){
  
  
  
-  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,0.1*mm);
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
 
 
-/*
+
   flgPV = pvStore->GetVolume("lightguide_left_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_left",false);
   //cadmeshConstruction cad("../models/lightguidepos.STL");
@@ -118,7 +117,7 @@ void GdmlConstruction::Init(){
   G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   //flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos2);
-*/
+
 
 
   DumpStructure();
