@@ -69,7 +69,7 @@
   <materialref ref="AIR" />
   <solidref ref="detectorS" />
  
-  <!--
+  
   <physvol>
     <volumeref ref="medium" />
   </physvol>
@@ -91,7 +91,7 @@
     <volumeref ref="PMT_left" />
     <position unit="mm" z="mediumZ/2.+lgZ+SOZ+windowZ+pmtZ/2." />
   </physvol>
--->  
+
   
   <physvol>
     <volumeref ref="lightguide_right" />

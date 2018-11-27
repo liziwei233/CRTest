@@ -1,0 +1,10 @@
+# Geant4 Macro file for batch mode
+
+#/process/em/verbose 0
+/analysis/verbose 1
+/run/verbose 0
+/run/initialize
+
+/CRTest/generator/set CRY
+/run/beamOn 20000
+
