@@ -8,7 +8,7 @@
 
 <volume name="medium">
   <!--<materialref ref="SiO2" />-->
-  <materialref ref="AIR" />
+  <materialref ref="SiO2" />
   <solidref ref="mediumS" />
 </volume>
 

@@ -6,17 +6,19 @@
 /gps/particle mu-
 /gps/pos/type Point
 #/gps/pos/type Plane
-/gps/pos/shape Circle
-/gps/pos/centre 0 5 -17 cm
-/gps/pos/radius 2.5 mm
+/gps/pos/shape Square
+/gps/pos/centre 0 5 -12 cm
+/gps/pos/halfx 2.5 mm
+/gps/pos/halfy 2.5 mm
+#/gps/pos/radius 2.5 mm
 /gps/pos/rot1 1 0 0
 /gps/pos/rot2 0 0 1
-#/gps/pos/halfx 2 cm
-#/gps/pos/halfy 2 cm
+#/gps/pos/halfx 2.5 mm
+#/gps/pos/halfy 2.5 cm
 /gps/ang/type beam2d
 #/gps/ang/rot1 0 -1 0
 #/gps/ang/rot2 0 1 0
-/gps/ene/mono 150 MeV 
+/gps/ene/mono 150 GeV 
 /gps/direction 0 -1 0 
 #/run/initialize
 /run/beamOn 1
