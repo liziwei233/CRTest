@@ -10,7 +10,7 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Beam_lx/direct
+RUN = Beam_lx/gpsbeam2
 
 #N_EVENT = 1 multiplay 8
 
@@ -28,7 +28,7 @@ Getenv = True
 Executable = $(EXE)
 
 #Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
-Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process) $(Cluster)
+Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/gps.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process) $(Cluster)
 #Arguments = $(initialdir)/mac/quartz.gdml macname $(OUT_DIR)/data/quartz/$(RUN)/filename/$(Process) $(Process)
 
 Log = $(OUT_DIR)/log/condor_$(Cluster).log
