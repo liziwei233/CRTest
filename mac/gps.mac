@@ -4,7 +4,8 @@
 /event/verbose 0
 /gps/verbose 2
 /gps/particle mu-
-/gps/pos/type Plane
+/gps/pos/type Point
+#/gps/pos/type Plane
 /gps/pos/shape Circle
 /gps/pos/centre 0 5 -17 cm
 /gps/pos/radius 2.5 mm
