@@ -61,6 +61,7 @@
 
 <volume name="SO_right">
   <materialref ref="EJ500" />
+  <materialref ref="AIR" />
   <solidref ref="SiOilS" />
 </volume>
 
