@@ -55,13 +55,13 @@
 </volume>
 
 <volume name="SO_left">
+  <!--<materialref ref="AIR" />-->
   <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
 <volume name="SO_right">
   <materialref ref="EJ500" />
-  <materialref ref="AIR" />
   <solidref ref="SiOilS" />
 </volume>
 

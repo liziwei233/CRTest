@@ -130,7 +130,7 @@ void Outputfun_MCP(const char *rootname=""){
 	//Double_t RL = -5e-9;
 	//Double_t RR = 20e-9;
 	Double_t RL = -0e-9;
-	Double_t RR = 5e-9;
+	Double_t RR = 15e-9;
 	int binNum=0;
 	binNum = (RR-RL)/25e-12;
 

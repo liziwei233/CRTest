@@ -60,10 +60,10 @@
 1.66*eV	49.7*cm
 1.55*eV	53.1*cm"/>-->
 
-<!--PERFECT no absorb 
+<!--PERFECT no absorb-->
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.21*eV 50000*cm
 3.54*eV	50000*cm
-1.24*eV	50000*cm" />-->
+1.24*eV	50000*cm" />
 
 <!--TOP
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.9*eV 5*cm
@@ -78,7 +78,7 @@
 3.5428571429*eV	100000*cm
 1.24*eV	100000*cm"/>
 -->
-<!--domestic-->
+<!--domestic
 <matrix name="SiO2_ABSLENGTH" coldim="2" values="6.526315789*eV	12.6764*cm
 6.2*eV	12.0358*cm
 5.904761905*eV	13.2417*cm
@@ -95,7 +95,7 @@
 1.771428571*eV	3787.745*cm
 1.653333333*eV	8834.69*cm
 1.55*eV	16669.157*cm"/>
-
+-->
 
 <matrix name="SiO2_TRANSMITTANCE" coldim="2" values="2.91*eV 1.0"/>
 
@@ -288,10 +288,10 @@
 
 <!-- Medium Wrapper -->
 <matrix name="OpWrapper_Quartz_ROUGHNESS" coldim="1" values="0.0"/>
-<matrix name="OpWrapper_Quartz_SPIKE" coldim="2" values="2.6*eV 0.70"/>  
-<matrix name="OpWrapper_Quartz_LOBE" coldim="2" values="2.6*eV 0.30"/>
+<matrix name="OpWrapper_Quartz_SPIKE" coldim="2" values="2.6*eV 1.0"/>  
+<matrix name="OpWrapper_Quartz_LOBE" coldim="2" values="2.6*eV 0.0"/>
 <matrix name="OpWrapper_Quartz_BACKSCATTER" coldim="2" values="2.6*eV 0.0"/>  
-<matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.00"/>
+<matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.0"/>
 <matrix name="OpWrapper_Quartz_RINDEX" coldim="2" values="2.6*eV 1.0"/>
 <matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.997"/>
 <!--<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0.003"/>-->

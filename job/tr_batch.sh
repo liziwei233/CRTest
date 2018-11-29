@@ -22,15 +22,15 @@ then
     if [ -d $path/$dirname ]
     then
         rootname=$path/$dirname/${dirname}
-        hadd ${rootname}data.root $path/$dirname/{0..79}data.root
-        hadd ${rootname}.root $path/$dirname/{0..79}.root
+        hadd ${rootname}data.root $path/$dirname/{0..159}data.root
+        hadd ${rootname}.root $path/$dirname/{0..159}.root
         root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
     fi
     done
 else
     rootname=$path/$(basename $path)
-    hadd ${rootname}data.root $path/{0..79}data.root
-    hadd ${rootname}.root $path/{0..79}.root
+    hadd ${rootname}data.root $path/{0..159}data.root
+    hadd ${rootname}.root $path/{0..159}.root
     root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
 fi
 

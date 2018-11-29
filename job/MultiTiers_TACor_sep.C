@@ -29,8 +29,8 @@ void MultiTiers_TACor_sep(const char *rootname=""){
     double uL = -15e3;
     double uR = 0; 
 
-    int rbt = 1;
-    int rbu = 10;
+    int rbt = 4;
+    int rbu = 4;
 
     // the range set After Correct
     //double L2 = -100e-12;
