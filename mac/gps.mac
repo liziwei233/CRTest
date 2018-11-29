@@ -4,13 +4,13 @@
 /event/verbose 0
 /gps/verbose 2
 /gps/particle mu-
-#/gps/pos/type Point
-/gps/pos/type Plane
+/gps/pos/type Point
+#/gps/pos/type Plane
 #/gps/pos/shape Square
-/gps/pos/shape Circle
+#/gps/pos/shape Circle
 /gps/pos/centre 0 5 -0 cm
-#/gps/pos/halfx 2.5 mm
-#/gps/pos/halfy 2.5 mm
+/gps/pos/halfx 2.5 mm
+/gps/pos/halfy 2.5 mm
 /gps/pos/radius 0.5 mm
 /gps/pos/rot1 1 0 0
 /gps/pos/rot2 0 0 1
