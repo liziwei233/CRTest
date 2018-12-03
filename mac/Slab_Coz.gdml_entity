@@ -114,7 +114,7 @@
 
   <physvol>
     <volumeref ref="PMT_right" />
-    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ+pmtZ/2." />
+    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ-pmtZ/2." />
   </physvol>
 
 </volume>
