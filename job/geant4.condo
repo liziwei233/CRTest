@@ -10,7 +10,7 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Beam_lx/NOLG
+RUN = Beam_lx/check/spike100
 
 #N_EVENT = 1 multiplay 8
 

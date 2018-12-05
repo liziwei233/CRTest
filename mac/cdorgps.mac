@@ -5,7 +5,7 @@
 /gps/verbose 2
 /gps/particle mu-
 /gps/pos/type Point
-/gps/pos/type Plane
+#/gps/pos/type Plane
 /gps/pos/shape Square
 #/gps/pos/shape Circle
 /gps/pos/centre 0 5 -0 cm

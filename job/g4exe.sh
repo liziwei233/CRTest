@@ -7,7 +7,7 @@ which geant4-config
 mkdir -p `dirname $3`
 ./CRTest $1 $2 $3
 NAME=$3
-cluster=$4
+cluster=$5
 #echo $NAME > $PWD/name.log
 #root -b -q "MultiTiersOutputfun_SiPM.C(\"$NAME\")"
 
