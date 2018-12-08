@@ -13,16 +13,16 @@
 
 <!-- PMT Configuration,R is radius-->
 <variable name="pmtZ" value="0.1"/>
-<variable name="pmtR" value="15.0"/>
-<!--<variable name="pmtR" value="5.0"/>-->
+<variable name="pmtR" value="5.0"/>
+<!--<variable name="pmtR" value="15.0"/>-->
 
 
 
 <!-- lightguide & window & Si gel & black material-->
 <variable name="lgZ" value="38"/>
-<variable name="windowZ" value="0.1"/>
-<!--<variable name="windowZ" value="3.2"/>-->
-<variable name="SOZ" value="0.1"/>
+<variable name="windowZ" value="3.2"/>
+<!--<variable name="windowZ" value="0.1"/>-->
+<variable name="SOZ" value="0.5"/>
 <!--<variable name="SOZ" value="0.1"/>-->
 <variable name="EWZ" value="0.1"/>
 

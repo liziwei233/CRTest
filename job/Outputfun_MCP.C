@@ -62,7 +62,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
     //----MCP R10754------
     //------------------------------
     //
-    SPEpar[0]=1e6;  //Gain
+    SPEpar[0]=1.1e6;  //Gain
     SPEpar[1]=1.6e-19; //e
     SPEpar[2]=2.65e-12;  //Ca  ??
     SPEpar[3]=12e-12; //C
