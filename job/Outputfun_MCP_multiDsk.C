@@ -197,12 +197,12 @@ Double_t outputfunc(Double_t x, vector<double> par){
         binNum = (RR-RL)/25e-12;
 
         const int range =1e3;  // 25ps/sample
-        Double_t thrd = -30; //Umax = -28.94mV
         double Rate=0;
 
         bool flagR=0,flagL=0;
         double xT0_L=0,xT0_R=0,xT0=0;
         int indexL=0,indexR=0;
+        int index_pkL=0,index_pkR=0;
         double keypointL=0,keypointR=0;
         double UL=0,UR=0;
         const int certain=2;	
@@ -218,6 +218,14 @@ Double_t outputfunc(Double_t x, vector<double> par){
         Double_t yR[range]={};
         Double_t yL[range]={};
 
+        double  Uspe = -30; //Umax = -28.94mV
+        double ratio[5]={0.1,0.15,0.2,0.25,0.3};
+        double thrd[5]={1,2,3,4,5};
+        double xp10[2]={},xp15[2]={},xp20[2]={},xp25[2]={},xp30[2]={};
+        double xt1pe[2]={},xt2pe[2]={},xt3pe[2]={},xt4pe[2]={},xt5pe[2]={};
+        double amp[2]={};
+
+
         sprintf(name,"%s_fac%g_type%s",rootname,fac,ParType);
         sprintf(buff,"%s.root",rootname);
 
@@ -232,12 +240,20 @@ Double_t outputfunc(Double_t x, vector<double> par){
         sprintf(buff,"%sdata.root",name);
 
         TFile *f2 = new TFile(buff,"RECREATE");
-        TTree *t2 = new TTree("data","restore analysed data  from G4");
+        TTree *t2 = new TTree("FIX","restore analysed data  from G4");
         t2->Branch("UL",&UL,"UL/D");
         t2->Branch("UR",&UR,"UR/D");
         t2->Branch("T0L",&xT0_L,"T0L/D");
         t2->Branch("T0R",&xT0_R,"T0R/D");
-        t2->Branch("T0",&xT0,"T0/D");	
+        t2->Branch("T0",&xT0,"T0/D");
+        
+        t2->Branch("amp",amp,"amp[2]/D");	
+        t2->Branch("T0_CFD",xCFD,"xCFD[2][5]/D");	
+        t2->Branch("CFD_fac",ratio,"ratio[5]/D");
+        t2->Branch("T0_FIX",xFIX,"xFIX[2][5]/D");	
+        t2->Branch("FIX_fac",thrd,"thrd[5]/D");
+        
+            
         //for(int s = 0; s<4;s++){
 
 
@@ -271,7 +287,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
         //count->clear();
         //for(int i = certain; i < certain+1; i++){
-        for(int i = 0; i < N; i++){
+        for(int i = 0; i < 1; i++){
 
             //-----------initial----------------------//
             TL->clear();
@@ -390,6 +406,34 @@ Double_t outputfunc(Double_t x, vector<double> par){
             xT0 = 0;
             keypointL = 0;
             keypointR = 0;
+            index_pkL = TMath::LocMin(range,yL);
+            index_pkR = TMath::LocMin(range,yR);
+            for( int q = 1; q < range; q++)
+            {
+                for( int s = 0; s < 5; s++)
+                {
+                //Left PMT discriminator
+                    if(yL[q]<ratio[s]*UL&&yL[q-1]>ratio[s]*UL&&q<=index_pkL)
+                    xCFD[0][s]=xL[q];
+                    if(yL[q]<thrd[s]*Uspe&&yL[q-1]>thrd[s]*Uspe&&q<=index_pkL)
+                    xFIX[0][s]=xL[q];
+                
+                //Right PMT discrimanator
+                    if(yR[q]<ratio[s]*UR&&yR[q-1]>ratio[s]*UR&&q<=index_pkR)
+                    xCFD[1][s]=xR[q];
+                    if(yR[q]<thrd[s]*Uspe&&yR[q-1]>thrd[s]*Uspe&&q<=index_pkR)
+                    xFIX[1][s]=xR[q];
+                }
+            }
+            for (int s = 0;s < 5; s++){
+                for(int p = 0;p < 2;p++)
+                {
+                    cout<<"xCFD_"<<p<<"="<<xCFD[p]<<endl;   
+                    cout<<"xFIX_"<<p<<"="<<xFIX[p]<<endl;   
+                    }
+            }
+            return;
+
             if (strcmp(ParType,"FIX")==0) //if the discriminate way is fix threshold discrim
             {
                 keypointL = fac;
