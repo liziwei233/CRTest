@@ -6,7 +6,7 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="15"/>
+<variable name="mediumX" value="150"/>
 <variable name="mediumY" value="15"/>
 <variable name="mediumZ" value="320"/>
 

@@ -149,7 +149,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
 
 
-    void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
+    void Outputfun_MCP_multiDsk(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
         cout<<"fac="<<fac<<",dicriminate:"<<ParType<<endl;
 
@@ -202,7 +202,6 @@ Double_t outputfunc(Double_t x, vector<double> par){
         bool flagR=0,flagL=0;
         double xT0_L=0,xT0_R=0,xT0=0;
         int indexL=0,indexR=0;
-        int index_pkL=0,index_pkR=0;
         double keypointL=0,keypointR=0;
         double UL=0,UR=0;
         const int certain=2;	
@@ -218,15 +217,19 @@ Double_t outputfunc(Double_t x, vector<double> par){
         Double_t yR[range]={};
         Double_t yL[range]={};
 
-        double  Uspe = -30; //Umax = -28.94mV
+        double Uspe = -30; //Umax = -28.94mV
         double ratio[5]={0.1,0.15,0.2,0.25,0.3};
         double thrd[5]={1,2,3,4,5};
-        double xp10[2]={},xp15[2]={},xp20[2]={},xp25[2]={},xp30[2]={};
-        double xt1pe[2]={},xt2pe[2]={},xt3pe[2]={},xt4pe[2]={},xt5pe[2]={};
+        double xFIX[2][5]={};
+        double xCFD[2][5]={};	
         double amp[2]={};
+        int index_pkL=0,index_pkR=0;
+        int idxCFD[2][5]={};
+        int idxFIX[2][5]={};
 
 
-        sprintf(name,"%s_fac%g_type%s",rootname,fac,ParType);
+        //sprintf(name,"%s_fac%g_type%s",rootname,fac,ParType);
+        sprintf(name,"%s",rootname);
         sprintf(buff,"%s.root",rootname);
 
         TFile *f1 = new TFile(buff,"READ");
@@ -240,20 +243,15 @@ Double_t outputfunc(Double_t x, vector<double> par){
         sprintf(buff,"%sdata.root",name);
 
         TFile *f2 = new TFile(buff,"RECREATE");
-        TTree *t2 = new TTree("FIX","restore analysed data  from G4");
-        t2->Branch("UL",&UL,"UL/D");
-        t2->Branch("UR",&UR,"UR/D");
-        t2->Branch("T0L",&xT0_L,"T0L/D");
-        t2->Branch("T0R",&xT0_R,"T0R/D");
-        t2->Branch("T0",&xT0,"T0/D");
-        
+        TTree *t2 = new TTree("dsk","restore analysed data  from G4");
+
         t2->Branch("amp",amp,"amp[2]/D");	
         t2->Branch("T0_CFD",xCFD,"xCFD[2][5]/D");	
         t2->Branch("CFD_fac",ratio,"ratio[5]/D");
         t2->Branch("T0_FIX",xFIX,"xFIX[2][5]/D");	
         t2->Branch("FIX_fac",thrd,"thrd[5]/D");
-        
-            
+
+
         //for(int s = 0; s<4;s++){
 
 
@@ -270,24 +268,13 @@ Double_t outputfunc(Double_t x, vector<double> par){
         h[0] = new TH1D("hR","",binNum,RL,RR);
         h[1] = new TH1D("hL","",binNum,RL,RR);
 
-        TH1D *hSIG = new TH1D("hSIG","PMT's total signal",binNum,RL,RR);
-        TH1D *hSig[2];
-        hSig[0] = new TH1D("hRSig","",binNum,RL,RR);
-        hSig[1] = new TH1D("hLSig","",binNum,RL,RR);
-
-
-        TF1 *fSIG = new TF1("fSIG","gaus",RL,RR);
-        TF1 *fSig[2];
-        fSig[0] = new TF1("fRSig","gaus",RL,RR);
-        fSig[1] = new TF1("fLSig","gaus",RL,RR);
-
         N = t1->GetEntries();
         cout<<"Entries = "<<N<<endl;
 
 
         //count->clear();
         //for(int i = certain; i < certain+1; i++){
-        for(int i = 0; i < 1; i++){
+        for(int i = 0; i < N; i++){
 
             //-----------initial----------------------//
             TL->clear();
@@ -408,84 +395,121 @@ Double_t outputfunc(Double_t x, vector<double> par){
             keypointR = 0;
             index_pkL = TMath::LocMin(range,yL);
             index_pkR = TMath::LocMin(range,yR);
+            amp[0]=UL;
+            amp[1]=UR;
             for( int q = 1; q < range; q++)
             {
                 for( int s = 0; s < 5; s++)
                 {
-                //Left PMT discriminator
+                    //Left PMT discriminator
+
                     if(yL[q]<ratio[s]*UL&&yL[q-1]>ratio[s]*UL&&q<=index_pkL)
-                    xCFD[0][s]=xL[q];
-                    if(yL[q]<thrd[s]*Uspe&&yL[q-1]>thrd[s]*Uspe&&q<=index_pkL)
-                    xFIX[0][s]=xL[q];
-                
-                //Right PMT discrimanator
-                    if(yR[q]<ratio[s]*UR&&yR[q-1]>ratio[s]*UR&&q<=index_pkR)
-                    xCFD[1][s]=xR[q];
-                    if(yR[q]<thrd[s]*Uspe&&yR[q-1]>thrd[s]*Uspe&&q<=index_pkR)
-                    xFIX[1][s]=xR[q];
-                }
-            }
-            for (int s = 0;s < 5; s++){
-                for(int p = 0;p < 2;p++)
-                {
-                    cout<<"xCFD_"<<p<<"="<<xCFD[p]<<endl;   
-                    cout<<"xFIX_"<<p<<"="<<xFIX[p]<<endl;   
+                    {
+                        xCFD[0][s]=xL[q];
+                        idxCFD[0][s]=q;
                     }
-            }
-            return;
 
-            if (strcmp(ParType,"FIX")==0) //if the discriminate way is fix threshold discrim
+                    if(yL[q]<thrd[s]*Uspe&&yL[q-1]>thrd[s]*Uspe&&q<=index_pkL)
+                    {
+
+                        xFIX[0][s]=xL[q];
+                        idxFIX[0][s]=q;
+                    }
+
+                    //Right PMT discrimanator
+
+                    if(yR[q]<ratio[s]*UR&&yR[q-1]>ratio[s]*UR&&q<=index_pkR)
+                    {
+
+                        xCFD[1][s]=xR[q];
+                        idxCFD[1][s]=q;
+                    }
+                    if(yR[q]<thrd[s]*Uspe&&yR[q-1]>thrd[s]*Uspe&&q<=index_pkR)
+                    {
+
+                        xFIX[1][s]=xR[q];
+                        idxFIX[1][s]=q;
+                    }
+
+
+
+                }
+            }
+            /*
+               for (int s = 0;s < 5; s++){
+               for(
+               int p = 0;p < 2;p++)
+               {
+               cout<<"xCFD_"<<p<<"="<<xCFD[p][s]<<endl;   
+               cout<<"xFIX_"<<p<<"="<<xFIX[p][s]<<endl;   
+               }
+               }
+               return;
+               */
+            /*
+               if (strcmp(ParType,"FIX")==0) //if the discriminate way is fix threshold discrim
+               {
+               keypointL = fac;
+               keypointR = fac;
+               }
+               else {
+               keypointR = fac*UR;
+
+               keypointL = fac*UL;
+               }
+
+
+               for( int q = 0 ;q < range; q++){
+               if(yR[q]<keypointR&&flagR)
+            //if(yR[q]<Rate*UR && flagR && yR[q]<thrd) 
             {
-                keypointL = fac;
-                keypointR = fac;
+
+            indexR=q;
+            //xT0_R=xR[q];
+            flagR = 0;
+            //cout<<"		[+] selected xR = "<<xT0_R<<"\t"<<yR[q]<<endl;
             }
-            else {
-                keypointR = fac*UR;
+            if(yL[q]<keypointL&&flagL) 
+            //if(yL[q]<Rate*UL && flagL && yL[q]<thrd) 
+            {
 
-                keypointL = fac*UL;
+            indexL=q;
+            //xT0_L=xL[q];
+            flagL = 0;
+            //cout<<"		[+] selected xL = "<<xT0_L<<"\t"<<yL[q]<<endl;
             }
-
-
-            for( int q = 0 ;q < range; q++){
-                if(yR[q]<keypointR&&flagR)
-                    //if(yR[q]<Rate*UR && flagR && yR[q]<thrd) 
-                {
-                    indexR=q;
-                    //xT0_R=xR[q];
-                    flagR = 0;
-                    //cout<<"		[+] selected xR = "<<xT0_R<<"\t"<<yR[q]<<endl;
-                }
-                if(yL[q]<keypointL&&flagL) 
-                    //if(yL[q]<Rate*UL && flagL && yL[q]<thrd) 
-                {
-
-                    indexL=q;
-                    //xT0_L=xL[q];
-                    flagL = 0;
-                    //cout<<"		[+] selected xL = "<<xT0_L<<"\t"<<yL[q]<<endl;
-                }
-                //cout<<" q value"<<q<<endl;
+            //cout<<" q value"<<q<<endl;
             }
             //cout<<"find the time stamp (ns) = "<<xR[indexR]<<",and the corrresponding amp = "<<yR[indexR]<<endl;
             //cout<<"index="<<indexR<<endl;
-
+            */
             /*=====================================================
              * =======Fit the signal and find the timestamp========
              * ==================================================*/
             TGraph *gR = new TGraph(range,xR,yR);
-            TF1* fitR = pol3fit(gR,xR[indexR]-2e-2,xR[indexR]+3e-2);
-            xT0_R=fitR->GetX(keypointR)*1e-9;
+            TGraph *gL = new TGraph(range,xL,yL);
+            for(int s=0;s<5;s++)
+            {
+
+                // PMT Left
+                TF1* fitCFDL = pol3fit(gL,xL[idxCFD[0][s]]-2e-2,xL[idxCFD[0][s]]+3e-2);
+                xCFD[0][s]=fitCFDL->GetX(ratio[s]*UL)*1e-9;
+                TF1* fitFIXL = pol3fit(gL,xL[idxFIX[0][s]]-2e-2,xL[idxFIX[0][s]]+3e-2);
+                xFIX[0][s]=fitFIXL->GetX(thrd[s]*Uspe)*1e-9;
+
+
+                //PMT right
+                TF1* fitCFDR = pol3fit(gR,xR[idxCFD[1][s]]-2e-2,xR[idxCFD[1][s]]+3e-2);
+                xCFD[1][s]=fitCFDR->GetX(ratio[s]*UR)*1e-9;
+
+
+                TF1* fitFIXR = pol3fit(gR,xR[idxFIX[1][s]]-2e-2,xR[idxFIX[1][s]]+3e-2);
+                xFIX[1][s]=fitFIXR->GetX(thrd[s]*UR)*1e-9;
+            }
 
             //return;
-            TGraph *gL = new TGraph(range,xL,yL);
-            TF1* fitL = pol3fit(gL,xL[indexL]-2e-2,xL[indexL]+3e-2);
-            xT0_L=fitL->GetX(keypointL)*1e-9;
             //xT0_L = Discriminate(xL,yL,indexL);
 
-            hSig[1]->Fill(xT0_L);
-            hSig[0]->Fill(xT0_R);
-            if(xT0_L&&xT0_R) xT0 = (xT0_L+xT0_R)*0.5;
-            hSIG->Fill(xT0);
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xR[indexR]<<"\t"<<xL[indexL]<<"\t"<<(xR[indexR]+xL[indexL])/2<<endl;
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xT0_R<<"\t"<<xT0_L<<"\t"<<xT0<<endl;
 
@@ -584,46 +608,11 @@ Double_t outputfunc(Double_t x, vector<double> par){
         sprintf(buff,"%s_Signal.png",name);
         c->SaveAs(buff);
         //return ;
-
-        //hSig[0]->FillRandom("gaus",1000);
-        //hSig[0]->Draw();
-
-        TCanvas *c1 = new TCanvas("c1","",1600,600);
-
-        c1->Divide(2,1);
-        c1->cd(1);
-        hSig[0]->Draw();
-        hSig[0]->Rebin(6);
-        hSig[0]->GetXaxis()->SetRangeUser(t_L,t_R);
-
-        hSig[0]->Fit(fSig[0],"R");
-        c1->cd(2);
-        hSig[1]->Draw();
-        hSig[1]->Rebin(6);
-        hSig[1]->GetXaxis()->SetRangeUser(t_L,t_R);
-
-        hSig[1]->Fit(fSig[1],"R");
-        sprintf(buff,"%s_Twosides_timeresolution.png",name);
-        c1->SaveAs(buff);
-
-        TCanvas *c2 = new TCanvas("c2","",800,600);
-        c2->cd();
-        hSIG->Draw();
-
-
-        hSIG->Rebin(6);
-        hSIG->GetXaxis()->SetRangeUser(t_L,t_R);
-        hSIG->Fit(fSIG,"R");
-        sprintf(buff,"%s_timeresolution.png",name);
-        c2->SaveAs(buff);
-
         f2->cd();
         t2->Write();
 
         //f2->Close();
         //sprintf(buff,"%s_TimeRes.dat",name);
-        ofstream outputdata("TimeRes.dat",ios::app);
-        outputdata<<fSIG->GetParameter(2)<<"\t"<<fSIG->GetParError(2)<<endl;
 
 
 

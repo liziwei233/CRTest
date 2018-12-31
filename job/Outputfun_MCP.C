@@ -218,7 +218,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
         Double_t yR[range]={};
         Double_t yL[range]={};
 
-        sprintf(name,"%s_fac%g_type%s",rootname,fac,ParType);
+        //sprintf(name,"%s_fac%g_type%s",rootname,fac,ParType);
+        sprintf(name,"%s",rootname);
         sprintf(buff,"%s.root",rootname);
 
         TFile *f1 = new TFile(buff,"READ");

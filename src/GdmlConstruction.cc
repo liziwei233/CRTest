@@ -74,7 +74,7 @@ void GdmlConstruction::Init(){
 
 
 /*=====================================>>
-=========================================*/
+=========================================
 //	replace the lg model from a box to a cadmesh model
 //------------------------------------------------------
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
@@ -118,7 +118,7 @@ void GdmlConstruction::Init(){
   G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   //flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos2);
-/*=====================================*
+=====================================*
 <<===================================*/
 
 
