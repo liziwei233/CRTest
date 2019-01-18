@@ -40,7 +40,7 @@
   <composite n="1" ref="Silicon" />
   <property name="RINDEX" ref="SiO2_RINDEX"/>
   <property name="ABSLENGTH" ref="SiO2_ABSLENGTH"/>
-  <property name="TRANSMITTANCE" ref="SiO2_TRANSMITTANCE"/>
+  <!--<property name="TRANSMITTANCE" ref="SiO2_TRANSMITTANCE"/>-->
 </material>
 
 <!-- photocathod -->
@@ -73,7 +73,7 @@
     <fraction n="0.3" ref="Oxygen" />
     <property name="REFLECTIVITY" ref="OpWrapper_Quartz_REFLECTIVITY" />
     <property name="EFFICIENCY" ref="OpWrapper_Quartz_EFFICIENCY" />
-    <!--<property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />-->
+    <property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />
     <!--<property name="SURFACEROUGHNESS" ref="OpWrapper_Quartz_ROUGHNESS" />-->
     
     <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />

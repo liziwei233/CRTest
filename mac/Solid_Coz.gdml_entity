@@ -23,6 +23,9 @@
 
  <!-- lightguide -->
 <box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 
+ 
+<!-- Trigger -->
+ <box aunit="radian" lunit="mm" name="TRS" x="TRX" y="TRY" z="TRZ" /> 
 
  <!-- end wrapper -->
 <box aunit="radian" lunit="mm" name="EWS" x="mediumX" y="mediumY" z="EWZ" /> 
