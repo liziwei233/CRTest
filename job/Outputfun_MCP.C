@@ -55,8 +55,9 @@ Double_t outputfunc(Double_t x, vector<double> par){
     double SPEpar[7];
     double Tmark=0;
     bool flag;
-    double Trecept=0.7e-9; //waiting the photons hit
-    double Treject=1.0e-9; //recover time,during this time any photons are rejected.
+    double Trecept=10e-12; //waiting the photons hit
+    double Treject=500e-12; //recover time,during this time any photons are rejected.
+    double ttssigma=20e-12;
     //tts = r.Gaus(0,10.6e-12);
     //
     //----MCP R10754------
@@ -85,7 +86,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
             if(par.at(n)-Tmark<Trecept)
             {
                 r.SetSeed(par.at(n));
-                tts = r.Gaus(0,10.6e-12); //TTS of MCP-R3805U
+                tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
                 val+=response(x-tts-par.at(n),SPEpar);
             }
@@ -97,7 +98,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
             {
                 Tmark=par.at(n);
                 r.SetSeed(par.at(n));
-                tts = r.Gaus(0,10.6e-12); //TTS of MCP-R3805U
+                tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
                 val+=response(x-tts-par.at(n),SPEpar);
             }

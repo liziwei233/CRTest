@@ -10,11 +10,11 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Beam_lx/check/USELG
+RUN = Beam_lx/0118/testv2
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 160
+N_JOBS = 1600
 
 initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
 
