@@ -14,7 +14,7 @@ RUN = Beam_lx/0118/testv2
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 160
+N_JOBS = 1600
 
 initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
 
@@ -27,7 +27,7 @@ Getenv = True
 
 Executable = $(EXE)
 
-Arguments = $(OUT_DIR)/data/quartz/$(RUN)/$(Process) 7 $(Cluster) 
+Arguments = $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Cluster) 
 
 Log = $(OUT_DIR)/log/condor_$(Cluster).log
 #Input = inputfile
