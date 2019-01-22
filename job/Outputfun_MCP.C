@@ -150,7 +150,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
 
 
-    void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
+    void Outputfun_MCP(const char *rootname="",double fac = 0.2, const char* ParType="CFD"){
+    //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
         cout<<"fac="<<fac<<",dicriminate:"<<ParType<<endl;
 

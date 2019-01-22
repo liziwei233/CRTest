@@ -26,7 +26,7 @@ then
         hadd -f ${rootname}dataFIX.root $path/$dirname/{0..1599}dataFIX.root
         hadd -f ${rootname}dataCFD.root $path/$dirname/{0..1599}dataCFD.root
         hadd -f ${rootname}.root $path/$dirname/{0..1599}.root
-        root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
+        #root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
     fi
     done
 else
@@ -35,7 +35,7 @@ else
     hadd -f ${rootname}dataFIX.root $path/{0..1599}dataFIX.root
     hadd -f ${rootname}dataCFD.root $path/{0..1599}dataCFD.root
     hadd -f ${rootname}.root $path/{0..1599}.root
-    root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
+    #root -b -q "MultiTiers_TACor_sep.C(\"${rootname}data\")"
 fi
 
 
