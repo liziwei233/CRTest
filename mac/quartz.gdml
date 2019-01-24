@@ -196,7 +196,7 @@
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
         <auxiliary auxtype="PVname" auxvalue="Window_PV" />
         <auxiliary auxtype="PVname" auxvalue="Cathode_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_50"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_52"/>
       </auxiliary>
       <!--<auxiliary auxtype="Skin" auxvalue="DetectorWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="det_surf" />

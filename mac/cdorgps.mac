@@ -21,5 +21,5 @@
 /gps/ene/mono 150 GeV 
 /gps/direction 0 0 -1 
 #/run/initialize
-#/run/beamOn 63
-/run/beamOn 1000
+/run/beamOn 63
+#/run/beamOn 1000
