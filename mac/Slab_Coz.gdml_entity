@@ -25,7 +25,7 @@
   <solidref ref="TRS" />
 </volume>
 
-<volume name="lightguide_right">
+<volume name="lightguide">
   <materialref ref="SiO2" />
   <solidref ref="lgS" />
 </volume>
@@ -70,17 +70,44 @@
     <volumeref ref="Cathode" />
     <position unit="mm" z="pmtZ/2.-windowZ-cathodeZ/2." />
   </physvol>
-  <physvol>
-    <volumeref ref="SO" />
-    <position unit="mm" z="pmtZ/2.+SOZ/2." />
-  </physvol>
 </volume>
 
-<!--
+
 <volume name="Detector">
   <materialref ref="AIR" />
   <solidref ref="detectorS" />
+      
+  <physvol copynumber="0">
+          <volumeref ref="PMT" />
+          <position z="-50" />
+      </physvol>
+  <physvol copynumber="0">
+    <volumeref ref="SO" />
+    <position unit="mm" z="-50+pmtZ/2.+SOZ/2." />
+  </physvol>
+
+      <physvol >
+          <volumeref ref="trigger" />
+          <position z="-50+pmtZ/2.+SOZ+TRZ/2." />
+      </physvol>
+      
+      <physvol copynumber="1">
+          <volumeref ref="PMT" />
+          <position z="50" />
+      </physvol>
+      <physvol copynumber="1">
+         <volumeref ref="SO" />
+         <position unit="mm" z="50+pmtZ/2.+SOZ/2." />
+      </physvol>
+      
+      <physvol >
+          <volumeref ref="lightguide" />
+          <position z="50+pmtZ/2.+SOZ+lgZ/2." />
+      </physvol>
  
+</volume>
+ 
+  <!--
   <physvol>
     <volumeref ref="medium" />
   </physvol>

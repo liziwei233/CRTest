@@ -33,15 +33,10 @@
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
-      <physvol copynumber="0">
-          <volumeref ref="PMT" />
-          <position z="-50" />
-      </physvol>
-      <physvol copynumber="1">
-          <volumeref ref="PMT" />
-          <position z="50" />
-      </physvol>
       
+      <physvol >
+          <volumeref ref="Detector" />
+      </physvol>
   </volume>
   
 
@@ -55,16 +50,27 @@
       </physvol>
     </loop>
   </volume>-->
-
+<!--
   <skinsurface name="pmt_skin" surfaceproperty="Alfoilpolished_surf" >
     <volumeref ref="PMT"/>
   </skinsurface>
-  <!--
+ -->
+  
   <bordersurface name="pmt_border" surfaceproperty="Alfoilpolished_surf" >
     <physvolref ref="PMT_PV"/>
-    <physvolref ref="World_PV"/>
+    <physvolref ref="Detector_PV"/>
   </bordersurface>
--->
+  
+  <bordersurface name="tr_border" surfaceproperty="Alfoilpolished_surf" >
+    <physvolref ref="trigger_PV"/>
+    <physvolref ref="Detector_PV"/>
+  </bordersurface>
+  
+  <bordersurface name="lg_border" surfaceproperty="Alfoilpolished_surf" >
+    <physvolref ref="lightguide_PV"/>
+    <physvolref ref="Detector_PV"/>
+  </bordersurface>
+
   <bordersurface name="cathode_border" surfaceproperty="photocath" >
     <physvolref ref="Window_PV"/>
     <physvolref ref="Cathode_PV"/>
@@ -176,21 +182,35 @@
 -->
   <userinfo>
     <auxiliary auxtype="Property">
-      
+
+  <!--    
       <auxiliary auxtype="Skin" auxvalue="PMTWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
         <auxiliary auxtype="LVname" auxvalue="PMT" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
+  -->    
       
-      <!--
       <auxiliary auxtype="Border" auxvalue="PMTWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
         <auxiliary auxtype="PVname" auxvalue="PMT_PV" />
-        <auxiliary auxtype="PVname" auxvalue="World_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
-      -->
+    
+      <auxiliary auxtype="Border" auxvalue="TRWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
+        <auxiliary auxtype="PVname" auxvalue="trigger_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+      </auxiliary>
+
+      <auxiliary auxtype="Border" auxvalue="LGWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+      </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="Photocathode">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>

@@ -75,12 +75,12 @@ void GdmlConstruction::Init(){
 
 
 /*=====================================>>
-=========================================
+=========================================*/
 //	replace the lg model from a box to a cadmesh model
 //------------------------------------------------------
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
-  flgPV = pvStore->GetVolume("lightguide_right_PV",false);
-  fLightguide = lvStore->GetVolume("lightguide_right",false);
+  flgPV = pvStore->GetVolume("lightguide_PV",false);
+  fLightguide = lvStore->GetVolume("lightguide",false);
   cadmeshConstruction cad("../models/lightguidepos.STL");
   G4cout << "[?]lightguide.STL has been read succesfully! - ";
   fLightguide->SetSolid(cad.GetCADSolid());
@@ -97,7 +97,8 @@ void GdmlConstruction::Init(){
   //--------------------------------------------------------//
   rotm->rotateZ(180*deg);
   rotm->rotateY(180*deg);
-  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,113.1*mm);
   //--------------------------------------------------------//
  
  
@@ -105,7 +106,7 @@ void GdmlConstruction::Init(){
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
 
-
+/*
 //-----Dont take plase of origin cube----------------
   flgPV = pvStore->GetVolume("lightguide_left_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_left",false);

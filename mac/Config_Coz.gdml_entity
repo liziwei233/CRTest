@@ -35,9 +35,9 @@
 
 <!-- Detector Configuration -->
 
-<variable name="detectorX" value="mediumX+0.01" />
-<variable name="detectorY" value="mediumY+0.01" />
-<variable name="detectorZ" value="mediumZ+lgZ*2+pmtZ*2+windowZ*2+SOZ*2+0.01" />
+<variable name="detectorX" value="1000+0.01" />
+<variable name="detectorY" value="1000+0.01" />
+<variable name="detectorZ" value="1000+0.01" />
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
@@ -46,9 +46,9 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*10." />
-<variable name="worldY" value="detectorY*10." />
-<variable name="worldZ" value="detectorZ*4." />
+<variable name="worldX" value="detectorX+0.01" />
+<variable name="worldY" value="detectorY+0.01" />
+<variable name="worldZ" value="detectorZ+0.01" />
 
 <!-- Others-->
 <variable name="iDetector" value="0" />
