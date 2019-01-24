@@ -317,7 +317,7 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
                 //cout<< T[][k] <<endl;
                 temp = (*hitT)[k] * 1e-9;
                 if ((*ID)[k] == iT){
-                    r.SetSeed(time(NULL)*processN+k);
+                    //r.SetSeed(time(NULL)*processN+k);
                     par[iT].push_back(temp);
                     tts[iT].push_back(r.Gaus(0,ttssigma));
                     if(i==N-1) h[iT]->Fill(temp*1e9);
@@ -414,6 +414,7 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
             }
             //cout<<"find the time stamp (ns) = "<<xR[indexR]<<",and the corrresponding amp = "<<yR[indexR]<<endl;
             //cout<<"index="<<indexR<<endl;
+            xT0[iT] = x[index];
 
             /*=====================================================
              * =======Fit the signal and find the timestamp========
@@ -421,6 +422,10 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
             g[iT] = new TGraph(range, x, y[iT]);
             TF1 *fit = pol3fit(g[iT], x[index] - 60e-3, x[index] + 80e-3);
             xT0[iT] = fit->GetX(keypoint);
+            /*=====================================================
+             * =======Fit the signal and find the timestamp========
+             * ==================================================*/
+
 
             //return;
             //xT0_L = Discriminate(xL,yL,indexL);
@@ -429,10 +434,10 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xR[indexR]<<"\t"<<xL[indexL]<<"\t"<<(xR[indexR]+xL[indexL])/2<<endl;
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xT0_R<<"\t"<<xT0_L<<"\t"<<xT0<<endl;
 
-            t2->Fill();
 
             //cout<<"loop k = "<<k<<endl;
         }
+            t2->Fill();
     }
     f1->Close();
 
