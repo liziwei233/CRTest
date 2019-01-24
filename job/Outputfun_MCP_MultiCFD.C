@@ -437,12 +437,12 @@ Double_t outputfunc(Double_t x, vector<double> par){
              * ==================================================*/
             TGraph *gR = new TGraph(range,xR,yR);
             TF1* fitR = pol3fit(gR,xR[indexR]-2e-2,xR[indexR]+3e-2);
-            xT0_R[p]=fitR->GetX(keypointR)*1e-9;
+            xT0_R[p]=fitR->GetX(keypointR);
 
             //return;
             TGraph *gL = new TGraph(range,xL,yL);
             TF1* fitL = pol3fit(gL,xL[indexL]-2e-2,xL[indexL]+3e-2);
-            xT0_L[p]=fitL->GetX(keypointL)*1e-9;
+            xT0_L[p]=fitL->GetX(keypointL);
             //xT0_L = Discriminate(xL,yL,indexL);
 
             hSig[1]->Fill(xT0_L[p]);

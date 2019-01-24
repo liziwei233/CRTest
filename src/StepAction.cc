@@ -71,8 +71,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 		G4bool gotThrough = 
 			(status == Transmission || status == FresnelRefraction);
         
-        if (thePrePV->GetName() == "lightguide_right_PV" &&
-				thePostPV->GetName() == "Detector_PV")
+        if (thePrePV->GetName() == "Window_PV" &&
+				thePostPV->GetName() == "World_PV")
 		{
 				type = Quartz2Air;
                 
@@ -123,8 +123,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         //else if (thePrePV->GetName() == "lightguide_left_PV" &&
         //         thePostPV->GetName() == "PMT_left_PV")
         }
-        else if (thePrePV->GetName() == "Window_left_PV" &&
-                 thePostPV->GetName() == "PMT_left_PV")
+        else if (thePrePV->GetName() == "Window_PV" &&
+                 thePostPV->GetName() == "Cathode_PV")
         {
 			// OpPhoton hit PMT photocathode
             type = CathodL;

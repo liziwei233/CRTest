@@ -67,14 +67,15 @@ void GdmlConstruction::Init(){
   fWorld = lvStore->GetVolume("World", false);
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
-  fDetector = lvStore->GetVolume("Detector",false);
-  fTarget = lvStore->GetVolume("Target", false);
-  fPmtL = lvStore->GetVolume("PMT_left",false);
-  fPmtR = lvStore->GetVolume("PMT_right",false);
+  //fDetector = lvStore->GetVolume("Detector",false);
+  //fTarget = lvStore->GetVolume("Target", false);
+  fPmt = lvStore->GetVolume("Cathode",false);
+  //fPmtL = lvStore->GetVolume("PMT_left",false);
+  //fPmtR = lvStore->GetVolume("PMT_right",false);
 
 
 /*=====================================>>
-=========================================*/
+=========================================
 //	replace the lg model from a box to a cadmesh model
 //------------------------------------------------------
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
@@ -105,7 +106,6 @@ void GdmlConstruction::Init(){
   flgPV->SetTranslation(pos1);
 
 
-/*
 //-----Dont take plase of origin cube----------------
   flgPV = pvStore->GetVolume("lightguide_left_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_left",false);
@@ -118,8 +118,8 @@ void GdmlConstruction::Init(){
   //G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   G4ThreeVector pos2 = G4ThreeVector(-7.5*mm,-7.5*mm,160*mm);
   //flgPV->SetRotation(rotm);
-  flgPV->SetTranslation(pos2);*/
-/*=====================================*
+  flgPV->SetTranslation(pos2);
+=====================================
 <<===================================*/
 
 
@@ -135,6 +135,17 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
+	if(fPmt){
+		// Create, Set & Register PmtSD
+		G4String sdName = "PmtSD";
+		PmtSD* pmtSD = new PmtSD(sdName);
+
+		SetSensitiveDetector(fPmt, pmtSD);
+
+		Analysis::Instance()->RegisterSD(pmtSD);
+		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
+	}
+	/*
 	if(fDetector){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
@@ -163,7 +174,7 @@ void GdmlConstruction::ConstructSDandField(){
 
 		Analysis::Instance()->RegisterSD(pmtRSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
-	}
+	}*/
 	return;
 }
 
