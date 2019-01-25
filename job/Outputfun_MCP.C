@@ -55,7 +55,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
     double SPEpar[7];
     double Tmark=0;
     bool flag;
-    double Trecept=10e-12; //waiting the photons hit
+    double Trecept=50e-12; //waiting the photons hit
     double Treject=500e-12; //recover time,during this time any photons are rejected.
     //tts = r.Gaus(0,10.6e-12);
     //

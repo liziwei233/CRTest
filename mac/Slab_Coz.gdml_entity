@@ -32,13 +32,14 @@
 </volume>
 
 <volume name="SO_left">
-  <materialref ref="AIR" />
-  <!--<materialref ref="EJ500" />-->
+  <!--<materialref ref="AIR" />-->
+  <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
 <volume name="SO_right">
-  <materialref ref="AIR" />
+  <!--<materialref ref="AIR" />-->
+  <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
@@ -46,27 +47,11 @@
 <volume name="PMT_left">
   <materialref ref="G4_Al" />
   <solidref ref="pmtS" />
-  <physvol>
-    <volumeref ref="Cathode_left" />
-    <position unit="mm" z="pmtZ/2.-windowZ-cathodeZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="Window_left" />
-    <position unit="mm" z="pmtZ/2.-windowZ/2." />
-  </physvol>
 </volume>
 
 <volume name="PMT_right">
   <materialref ref="G4_Al" />
   <solidref ref="pmtS" />
-  <physvol>
-    <volumeref ref="Cathode_right" />
-    <position unit="mm" z="pmtZ/2.-windowZ-cathodeZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="Window_right" />
-    <position unit="mm" z="pmtZ/2.-windowZ/2." />
-  </physvol>
 </volume>
 
 <!--
@@ -77,11 +62,13 @@
 -->
 <volume name="trigger">
   <materialref ref="SiO2" />
+  <!--<materialref ref="AIR" />-->
   <solidref ref="TRS" />
 </volume>
 
 <volume name="lightguide_right">
   <materialref ref="SiO2" />
+  <!--<materialref ref="AIR" />-->
   <solidref ref="lgS" />
 </volume>
 
@@ -114,32 +101,42 @@
 
   <physvol>
     <volumeref ref="trigger" />
-    <position unit="mm" z="-30+pmtZ+SOZ+TRZ/2." />
+    <position unit="mm" z="-30+cathodeZ+windowZ+SOZ+TRZ/2." />
   </physvol>
   <physvol>
     <volumeref ref="SO_left" />
-    <position unit="mm" z="-30+pmtZ+SOZ/2." />
+    <position unit="mm" z="-30+cathodeZ+windowZ+SOZ/2." />
   </physvol>
 
   <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="-30+pmtZ/2." />
+    <volumeref ref="Window_left" />
+    <position unit="mm" z="-30+cathodeZ+windowZ/2." />
+  </physvol>
+  
+  <physvol>
+    <volumeref ref="Cathode_left" />
+    <position unit="mm" z="-30+cathodeZ/2." />
   </physvol>
   
   <physvol>
     <volumeref ref="lightguide_right" />
-    <position unit="mm" z="mediumZ/2.+pmtZ+SOZ+lgZ/2." />
+    <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ+lgZ/2." />
   </physvol>
 
 
   <physvol>
     <volumeref ref="SO_right" />
-    <position unit="mm" z="mediumZ/2.+pmtZ+SOZ/2." />
+    <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ/2." />
   </physvol>
 
   <physvol>
-    <volumeref ref="PMT_right" />
-    <position unit="mm" z="mediumZ/2.+pmtZ/2." />
+    <volumeref ref="Window_right" />
+    <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ/2." />
+  </physvol>
+  
+  <physvol>
+    <volumeref ref="Cathode_right" />
+    <position unit="mm" z="mediumZ/2.+cathodeZ/2." />
   </physvol>
 
 </volume>

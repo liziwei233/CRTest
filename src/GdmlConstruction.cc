@@ -97,7 +97,7 @@ void GdmlConstruction::Init(){
   rotm->rotateZ(180*deg);
   rotm->rotateY(180*deg);
   //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
-  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,248.1*mm);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,206.3*mm);
   //--------------------------------------------------------//
  
  
