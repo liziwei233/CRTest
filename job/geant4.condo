@@ -10,7 +10,7 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Beam_lx/0124/bare_MCP52
+RUN = Beam_lx/0124/fullstruc_MCP52
 
 #N_EVENT = 1 multiplay 8
 
