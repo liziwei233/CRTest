@@ -69,8 +69,8 @@ void GdmlConstruction::Init(){
 	  fWorld = fWorldPV->GetLogicalVolume();
   fDetector = lvStore->GetVolume("Detector",false);
   fTarget = lvStore->GetVolume("Target", false);
-  fPmtL = lvStore->GetVolume("PMT_left",false);
-  fPmtR = lvStore->GetVolume("PMT_right",false);
+  fPmtL = lvStore->GetVolume("Cathode_left",false);
+  fPmtR = lvStore->GetVolume("Cathode_right",false);
 
 
 /*=====================================>>
@@ -96,7 +96,8 @@ void GdmlConstruction::Init(){
   //--------------------------------------------------------//
   rotm->rotateZ(180*deg);
   rotm->rotateY(180*deg);
-  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  //G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,-160*mm);
+  G4ThreeVector pos1 = G4ThreeVector(-7.5*mm,7.5*mm,248.1*mm);
   //--------------------------------------------------------//
  
  

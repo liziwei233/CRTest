@@ -12,8 +12,10 @@
 <variable name="mediumZ" value="320"/>
 
 <!-- PMT Configuration,R is radius-->
-<variable name="pmtZ" value="0.1"/>
-<variable name="pmtR" value="5.0"/>
+<variable name="pmtZ" value="50"/>
+<variable name="pmtR" value="22.5"/>
+<variable name="cathodeZ" value="5"/>
+<variable name="cathodeR" value="5.5"/>
 <!--<variable name="pmtR" value="15.0"/>-->
 
 
@@ -32,9 +34,9 @@
 
 <!-- Detector Configuration -->
 
-<variable name="detectorX" value="mediumX+0.01" />
-<variable name="detectorY" value="mediumY+0.01" />
-<variable name="detectorZ" value="mediumZ+lgZ*2+pmtZ*2+windowZ*2+SOZ*2+0.01" />
+<variable name="detectorX" value="1000+0.01" />
+<variable name="detectorY" value="1000+0.01" />
+<variable name="detectorZ" value="1000+0.01" />
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />

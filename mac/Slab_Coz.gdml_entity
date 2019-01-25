@@ -12,15 +12,61 @@
   <solidref ref="mediumS" />
 </volume>
 
+<volume name="Cathode_left">
+  <materialref ref="G4_Al" />
+  <solidref ref="cathodeS" />
+</volume>
+<volume name="Cathode_right">
+  <materialref ref="G4_Al" />
+  <solidref ref="cathodeS" />
+</volume>
+
+<volume name="Window_left">
+  <materialref ref="SiO2" />
+  <solidref ref="windowS" />
+</volume>
+
+<volume name="Window_right">
+  <materialref ref="SiO2" />
+  <solidref ref="windowS" />
+</volume>
+
+<volume name="SO_left">
+  <materialref ref="AIR" />
+  <!--<materialref ref="EJ500" />-->
+  <solidref ref="SiOilS" />
+</volume>
+
+<volume name="SO_right">
+  <materialref ref="AIR" />
+  <solidref ref="SiOilS" />
+</volume>
+
 
 <volume name="PMT_left">
   <materialref ref="G4_Al" />
   <solidref ref="pmtS" />
+  <physvol>
+    <volumeref ref="Cathode_left" />
+    <position unit="mm" z="pmtZ/2.-windowZ-cathodeZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="Window_left" />
+    <position unit="mm" z="pmtZ/2.-windowZ/2." />
+  </physvol>
 </volume>
 
 <volume name="PMT_right">
   <materialref ref="G4_Al" />
   <solidref ref="pmtS" />
+  <physvol>
+    <volumeref ref="Cathode_right" />
+    <position unit="mm" z="pmtZ/2.-windowZ-cathodeZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="Window_right" />
+    <position unit="mm" z="pmtZ/2.-windowZ/2." />
+  </physvol>
 </volume>
 
 <!--
@@ -49,26 +95,6 @@
   <solidref ref="EWS" />
 </volume>
 -->
-<volume name="Window_left">
-  <materialref ref="SiO2" />
-  <solidref ref="windowS" />
-</volume>
-
-<volume name="Window_right">
-  <materialref ref="SiO2" />
-  <solidref ref="windowS" />
-</volume>
-
-<volume name="SO_left">
-  <materialref ref="AIR" />
-  <!--<materialref ref="EJ500" />-->
-  <solidref ref="SiOilS" />
-</volume>
-
-<volume name="SO_right">
-  <materialref ref="AIR" />
-  <solidref ref="SiOilS" />
-</volume>
 
 
 <volume name="Detector">
@@ -88,43 +114,32 @@
 
   <physvol>
     <volumeref ref="trigger" />
-    <position unit="mm" z="10.-mediumZ/2.+pmtZ+windowZ+SOZ+TRZ/2." />
+    <position unit="mm" z="-30+pmtZ+SOZ+TRZ/2." />
   </physvol>
   <physvol>
     <volumeref ref="SO_left" />
-    <position unit="mm" z="10.-mediumZ/2.+pmtZ+windowZ+SOZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="Window_left" />
-    <position unit="mm" z="10.-mediumZ/2.+pmtZ+windowZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="10.-mediumZ/2.+pmtZ/2." />
+    <position unit="mm" z="-30+pmtZ+SOZ/2." />
   </physvol>
 
+  <physvol>
+    <volumeref ref="PMT_left" />
+    <position unit="mm" z="-30+pmtZ/2." />
+  </physvol>
   
   <physvol>
     <volumeref ref="lightguide_right" />
-    <position unit="mm" z="-mediumZ/2.-lgZ/2." />
+    <position unit="mm" z="mediumZ/2.+pmtZ+SOZ+lgZ/2." />
   </physvol>
 
 
   <physvol>
     <volumeref ref="SO_right" />
-    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ/2." />
+    <position unit="mm" z="mediumZ/2.+pmtZ+SOZ/2." />
   </physvol>
-
-
-  <physvol>
-    <volumeref ref="Window_right" />
-    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ/2." />
-  </physvol>
-
 
   <physvol>
     <volumeref ref="PMT_right" />
-    <position unit="mm" z="-mediumZ/2.-lgZ-SOZ-windowZ-pmtZ/2." />
+    <position unit="mm" z="mediumZ/2.+pmtZ/2." />
   </physvol>
 
 </volume>

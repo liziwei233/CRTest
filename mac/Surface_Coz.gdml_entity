@@ -7,6 +7,7 @@
 <opticalsurface name="Alfoilground_surf" model="unified" finish="ground" type="dielectric_metal" value="12.*deg"/>
 <opticalsurface name="AlwithAirgap_surf" model="unified" finish="polishedbackpainted" type="dielectric_dielectric" value="12.*deg"/>
 <opticalsurface name="Air_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.*deg"/>
-<opticalsurface name="photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<opticalsurface name="photocathL" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<opticalsurface name="photocathR" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
 <opticalsurface name="lg_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
 <opticalsurface name="end_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>

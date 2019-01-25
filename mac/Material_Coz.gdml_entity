@@ -109,11 +109,21 @@
     <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
     <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
   </material>
-  <material name="OpBorder_MCP3805U">
+  
+  <material name="OpBorder_MCP3809U_50">
     <D value="0.00129" />
     <fraction n="0.7" ref="Nitrogen" />
     <fraction n="0.3" ref="Oxygen" />
-    <property name="EFFICIENCY" ref="MCP3805U_EFFICIENCY" />
+    <property name="EFFICIENCY" ref="MCP3809U_50_EFFICIENCY" />
+    <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
+    <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
+  </material>
+  
+  <material name="OpBorder_MCP3809U_52">
+    <D value="0.00129" />
+    <fraction n="0.7" ref="Nitrogen" />
+    <fraction n="0.3" ref="Oxygen" />
+    <property name="EFFICIENCY" ref="MCP3809U_52_EFFICIENCY" />
     <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
     <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
   </material>

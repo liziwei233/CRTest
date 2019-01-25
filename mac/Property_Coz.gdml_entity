@@ -291,12 +291,12 @@
 <matrix name="OpWrapper_Quartz_RINDEX" coldim="2" values="2.6*eV 1.0"/>
 
 <matrix name="OpWrapper_Quartz_SPIKE" coldim="2" values="2.6*eV 0."/>  
-<matrix name="OpWrapper_Quartz_LOBE" coldim="2" values="2.6*eV 0."/>
+<matrix name="OpWrapper_Quartz_LOBE" coldim="2" values="2.6*eV 1."/>
 <matrix name="OpWrapper_Quartz_BACKSCATTER" coldim="2" values="2.6*eV 0.0"/>  
-<matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 1.0"/>
+<matrix name="OpWrapper_Quartz_LAMBERTIAN" coldim="2" values="2.6*eV 0.0"/>
 
-<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.6"/>
-<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0.4"/>
+<matrix name="OpWrapper_Quartz_REFLECTIVITY" coldim="2" values="2.6*eV 0.95"/>
+<matrix name="OpWrapper_Quartz_TRANSMITTANCE" coldim="2" values="2.6*eV 0."/>
 <matrix name="OpWrapper_Quartz_EFFICIENCY" coldim="2" values="2.6*eV 1.0"/>
   <!--Tyvek-->
 
@@ -385,14 +385,72 @@
   1.87936*eV	0.00178439
   1.79663*eV	0.000188044"/>-->
 
-  <matrix name="MCP3805U_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
-  7.1*eV 0.10       
+  <matrix name="MCP3809U_50_EFFICIENCY" coldim="2" values="7.561*eV 0.01
+  7.0454*eV 0.10       
   6.212*eV 0.25
+  4.96*eV 0.25
   4.14*eV 0.25
+  3.54*eV 0.25
   3.11*eV	0.25
-  2.48*eV 0.10
-  1.653*eV 0.01"/>
+  2.422*eV 0.10
+  1.6424*eV 0.01"/>
 
+  <matrix name="MCP3809U_52_EFFICIENCY" coldim="2" values="6.151678565*eV	0.162465
+  5.921002368*eV	0.155144
+  5.625649332*eV	0.152778
+  5.394987013*eV	0.157547
+  5.18249487*eV	0.155144
+  5.049888007*eV	0.148153
+  4.986107258*eV	0.145893
+  4.74628431*eV	0.148153
+  4.607781205*eV	0.150448
+  4.528489311*eV	0.159987
+  4.502656204*eV	0.167537
+  4.377819987*eV	0.175443
+  4.306183541*eV	0.18092
+  4.214232551*eV	0.175443
+  4.08344722*eV	0.167537
+  4.021052154*eV	0.162465
+  3.882619641*eV	0.155144
+  3.807722306*eV	0.155144
+  3.753412881*eV	0.152778
+  3.683361602*eV	0.150448
+  3.632518067*eV	0.148153
+  3.550821127*eV	0.145893
+  3.427497374*eV	0.145893
+  3.326403326*eV	0.148153
+  3.231101962*eV	0.150448
+  3.104066327*eV	0.150448
+  3.02091987*eV	0.148153
+  2.964202474*eV	0.148153
+  2.877764627*eV	0.139319
+  2.826255917*eV	0.135101
+  2.766819586*eV	0.127045
+  2.700571911*eV	0.117647
+  2.62863345*eV	0.112346
+  2.585590338*eV	0.105647
+  2.543928934*eV	0.0934232
+  2.472232246*eV	0.0892132
+  2.419205369*eV	0.0826139
+  2.368400947*eV	0.0753359
+  2.312889134*eV	0.0708437
+  2.27293557*eV	0.0656033
+  2.228031875*eV	0.0589114
+  2.178840646*eV	0.0545536
+  2.14918461*eV	0.0513006
+  2.126032583*eV	0.0467812
+  2.086695465*eV	0.0439917
+  2.032960187*eV	0.0371487
+  2.007118797*eV	0.0318561
+  1.981926113*eV	0.0299565
+  1.947698025*eV	0.0252967
+  1.909998999*eV	0.0213618
+  1.896236124*eV	0.0180389
+  1.869296948*eV	0.0154689
+  1.843112482*eV	0.013265
+  1.834547488*eV	0.0112016
+  1.809320921*eV	0.00931489"/>
+  
   <matrix name="PMT_R10754_EFFICIENCY" coldim="2" values="7.7658*eV 0.01
   7.1*eV 0.10       
   6.212*eV 0.25

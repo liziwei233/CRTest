@@ -87,7 +87,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 
 		if(gotThrough){
 			// OpPthoton got through boundary
-			if (thePrePV->GetName() == "lightguide_left_PV" &&
+			if (thePrePV->GetName() == "trigger_PV" &&
 				thePostPV->GetName() == "SO_left_PV")
 			{
 				type = Quartz2GlueL;
@@ -124,7 +124,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         //         thePostPV->GetName() == "PMT_left_PV")
         }
         else if (thePrePV->GetName() == "Window_left_PV" &&
-                 thePostPV->GetName() == "PMT_left_PV")
+                 thePostPV->GetName() == "Cathode_left_PV")
         {
 			// OpPhoton hit PMT photocathode
             type = CathodL;
@@ -140,7 +140,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         }
         
         else if (thePrePV->GetName() == "Window_right_PV" &&
-                 thePostPV->GetName() == "PMT_right_PV")
+                 thePostPV->GetName() == "Cathode_right_PV")
         {
 			// OpPhoton hit PMT photocathode
             type = CathodR;

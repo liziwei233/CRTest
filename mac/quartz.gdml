@@ -131,14 +131,14 @@
   </bordersurface>
 -->
 
-  <bordersurface name="pmtL_border" surfaceproperty="photocath" >
+  <bordersurface name="pmtL_border" surfaceproperty="photocathL" >
     <physvolref ref="Window_left_PV"/>
-    <physvolref ref="PMT_left_PV"/>
+    <physvolref ref="Cathode_left_PV"/>
   </bordersurface>
 
-  <bordersurface name="pmtR_border" surfaceproperty="photocath" >
+  <bordersurface name="pmtR_border" surfaceproperty="photocathR" >
     <physvolref ref="Window_right_PV"/>
-    <physvolref ref="PMT_right_PV"/>
+    <physvolref ref="Cathode_right_PV"/>
   </bordersurface>
 
 
@@ -259,17 +259,17 @@
       </auxiliary>-->
 
       <auxiliary auxtype="Border" auxvalue="PhotocathodeL">
-        <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
+        <auxiliary auxtype="SurfaceName" auxvalue="photocathL"/>
         <auxiliary auxtype="PVname" auxvalue="Window_left_PV" />
-        <auxiliary auxtype="PVname" auxvalue="PMT_left_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3805U"/>
+        <auxiliary auxtype="PVname" auxvalue="Cathode_left_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_50"/>
       </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="PhotocathodeR">
-        <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
+        <auxiliary auxtype="SurfaceName" auxvalue="photocathR"/>
         <auxiliary auxtype="PVname" auxvalue="Window_right_PV" />
-        <auxiliary auxtype="PVname" auxvalue="PMT_right_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3805U"/>
+        <auxiliary auxtype="PVname" auxvalue="Cathode_right_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_52"/>
       </auxiliary>
     </auxiliary>
 
