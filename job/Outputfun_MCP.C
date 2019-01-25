@@ -631,8 +631,12 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         //c->Delete();
         vector<double>().swap(*TR);
         vector<double>().swap(*TL);
+        vector<double>().swap(*IncidX);
+        vector<double>().swap(*IncidY);
         delete TR;
         delete TL;
+        delete IncidX;
+        delete IncidY;
 
         /*=======================================================*
          * ================Procedure timing end==================*

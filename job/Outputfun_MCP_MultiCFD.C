@@ -10,7 +10,7 @@ TRandom3 r;
 
 using namespace std;
 
-Double_t outputfunc(Double_t x, vector<double> par);
+Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe);
 Double_t response(Double_t x, Double_t par[7]);
 TF1* pol3fit(TGraph* g,float U_RL, float U_RR);
 
@@ -47,17 +47,15 @@ Double_t response(Double_t x, Double_t par[7]){
 
 }
 
-Double_t outputfunc(Double_t x, vector<double> par){
+Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe){
     if(par.empty()) return 0;
 
     Double_t val = 0;
-    Double_t tts = 0;
     double SPEpar[7];
     double Tmark=0;
     bool flag;
     double Trecept=10e-12; //waiting the photons hit
     double Treject=500e-12; //recover time,during this time any photons are rejected.
-    double ttssigma=20e-12;
     //tts = r.Gaus(0,10.6e-12);
     //
     //----MCP R10754------
@@ -73,7 +71,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
     //int N;
     //N=sizeof(par)/sizeof(par[0]);
     sort(par.begin(),par.end());
-    int n=0;
+    int counter=0;
     Tmark=par.at(0);
     for (int n=0;n<par.size();n++){
         //while(par[n]>5e-9){
@@ -85,10 +83,9 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
             if(par.at(n)-Tmark<Trecept)
             {
-                r.SetSeed(par.at(n));
-                tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
-                val+=response(x-tts-par.at(n),SPEpar);
+                val+=response(x-tts.at(n)-par.at(n),SPEpar);
+                counter++;
             }
             else if(par.at(n)-Tmark<(Trecept+Treject))
             {
@@ -97,10 +94,9 @@ Double_t outputfunc(Double_t x, vector<double> par){
             else 
             {
                 Tmark=par.at(n);
-                r.SetSeed(par.at(n));
-                tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
-                val+=response(x-tts-par.at(n),SPEpar);
+                val+=response(x-tts.at(n)-par.at(n),SPEpar);
+                counter++;
             }
 
 
@@ -109,6 +105,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
     }
     //cout<<"n = "<<n<<endl;
 
+    *npe=counter;
     return val;
 
 
@@ -152,7 +149,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
     void Outputfun_MCP_MultiCFD(const char *rootname=""){
 
-        cout<<"fac=0.05-0.5"<<",dicriminate Type: CFD"<<endl;
+        cout<<"fac=0.05-0.6"<<",dicriminate Type: CFD"<<endl;
 
         /*===========================================
          * ============Procedure timing start========
@@ -187,33 +184,42 @@ Double_t outputfunc(Double_t x, vector<double> par){
         //Double_t parL[500]={};
         vector<double> parR;
         vector<double> parL;
+        vector<double> ttsR;
+        vector<double> ttsL;
 
         //Double_t RL = -5e-9;
         //Double_t RR = 20e-9;
-        Double_t RL = -0e-9;
-        Double_t RR = 10e-9;
-        Double_t zoomRL = -0e-9;
-        Double_t zoomRR = 10e-9;
+        Double_t RL = -2e-9;
+        Double_t RR = 8e-9;
+        Double_t zoomRL = -2e-9;
+        Double_t zoomRR = 8e-9;
         int binNum=0;
         binNum = (RR-RL)/25e-12;
 
-        const int range =1e3;  // 25ps/sample
+        double ttssigma=20e-12;
+        const int range =400;  // 25ps/sample
         Double_t thrd = -30; //Umax = -28.94mV
        
 
         bool flagR=0,flagL=0;
         double fac=0;
-        double xT0_L[10]={0},xT0_R[10]={0},xT0[10]={0};
-        double percent[10]={0};
+        double xT0_L[12]={0},xT0_R[12]={0},xT0[12]={0};
+        double percent[12]={0};
         int indexL=0,indexR=0;
         double keypointL=0,keypointR=0;
+        double InX=0,InY=0;
+        int npeL=0,npeR=0;
         double UL=0,UR=0;
         const int certain=2;	
 
         vector<double>* TR;
         vector<double>* TL;
+        vector<double> *IncidX; //the position of incident event
+        vector<double> *IncidY;
         TL = new vector<double>;
         TR = new vector<double>;
+        IncidX = new vector<double>;
+        IncidY = new vector<double>;
         //count = new vector<int>;
         int N=0,temp=0;
         Double_t xR[range]={};
@@ -229,6 +235,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
         t1->SetBranchAddress("PmtR.t",&TR);
         t1->SetBranchAddress("PmtL.t",&TL);
+        t1->SetBranchAddress("ph.x", &IncidX);
+        t1->SetBranchAddress("ph.y", &IncidY);
 
         //sprintf(name,"Thrd_%g",abs(thrd));	
 
@@ -238,10 +246,14 @@ Double_t outputfunc(Double_t x, vector<double> par){
         TTree *t2 = new TTree("data","restore analysed data  from G4");
         t2->Branch("UL",&UL,"UL/D");
         t2->Branch("UR",&UR,"UR/D");
-        t2->Branch("T0L",xT0_L,"T0L[10]/D");
-        t2->Branch("T0R",xT0_R,"T0R[10]/D");
-        t2->Branch("T0",xT0,"T0[10]/D");
-        t2->Branch("percent",percent,"percent[10]/D");	
+        t2->Branch("T0L",xT0_L,"T0L[12]/D");
+        t2->Branch("T0R",xT0_R,"T0R[12]/D");
+        t2->Branch("T0",xT0,"T0[12]/D");
+        t2->Branch("percent",percent,"percent[12]/D");	
+        t2->Branch("npeL",&npeL,"npeL/I");	
+        t2->Branch("npeR",&npeR,"npeR/I");	
+        t2->Branch("InX",&InX,"InX/D");	
+        t2->Branch("InY",&InY,"InY/D");	
         //for(int s = 0; s<4;s++){
 
 
@@ -280,6 +292,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
             //-----------initial----------------------//
             TL->clear();
             TR->clear();
+            IncidX->clear();
+            IncidY->clear();
 
             h[0]->Reset();
             h[1]->Reset();
@@ -288,6 +302,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
             //parL.clear();
             vector<double>().swap(parR);
             vector<double>().swap(parL);
+            vector<double>().swap(ttsR);
+            vector<double>().swap(ttsL);
 
             //memset(parL,0,sizeof(parL));
             //memset(parR,0,sizeof(parR));
@@ -296,6 +312,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
             //par[i]=r.Gaus(2.4e-9,0.5e-9);
             //par[i]=4e-9;
             t1->GetEntry(i);
+            InX = (*IncidX)[0];
+            InY = (*IncidY)[0];
             temp = TR->size();
             //cout<<"counterR = "<< temp <<endl;
             //myFun = new TF1("myFun",outputfunc,RL,RR,temp);
@@ -305,11 +323,12 @@ Double_t outputfunc(Double_t x, vector<double> par){
             for(int k=0;k<temp;k++){
                 //cout<< T[][k] <<endl;
                 parR.push_back((*TR)[k]*1e-9);
+                ttsR.push_back(r.Gaus(0,ttssigma));
                 //parR[k]=8.3e-9;
                 //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
                 //cout<<"par"<<k<<" = "<<par[k]<<endl;
 
-                h[0]->Fill(parR.at(k));
+                if(i==0) h[0]->Fill(parR.at(k));
 
                 //myFun->SetParameter(k,par[k]);
             }
@@ -319,25 +338,34 @@ Double_t outputfunc(Double_t x, vector<double> par){
             for(int k=0;k<temp;k++){
                 //cout<< T[][k] <<endl;
                 parL.push_back((*TL)[k]*1e-9);
+                ttsL.push_back(r.Gaus(0,ttssigma));
                 //cout<<" [+] par "<<k<<"\t"<<parL.at(k)<<endl;
 
 
-                h[1]->Fill(parL.at(k));
+                if(i==0) h[1]->Fill(parL.at(k));
 
                 //myFun->SetParameter(k,par[k]);
             }
             
 
+            // Initial these variable
+            memset(xL, 0, sizeof(xL));
+            memset(xR, 0, sizeof(xR));
+            memset(yL, 0, sizeof(yL));
+            memset(yR, 0, sizeof(yR));
             //cout<<"hello"<<endl;
             //cout<<"parL.size() = "<<parL.size()<<endl;
             //cout<<"parR.size() = "<<parR.size()<<endl;
 
             for(int j=0;j<range;j++){
                 xR[j]=(RR-RL)/range*j+RL;
-                yR[j]=outputfunc(xR[j],parR);
+                yR[j]=outputfunc(xR[j],parR,ttsR,&npeR);
                 //cout<<"process check======>"<<endl;
                 xL[j]=(RR-RL)/range*j+RL;
-                yL[j]=outputfunc(xL[j],parL);
+                yL[j]=outputfunc(xL[j],parL,ttsL,&npeL);
+                
+                xL[j]=((RR-RL)/range*j+RL)*1e9;
+                xR[j]=((RR-RL)/range*j+RL)*1e9;
 
 
 
@@ -350,7 +378,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
 
             /*================================ 
              *=======ZOOM OUT the leading egde;
-             *=================================*/
+             *=================================
             zoomRR = xR[TMath::LocMin(range,yR)]+1e-9;
             zoomRL = xR[TMath::LocMin(range,yR)]-1e-9;
             //cout<<zoomRL<<"\t"<<zoomRR<<endl;
@@ -370,6 +398,9 @@ Double_t outputfunc(Double_t x, vector<double> par){
                 xL[j]=((zoomRR-zoomRL)/range*j+zoomRL)*1e9;
 
             }
+             *================================ 
+             *=======ZOOM OUT the leading egde;
+             *=================================*/
             UR = TMath::MinElement(range,yR);
             UL = TMath::MinElement(range,yL);
             /*
@@ -388,7 +419,7 @@ Double_t outputfunc(Double_t x, vector<double> par){
             /*=================================
              *=======Discriminate the signal===
              *=================================*/
-            for (int p=0;p<10;p++)
+            for (int p=0;p<12;p++)
         {
             flagR = 1;
             flagL = 1;
@@ -398,6 +429,8 @@ Double_t outputfunc(Double_t x, vector<double> par){
             xT0[p] = 0;
             keypointL = 0;
             keypointR = 0;
+            indexL=0;
+            indexR=0;
 
             fac=0.05+p*0.05;
             
@@ -436,12 +469,12 @@ Double_t outputfunc(Double_t x, vector<double> par){
              * =======Fit the signal and find the timestamp========
              * ==================================================*/
             TGraph *gR = new TGraph(range,xR,yR);
-            TF1* fitR = pol3fit(gR,xR[indexR]-2e-2,xR[indexR]+3e-2);
+            TF1* fitR = pol3fit(gR,xR[indexR]- 60e-3,xR[indexR]+80e-3);
             xT0_R[p]=fitR->GetX(keypointR)*1e-9;
 
             //return;
             TGraph *gL = new TGraph(range,xL,yL);
-            TF1* fitL = pol3fit(gL,xL[indexL]-2e-2,xL[indexL]+3e-2);
+            TF1* fitL = pol3fit(gL,xL[indexL]-60e-3,xL[indexL]+80e-3);
             xT0_L[p]=fitL->GetX(keypointL)*1e-9;
             //xT0_L = Discriminate(xL,yL,indexL);
 
@@ -597,8 +630,12 @@ Double_t outputfunc(Double_t x, vector<double> par){
         //c->Delete();
         vector<double>().swap(*TR);
         vector<double>().swap(*TL);
+        vector<double>().swap(*IncidX);
+        vector<double>().swap(*IncidY);
         delete TR;
         delete TL;
+        delete IncidX;
+        delete IncidY;
 
         /*=======================================================*
          * ================Procedure timing end==================*
