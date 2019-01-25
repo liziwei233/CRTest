@@ -5,7 +5,7 @@ echo " ENV: "
 which root
 which geant4-config
 mkdir -p `dirname $3`
-./CRTest $1 $2 $3
+./CRTest $1 $2 $3 $4
 NAME=$3
 cluster=$5
 #echo $NAME > $PWD/name.log

@@ -87,12 +87,12 @@
     <physvolref ref="Detector_PV"/> 
   </bordersurface>
 -->
-  <bordersurface name="trigger_border" surfaceproperty="Alfoilground_surf" >
+  <bordersurface name="trigger_border" surfaceproperty="Alfoilpolished_surf" >
     <physvolref ref="trigger_PV"/>
     <physvolref ref="Detector_PV"/> 
   </bordersurface>
 
-  <bordersurface name="lgR_border" surfaceproperty="Alfoilground_surf" >
+  <bordersurface name="lgR_border" surfaceproperty="Alfoilpolished_surf" >
     <physvolref ref="lightguide_right_PV"/>
     <physvolref ref="Detector_PV"/>  
   </bordersurface>
@@ -120,12 +120,12 @@
   </bordersurface>
 -->
 <!--
-  <bordersurface name="SOL_border" surfaceproperty="Alfoilground_surf" >
+  <bordersurface name="SOL_border" surfaceproperty="Alfoilpolished_surf" >
     <physvolref ref="SO_left_PV"/>
     <physvolref ref="Detector_PV"/>  
   </bordersurface>
 
-  <bordersurface name="SOR_border" surfaceproperty="Alfoilground_surf" >
+  <bordersurface name="SOR_border" surfaceproperty="Alfoilpolished_surf" >
     <physvolref ref="SO_right_PV"/>
     <physvolref ref="Detector_PV"/>  
   </bordersurface>
@@ -181,14 +181,14 @@
 -->
 
        <auxiliary auxtype="Border" auxvalue="TRWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
+        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
         <auxiliary auxtype="PVname" auxvalue="trigger_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="LGRWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
+        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilpolished_surf" />
         <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
