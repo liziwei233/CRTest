@@ -287,7 +287,7 @@
         <auxiliary auxtype="SurfaceName" auxvalue="photocathL"/>
         <auxiliary auxtype="PVname" auxvalue="Window_left_PV" />
         <auxiliary auxtype="PVname" auxvalue="Cathode_left_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_50"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_MCP3809U_52"/>
       </auxiliary>
 
       <auxiliary auxtype="Border" auxvalue="PhotocathodeR">

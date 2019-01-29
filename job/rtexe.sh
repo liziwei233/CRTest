@@ -11,5 +11,6 @@ cluster=$2
 echo $NAME > ../job/name.log
 echo `date` >> $(dirname $1)/cluster.log
 echo -e "$cluster\n\n" >> $(dirname $1)/cluster.log
-root -b -q "../job/Outputfun_MCP_MultiCFD.C(\"$NAME\")"
-root -b -q "../job/Outputfun_MCP_MultiFIX.C(\"$NAME\")"
+#root -b -q "../job/Outputfun_MCP_MultiCFD.C(\"$NAME\")"
+#root -b -q "../job/Outputfun_MCP_MultiFIX.C(\"$NAME\")"
+root -b -q "../job/Outputfun_MCP.C(\"$NAME\")"
