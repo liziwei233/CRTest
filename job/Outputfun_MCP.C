@@ -208,6 +208,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
         bool flagR=0,flagL=0;
         double xT0_L=0,xT0_R=0,xT0=0;
+        double T01stpeL,T01stpeR;
         int indexL=0,indexR=0;
         double keypointL=0,keypointR=0;
         double InX=0,InY=0;
@@ -253,6 +254,8 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         t2->Branch("T0L",&xT0_L,"T0L/D");
         t2->Branch("T0R",&xT0_R,"T0R/D");
         t2->Branch("T0",&xT0,"T0/D");	
+        t2->Branch("T01stpeL",&T01stpeL,"T01stpeL/D");	
+        t2->Branch("T01stpeR",&T01stpeR,"T01stpeR/D");	
         t2->Branch("npeL",&npeL,"npeL/I");	
         t2->Branch("npeR",&npeR,"npeR/I");	
         t2->Branch("InX",&InX,"InX/D");	
@@ -333,6 +336,9 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
                 //myFun->SetParameter(k,par[k]);
             }
+            sort(parR.begin(), parR.end());
+        //cout<<">>> progress check <<<"<<endl;
+           if(!parR.empty()) T01stpeR = parR.at(0);
 
             temp = TL->size();	
             //cout<<"counterL = "<< temp <<endl;
@@ -347,6 +353,9 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
                 //myFun->SetParameter(k,par[k]);
             }
+            sort(parL.begin(), parL.end());
+        //cout<<">>> progress check <<<"<<endl;
+           if(!parL.empty()) T01stpeL = parL.at(0);
             
             // Initial these variable
             memset(xL, 0, sizeof(xL));

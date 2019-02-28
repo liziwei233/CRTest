@@ -13,7 +13,7 @@
 
 <!-- PMT Configuration,R is radius-->
 <variable name="pmtZ" value="50"/>
-<variable name="pmtR" value="22.5"/>
+<variable name="pmtR" value="11.25"/>
 <variable name="cathodeZ" value="5"/>
 <variable name="cathodeR" value="5.5"/>
 <!--<variable name="pmtR" value="15.0"/>-->

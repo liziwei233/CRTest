@@ -11,7 +11,7 @@
 /gps/pos/centre 0 0 40 cm
 #/gps/pos/halfx 2.5 mm
 #/gps/pos/halfy 2.5 mm
-/gps/pos/radius 23 mm
+/gps/pos/radius 11.25 mm
 /gps/pos/rot1 1 0 0
 #/gps/pos/halfx 2.5 mm
 #/gps/pos/halfy 2.5 cm
