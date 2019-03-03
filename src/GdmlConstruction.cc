@@ -120,15 +120,15 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
-	/*if(fDetector){
+	if(fRadianer){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
         G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
-		SetSensitiveDetector(fDetector, crySD);
+		SetSensitiveDetector(fRadianer, crySD);
 
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
-	}*/
+	}
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";
