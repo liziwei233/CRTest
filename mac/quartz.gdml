@@ -49,6 +49,7 @@
     <solidref ref="worldS" />
       <physvol >
           <volumeref ref="Detector" />
+          <rotationref ref="rot"/>
       </physvol>
   </volume>
 

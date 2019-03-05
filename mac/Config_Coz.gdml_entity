@@ -8,7 +8,7 @@
 <!-- entire size,  not half! -->
 <variable name="mediumX" value="23"/>
 <variable name="mediumY" value="23"/>
-<variable name="mediumZ" value="100"/>
+<variable name="mediumZ" value="50"/>
 
 <variable name="SiPMX" value="23"/>
 <variable name="SiPMY" value="23"/>
@@ -31,6 +31,7 @@
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
+<rotation name="rot" unit="deg" x="90" y="" z=""/>
 <!--<constant name="detectorN" value="4" />
 <matrix name="detectorPosZ" coldim="1" values="-50. -10. 10. 50." />-->
 
