@@ -10,11 +10,11 @@ EXE = g4exe.sh
 
 OUT_DIR = /data2/R710liziwei/g4/output
 
-RUN = Trigger/CRYoptimum/L100mm
+RUN = Trigger/CRYoptimum/downside_50_50_10mm
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 10000 
+N_JOBS = 1000 
 
 initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
 

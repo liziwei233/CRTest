@@ -26,5 +26,5 @@
 <box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 
 
 <!-- optical glue -->
-<box aunit="radian" lunit="mm" name="SiOilS" x="mediumX" y="mediumY" z="SOZ" /> 
+<box aunit="radian" lunit="mm" name="SiOilS" x="SiPMX" y="SiPMY" z="SOZ" /> 
 <!-- <tube name="SiOilS" rmin="0" rmax="pmtR" z="SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />-->
