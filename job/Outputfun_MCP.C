@@ -208,24 +208,46 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
         bool flagR=0,flagL=0;
         double xT0_L=0,xT0_R=0,xT0=0;
-        double T01stpeL,T01stpeR;
+        double flyTL=0,flyTR=0;
+        double bpX_L=0,bpY_L=0,bpZ_L=0;
+        double bpX_R=0,bpY_R=0,bpZ_R=0;
+        double T01stpeL=0,T01stpeR=0;
         int indexL=0,indexR=0;
         double keypointL=0,keypointR=0;
-        double InX=0,InY=0;
+        double InX=0,InY=0,InZ=0;
+        double InpX=0,InpY=0,InpZ=0;
         int npeL=0,npeR=0;
         double UL=0,UR=0;
         const int certain=2;	
 
-        vector<double>* TR;
+        vector<double>* TR; //hit time
         vector<double>* TL;
+        vector<double>* FTR;    //fly time 
+        vector<double>* FTL;
+        vector<int>* RID;
+        vector<int>* LID;
+        vector<int>* PhID;
+
+        vector<double> *phX; //the birthplace of cerenkov photons
+        vector<double> *phY;
+        vector<double> *phZ;
+        
         vector<double> *IncidX; //the position of incident event
         vector<double> *IncidY;
+        vector<double> *IncidZ;
+        vector<double> *IncidpX; //the momentum direction of incident event
+        vector<double> *IncidpY;
+        vector<double> *IncidpZ;
         TL = new vector<double>;
         TR = new vector<double>;
         IncidX = new vector<double>;
         IncidY = new vector<double>;
+        IncidZ = new vector<double>;
+        IncidpX = new vector<double>;
+        IncidpY = new vector<double>;
+        IncidpZ = new vector<double>;
         //count = new vector<int>;
-        int N=0,temp=0;
+        int N=0,temp=0,idN=0;
         Double_t xR[range]={};
         Double_t xL[range]={};
         Double_t yR[range]={};
@@ -239,8 +261,12 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
         t1->SetBranchAddress("PmtR.t",&TR);
         t1->SetBranchAddress("PmtL.t",&TL);
-        t1->SetBranchAddress("ph.x", &IncidX);
-        t1->SetBranchAddress("ph.y", &IncidY);
+        t1->SetBranchAddress("int.x", &IncidX);
+        t1->SetBranchAddress("int.y", &IncidY);
+        t1->SetBranchAddress("int.z", &IncidZ);
+        t1->SetBranchAddress("int.px", &IncidpX);
+        t1->SetBranchAddress("int.py", &IncidpY);
+        t1->SetBranchAddress("int.pz", &IncidpZ);
 
 
         //sprintf(name,"Thrd_%g",abs(thrd));	
@@ -253,13 +279,16 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         t2->Branch("UR",&UR,"UR/D");
         t2->Branch("T0L",&xT0_L,"T0L/D");
         t2->Branch("T0R",&xT0_R,"T0R/D");
-        t2->Branch("T0",&xT0,"T0/D");	
         t2->Branch("T01stpeL",&T01stpeL,"T01stpeL/D");	
         t2->Branch("T01stpeR",&T01stpeR,"T01stpeR/D");	
         t2->Branch("npeL",&npeL,"npeL/I");	
         t2->Branch("npeR",&npeR,"npeR/I");	
         t2->Branch("InX",&InX,"InX/D");	
         t2->Branch("InY",&InY,"InY/D");	
+        t2->Branch("InZ",&InZ,"InZ/D");	
+        t2->Branch("InpX",&InpX,"InpX/D");	
+        t2->Branch("InpY",&InpY,"InpY/D");	
+        t2->Branch("InpZ",&InpZ,"InpZ/D");	
         //for(int s = 0; s<4;s++){
 
 
@@ -318,9 +347,16 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
             //par[i]=r.Gaus(2.4e-9,0.5e-9);
             //par[i]=4e-9;
             t1->GetEntry(i);
-            
+            if(!IncidX->empty()){
             InX = (*IncidX)[0];
             InY = (*IncidY)[0];
+            InZ = (*IncidZ)[0];
+            
+            InpX = (*IncidpX)[0];
+            InpY = (*IncidpY)[0];
+            InpZ = (*IncidpZ)[0];
+            }
+
             
             temp = TR->size();
             //cout<<"counterR = "<< temp <<endl;
@@ -333,8 +369,19 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
                 //cout<<"par"<<k<<" = "<<par[k]<<endl;
 
                 if(i==0) h[0]->Fill(parR.at(k));
+                //find the birthplace of  photons those hit right PMT.
+                idN = (*RID)[k]->size();
+                for(int p=idN-20;p<idN;p++)
+                {
+                    if((*PhID)[p]==idN) {
+                        cout<<"RID= "<<idN<<endl;
+                        cout<<"phID[p]= "<<(*PhID)[p]<<",p= "<<p<<endl;
+                        bpX=(*phX)[p];
+                        bpY=(*phY)[p];
+                        bpZ=(*phZ)[p];
+                    }
+                }
 
-                //myFun->SetParameter(k,par[k]);
             }
             sort(parR.begin(), parR.end());
         //cout<<">>> progress check <<<"<<endl;
@@ -501,7 +548,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
             //cout<<"loop k = "<<k<<endl;
 
-
+            
         }
 
         f1->Close();

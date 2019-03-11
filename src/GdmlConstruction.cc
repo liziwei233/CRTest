@@ -68,7 +68,7 @@ void GdmlConstruction::Init(){
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
   fDetector = lvStore->GetVolume("Detector",false);
-  fTarget = lvStore->GetVolume("Target", false);
+  fTarget = lvStore->GetVolume("trigger", false);
   fPmtL = lvStore->GetVolume("Cathode_left",false);
   fPmtR = lvStore->GetVolume("Cathode_right",false);
 
@@ -136,11 +136,11 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
-	if(fDetector){
+	if(fLightguide){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
         G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
-		SetSensitiveDetector(fDetector, crySD);
+		SetSensitiveDetector(fLightguide, crySD);
 
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;

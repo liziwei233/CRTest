@@ -46,6 +46,7 @@ protected:
 	std::vector<int>* fHitCopyNo;
 	std::vector<double>* fHitEk;
 	std::vector<double>* fHitTime;
+	std::vector<double>* fFlyTime;
 	std::vector<double>* fHitX;
 	std::vector<double>* fHitY;
 	std::vector<double>* fHitZ;

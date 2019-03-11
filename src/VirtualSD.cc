@@ -7,7 +7,7 @@
 
 VirtualSD::VirtualSD(G4String name)
 	:G4VSensitiveDetector(name),fNvolume(0),fNphysvol(NULL),
-	fHitCopyNo(NULL),fHitEk(NULL), fHitTime(NULL), 
+	fHitCopyNo(NULL),fHitEk(NULL), fHitTime(NULL),  fFlyTime(NULL),
 	fHitX(NULL),fHitY(NULL),fHitZ(NULL),
 	fHitPX(NULL),fHitPY(NULL),fHitPZ(NULL),fHitID(NULL)
 {
@@ -15,6 +15,7 @@ VirtualSD::VirtualSD(G4String name)
 	fHitCopyNo = new std::vector<int>;
 	fHitEk= new std::vector<double>;
 	fHitTime= new std::vector<double>;
+	fFlyTime= new std::vector<double>;
 	fHitX= new std::vector<double>;
 	fHitY= new std::vector<double>;
 	fHitZ= new std::vector<double>;
@@ -30,6 +31,7 @@ VirtualSD::~VirtualSD(){
 	delete fHitCopyNo;
 	delete fHitEk;
 	delete fHitTime;
+	delete fFlyTime;
 	delete fHitX;
 	delete fHitY;
 	delete fHitZ;
@@ -74,7 +76,7 @@ int VirtualSD::CalculateCopyNo(const G4StepPoint* thePoint){
     G4TouchableHistory* touchable
 		= (G4TouchableHistory*)(thePoint->GetTouchable());
 	int factor = 1;
-	for(int i = 0 ; i < 1 ; i++){
+	for(int i = 0 ; i < fNphysvol->size() ; i++){
 		G4VPhysicalVolume* thePV = touchable->GetVolume(i);
 		if(thePV->GetName() == "World_PV")
 			break;
