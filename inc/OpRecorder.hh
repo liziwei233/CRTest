@@ -85,7 +85,7 @@ private:
     static OpRecorder* fgInstance;
 	G4String boundaryName;
 
-	std::vector<double>* fCount;
+	std::vector<int>* fCount;
 	std::vector<int>* fID;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;

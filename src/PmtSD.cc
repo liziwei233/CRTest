@@ -59,7 +59,8 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 
 	G4Track *theTrack = theStep->GetTrack();	
     G4double edep = theStep->GetTotalEnergyDeposit();
-    if(edep <= 0) return false;
+	//only record photons.
+	if(edep <= 0 || theTrack->GetTrackID()<2 ) return false;
     
 	G4StepPoint* theParticle = theStep->GetPostStepPoint();
 

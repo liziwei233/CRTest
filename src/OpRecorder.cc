@@ -20,7 +20,7 @@ OpRecorder::OpRecorder()
       nDebug(0),fBounce(NULL),fID(NULL)
 {
 	boundaryName = "NULL";
-    fCount = new std::vector<double>;
+    fCount = new std::vector<int>;
 	fEk = new std::vector<double>;
 	fTime = new std::vector<double>;
     fX = new std::vector<double>;
@@ -34,6 +34,8 @@ OpRecorder::OpRecorder()
 	//fL = new std::vector<double>;
 	//fWaveL = new std::vector<double>;
 	fBounce = new std::vector<int>;
+
+	fEk->reserve(10e4);
 }
 
 OpRecorder::~OpRecorder() {
@@ -91,7 +93,7 @@ void OpRecorder::Reset()
     nDebug = 0;
 
 
-    std::vector<double>().swap(*fCount);
+    std::vector<int>().swap(*fCount);
     std::vector<double>().swap(*fEk);
     std::vector<double>().swap(*fTime);
     std::vector<double>().swap(*fX);
@@ -142,7 +144,6 @@ void OpRecorder::Print()
 
 void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
-	fFirstColID = 
 /*		rootData->CreateNtupleIColumn(ntupleID, "op.crkov");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2a");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2gL");
@@ -157,7 +158,8 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	//rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
 */
-    rootData->CreateNtupleDColumn(ntupleID, "ph.Count", *fCount);
+	fFirstColID =
+		rootData->CreateNtupleIColumn(ntupleID, "ph.Count", *fCount);
 	rootData->CreateNtupleIColumn(ntupleID, "ph.ID",*fID);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.t", *fTime);
@@ -171,6 +173,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 
 void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
+	/*
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID, nCerenkov);
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+1, nQuartz2Air);
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+2, nQuartz2GlueL);
@@ -179,6 +182,7 @@ void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nGlue2PMTL);
     rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTR);
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nDetectionL+nDetectionR);
+	*/
 }
 
 G4bool OpRecorder::Record(const G4Track* thePhoton)
