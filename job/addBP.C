@@ -19,6 +19,8 @@ void addBP(const char* rootname=""){
 
         int N=0,temp=0,idN=0;
         double theta=0,phi=0;
+        int initial=0;
+        int limit=0;
         //int counter=0;
         //int counter2=0;
         TVector3 MD_L;
@@ -99,7 +101,7 @@ void addBP(const char* rootname=""){
         TBranch *bbpy_L=t1->Branch("PmtL.bpy",&bpy_L);
         TBranch *bbpz_L=t1->Branch("PmtL.bpz",&bpz_L);
         
-        
+        /*
         TBranch *bbpPx_R=t1->Branch("PmtR.bpPx",&bpPx_R);
         TBranch *bbpPy_R=t1->Branch("PmtR.bpPy",&bpPy_R);
         TBranch *bbpPz_R=t1->Branch("PmtR.bpPz",&bpPz_R);
@@ -111,7 +113,7 @@ void addBP(const char* rootname=""){
         TBranch *bbpphi_L=t1->Branch("PmtL.phi",&bpphi_L);
         TBranch *bbptheta_R=t1->Branch("PmtR.theta",&bptheta_R);
         TBranch *bbpphi_R=t1->Branch("PmtR.phi",&bpphi_R);
-
+*/
         t1->SetBranchAddress("PmtR.trackID",&IDR);
         t1->SetBranchAddress("PmtL.trackID",&IDL);
         t1->SetBranchAddress("ph.ID", &phID);
@@ -167,7 +169,11 @@ void addBP(const char* rootname=""){
                
                 //find the birthplace of  photons those hit right PMT.
                 idN = (*IDR)[k];
-                for(int p=idN-20;p<phID->size();p++)
+                if(idN-20<0) initial=0;
+                else initial=idN-20;
+                if(phID->size()<idN) limit=phID->size();
+                else limit=idN;
+                for(int p=initial;p<limit;p++)
                 {
                     if((*phID)[p]==idN) {
                         //cout<<"RID= "<<idN<<endl;
@@ -188,7 +194,7 @@ void addBP(const char* rootname=""){
                 }
 
             }
-            
+            if(temp!=bpx_R->size()) cout<<"entry$="<<i<<", R counts= "<<temp<<", bp counts= "<<bpx_R->size()<<endl;
             temp = IDL->size();
             //counter2+=temp;
             for(int k=0;k<temp;k++){
@@ -220,6 +226,7 @@ void addBP(const char* rootname=""){
                 }
 
             }
+            if(temp!=bpx_L->size()) cout<<"R counts= "<<temp<<", bp counts= "<<bpx_L->size()<<endl;
             bbpx_R->Fill();
             bbpy_R->Fill();
             bbpz_R->Fill();
@@ -227,6 +234,7 @@ void addBP(const char* rootname=""){
             bbpy_L->Fill();
             bbpz_L->Fill();
             
+            /*
             bbpPx_R->Fill();
             bbpPy_R->Fill();
             bbpPz_R->Fill();
@@ -237,9 +245,9 @@ void addBP(const char* rootname=""){
             bbpphi_L->Fill();
             bbptheta_R->Fill();
             bbpphi_R->Fill();
-            
+            */
         }
-        t1->Print();
+        //t1->Print();
         t1->Write();
         delete f1;
 }
