@@ -247,7 +247,10 @@ void addBP(const char* rootname=""){
             bbpphi_R->Fill();
             */
         }
+        //TBranch *b1 = t1->GetBranch("ph.E");
+        //t1->GetListOfBranches()->Remove(b1);
+
         //t1->Print();
-        t1->Write();
+        t1->Write("", TObject::kOverwrite);
         delete f1;
 }

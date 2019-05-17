@@ -61,14 +61,14 @@
 </volume>
 -->
 <volume name="trigger">
-  <!--<materialref ref="SiO2" />-->
-  <materialref ref="AIR" />
+  <materialref ref="SiO2" />
+  <!--<materialref ref="AIR" />-->
   <solidref ref="TRS" />
 </volume>
 
 <volume name="lightguide_right">
-  <!--<materialref ref="SiO2" />-->
-  <materialref ref="AIR" />
+  <materialref ref="SiO2" />
+  <!--<materialref ref="AIR" />-->
   <solidref ref="lgS" />
 </volume>
 
