@@ -6,9 +6,10 @@
 /run/initialize
 
 
-#/gun/particle mu-
-/gun/particle e-
-/gun/energy 2 MeV
+/gun/particle mu-
+#/gun/particle e-
+#/gun/energy 2 MeV
+/gun/energy 3 GeV
 /gun/position  0 -0.25 0. cm
 #/gun/position  0 0 124.80 cm
 /gun/direction 0 1 0    #90deg
@@ -17,4 +18,4 @@
 #/gun/direction 0 -1 -1.73  #30deg
 #/gun/direction 0 -1 -0.577 #60deg
 #/gun/direction 0 0 1
-/run/beamOn 1
+/run/beamOn 10000
