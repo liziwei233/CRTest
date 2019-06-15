@@ -36,11 +36,12 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 
     //theTrack->GetUserInformation()->Print();
     //G4cout<<theTrack->GetDefinition()->GetParticleName()<<G4endl;
+/* 
 	G4cout<<"particle name is : "<<theTrack->GetParticleDefinition()->GetParticleName()<<G4endl;
 	G4cout<<"particle process is : "<<theTrack->GetCreatorProcess()->GetProcessName() <<G4endl;
 	//G4cout<<"particle ParentID is : "<<theTrack->GetParentID()<<G4endl;
 	//G4cout<<"particle TrackID is : "<<theTrack->GetTrackID()<<G4endl;
-
+*/
     OpRecorder *Recorder = OpRecorder::Instance();
 	
 

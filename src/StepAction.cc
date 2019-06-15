@@ -42,7 +42,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
     G4VPhysicalVolume *thePostPV = thePostPoint->GetPhysicalVolume();
 
     
-    
+    /* 
     //**********************************************
     //*****if you want to track these photons*******
     //**********************************************
@@ -52,7 +52,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
     
     //**********************************************
     //**********************************************
-
+    */
     
     
     
@@ -153,7 +153,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
 		{
 				type = Quartz2Air;
 				Recorder->nQuartz2Air ++;
-                Recorder->fBounce->push_back(theTrack->GetTrackID());
+                //Recorder->fBounce->push_back(theTrack->GetTrackID());
                 
                 Recorder->SetBoundaryName("Quartz2Air");
                 BoundaryStats(boundary);

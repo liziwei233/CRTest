@@ -185,7 +185,7 @@
   <D value="0.00129" />
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />
-  <property name="EFFICIENCY" ref="S13360_3050_EFFICIENCY" />
+  <property name="EFFICIENCY" ref="S13360_6025_EFFICIENCY" />
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
