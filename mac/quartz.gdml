@@ -30,19 +30,20 @@
 <structure>
   &Slab;
 
-<!--
+
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
-    <loop for="iDetector" to="detectorN-1" step="1">
-      <physvol copynumber="iDetector">
+    <loop for="idetector" to="detectorN-1" step="1">
+      <physvol copynumber="idetector">
           <volumeref ref="Detector" />
-	  <position y="detectorPosY[iDetector+1]"/>
+	  <position y="detectorPosY[idetector+1]"/>
       </physvol>
     </loop>
   </volume>
--->
 
+
+<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -50,7 +51,7 @@
           <volumeref ref="Detector" />
       </physvol>
   </volume>
-
+-->
 
   <bordersurface name="medium_border" surfaceproperty="Al_surf" >
     <physvolref ref="medium_PV"/>

@@ -30,7 +30,7 @@ void ActionRegister::BuildForMaster() const
 void ActionRegister::Build() const
 {
     SetUserAction(new GPSgenerator);
-    SetUserAction(new Generator);
+    //SetUserAction(new Generator);
     SetUserAction(new RunAction);
     SetUserAction(new EventAction);
     SetUserAction(new StackAction);
