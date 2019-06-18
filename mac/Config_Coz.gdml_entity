@@ -20,8 +20,8 @@
 
 <!-- Detector Configuration -->
 <variable name="detectorX" value="mediumX+0.1" />
-<variable name="detectorY" value="mediumY*2+0.1" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*4+SOZ*2" />
+<variable name="detectorY" value="mediumY+0.1" />
+<variable name="detectorZ" value="mediumZ+0.1" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>
@@ -57,4 +57,4 @@
 <!--<constant name="SiPMN" value="4" />-->
 <constant name="SiPMN" value="1" />
 <matrix name="SiPMPosX" coldim="1" values="0 0 0 0 "/>
-<matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9" />
+<matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9 " />

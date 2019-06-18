@@ -10,6 +10,8 @@
 
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
+<!-- Detector_wrap -->
+<box lunit="mm" name="wrapS" x="detectorX" y="detectorY" z="detectorZ" />
 
 
  <!-- PMT -->

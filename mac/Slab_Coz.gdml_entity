@@ -137,9 +137,9 @@
 -->
   
   
-<volume name="Detector">
+<volume name="Wrap">
   <materialref ref="AIR" />
-  <solidref ref="detectorS" />
+  <solidref ref="wrapS" />
 
   
       <physvol>
@@ -163,6 +163,16 @@
 	    <position unit="mm" y="0" />
       <position unit="mm" z="-mediumZ/2.-(SOZ+pmtZ*2)/2." />
       </physvol>
+</volume>
+
+<volume name="Detector">
+  <materialref ref="AIR" />
+  <solidref ref="detectorS" />
+      <physvol>
+      <volumeref ref="Wrap" />
+	    <position unit="mm" z="0" />
+      </physvol>
+</volume>
 
 <!--      
 <loop for="idetector" to="detectorN-1" step="1">
@@ -215,4 +225,3 @@
   </loop>
 -->  
 
-</volume>

@@ -153,7 +153,7 @@
 
 
 
-<material name="endWrapper_Quartz">
+<material name="OpWrapper_Black">
     <D value="0.00129" />
     <fraction n="0.7" ref="Nitrogen" />
     <fraction n="0.3" ref="Oxygen" />

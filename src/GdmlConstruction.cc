@@ -12,6 +12,8 @@
 #include "G4GDMLParser.hh"
 #include "G4GDMLAuxStructType.hh"
 
+#include "G4GeometryManager.hh"
+#include "G4SolidStore.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4VPhysicalVolume.hh"
@@ -36,18 +38,17 @@
 #include<vector>
 
 GdmlConstruction::GdmlConstruction(G4GDMLParser *gdml)
-	: SysConstruction(), fWorldPV(NULL), fGdml(gdml),fStepLimit(NULL),
-	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(gdml),fGdmlFileName(""), fStepLimit(NULL)
 {
 	Init();
 }
 
 GdmlConstruction::GdmlConstruction(G4String gdmlFileName)
-	: SysConstruction(), fWorldPV(NULL), fGdml(NULL),fStepLimit(NULL),
-	fPmtL(NULL),fPmtR(NULL),fRadianer(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(NULL),fStepLimit(NULL)
 {
 	fGdml = new G4GDMLParser;
-	fGdml->Read(gdmlFileName, false);
+	fGdmlFileName = gdmlFileName;
+	//fGdml->Read(gdmlFileName, false);
 
 	this->Init();
 }
@@ -61,6 +62,7 @@ GdmlConstruction::~GdmlConstruction()
 
 void GdmlConstruction::Init(){
   assert(fGdml != NULL);
+  fGdml->Read(fGdmlFileName,false);
   fWorldPV = fGdml->GetWorldVolume();
   if(!fWorldPV){
 	  G4cout << "[#] ERROR - CAN NOT FOUND WORLD SETUP - "
@@ -73,14 +75,14 @@ void GdmlConstruction::Init(){
 	  fWorld = fWorldPV->GetLogicalVolume();
   //fDetector = lvStore->GetVolume("Detector",false);
   //fTarget = lvStore->GetVolume("Target", false);
-  fRadianer = lvStore->GetVolume("medium",false);
+  fRadiator = lvStore->GetVolume("medium",false);
   fPmtL = lvStore->GetVolume("PMT_left",false);
   fPmtR = lvStore->GetVolume("PMT_right",false);
 
   
   fStepLimit = new G4UserLimits();
   fStepLimit->SetUserMaxTime(200*ns);
-  fRadianer->SetUserLimits(fStepLimit);
+  fRadiator->SetUserLimits(fStepLimit);
 
 /*
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
@@ -115,12 +117,23 @@ void GdmlConstruction::Init(){
 
 G4VPhysicalVolume *GdmlConstruction::Construct()
 {
+	if(fWorldPV){
+	  G4GeometryManager::GetInstance()->OpenGeometry();
+	  G4PhysicalVolumeStore::GetInstance()->Clean();
+	  G4LogicalVolumeStore::GetInstance()->Clean();
+	  G4SolidStore::GetInstance()->Clean();
+	  G4LogicalSkinSurface::CleanSurfaceTable();
+	  G4LogicalBorderSurface::CleanSurfaceTable();
+	  fGdml->Clear();
+  }
+
+  this->Init();
   return fWorldPV;
 }
 
 
 void GdmlConstruction::ConstructSDandField(){
-	/*if(fDetector){
+	/* if(fDetector){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
         G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
