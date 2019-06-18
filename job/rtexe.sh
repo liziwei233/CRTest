@@ -7,6 +7,8 @@ which geant4-config
 mkdir -p `dirname $1`
 
 NAME=$1
-thrd=$2
+cluster=$2
 echo $NAME > ../job/name.log
-root -b -q "../job/MultiTiersOutputfun_SiPM.C(\"$NAME\",$thrd)"
+echo `date` >> $(dirname $3)/cluster.log
+echo -e "$cluster\n\n" >> $(dirname $3)/cluster.log
+root -b -q "../job/MultiTiersOutputfun_SiPM.C(\"$NAME\")"

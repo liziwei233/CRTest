@@ -14,6 +14,6 @@ cluster=$5
 echo $NAME > ../job/name.log
 echo `date` >> $(dirname $3)/cluster.log
 echo -e "$cluster\n\n" >> $(dirname $3)/cluster.log
-#root -b -q "../job/MultiTiersOutputfun_SiPM.C(\"$NAME\",$thrd)"
+root -b -q "../job/MultiTiersOutputfun_SiPM.C(\"$NAME\")"
 #root -b -q "../job/Outputfun_MCP.C(\"$NAME\")"
-root -b -q "../job/addBP.C(\"$NAME\")"
+#root -b -q "../job/addBP.C(\"$NAME\")"

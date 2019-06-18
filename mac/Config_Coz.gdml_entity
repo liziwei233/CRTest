@@ -6,7 +6,7 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="10"/>
+<variable name="mediumX" value="5"/>
 <variable name="mediumY" value="5"/>
 <variable name="mediumZ" value="100"/>
 
@@ -20,7 +20,7 @@
 
 <!-- Detector Configuration -->
 <variable name="detectorX" value="mediumX+0.1" />
-<variable name="detectorY" value="mediumY*10+0.1" />
+<variable name="detectorY" value="mediumY+0.1" />
 <variable name="detectorZ" value="mediumZ+0.1+pmtZ*4+SOZ*2" />
 
 <!-- PMT Configuration,R is radius
