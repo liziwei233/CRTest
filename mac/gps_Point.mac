@@ -6,7 +6,7 @@
 /tracking/verbose 0
 /event/verbose 0
 /gps/verbose 2
-/gps/particle e-
+/gps/particle mu-
 /gps/pos/type Point
 #/gps/pos/type Plane
 #/gps/pos/shape Square
@@ -24,8 +24,8 @@
 #/gps/ang/rot1 0 -1 0
 #/gps/ang/rot2 0 1 0
 /gps/direction 0 1 0
-/gps/ene/mono 300 GeV 
+/gps/ene/mono 3 GeV 
 
 #/run/initialize
-/run/beamOn 10
+/run/beamOn 125
 #/run/beamOn 100

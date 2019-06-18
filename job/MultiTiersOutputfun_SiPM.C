@@ -219,7 +219,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
         char name[1024];
         char buff[1024];
 
-        const int T = 1; //amounts of Tiers
+        const int T = 4; //amounts of Tiers
 
         //Double_t parR[500]={};
         //Double_t parL[500]={};
