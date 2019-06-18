@@ -8,7 +8,7 @@
 <!-- entire size,  not half! -->
 <variable name="mediumX" value="5"/>
 <variable name="mediumY" value="5"/>
-<variable name="mediumZ" value="100"/>
+<variable name="mediumZ" value="10"/>
 
 <variable name="SiPMX" value="6"/>
 <variable name="SiPMY" value="6"/>
@@ -21,7 +21,7 @@
 <!-- Detector Configuration -->
 <variable name="detectorX" value="mediumX+0.1" />
 <variable name="detectorY" value="mediumY+0.1" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*4+SOZ*2" />
+<variable name="detectorZ" value="mediumZ+0.1" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>
@@ -42,9 +42,9 @@
 <!-- Others-->
 <variable name="idetector" value="0" />
 <!--<constant name="detectorN" value="4" />-->
-<constant name="detectorN" value="1" />
+<constant name="detectorN" value="4" />
 <!--<matrix name="detectorPosY" coldim="1" values="0. -24. -48 -72" />-->
-<matrix name="detectorPosY" coldim="1" values="9 3 -3 -9" />
+<matrix name="detectorPosY" coldim="1" values="10.5 3.5 -3.5 -10.5" />
 
 <!--
 <variable name="iSiPM" value="0" />
@@ -57,4 +57,4 @@
 <!--<constant name="SiPMN" value="4" />-->
 <constant name="SiPMN" value="1" />
 <matrix name="SiPMPosX" coldim="1" values="0 0 0 0 "/>
-<matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9" />
+<matrix name="SiPMPosY" coldim="1" values="9 3 -3 -9 " />

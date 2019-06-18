@@ -7,6 +7,8 @@
 
 <opticalsurface name="Al_surf" model="unified" finish="polishedbackpainted" type="dielectric_dielectric" value="6.0*deg"/>
 
+<opticalsurface name="Black_surf" model="unified" finish="ground" type="dielectric_dielectric" value="0"/>
+
 <!--<opticalsurface name="Al_surf" model="unified" finish="polishedbackpainted" type="dielectric_dielectric" value="6.0*deg"/>-->
 
 <opticalsurface name="quartz_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
