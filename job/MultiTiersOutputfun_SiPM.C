@@ -309,7 +309,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
         sprintf(buff, "T0R[%d]/D", T);
         t2->Branch("T0R", xT0_R, buff);
 
-        sprintf(buff, "T0R[%d]/D", T);
+        sprintf(buff, "T0[%d]/D", T);
         t2->Branch("T0", xT0, buff);
 
         sprintf(buff, "npeL[%d]/I", T);

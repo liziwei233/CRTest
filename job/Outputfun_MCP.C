@@ -55,7 +55,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
     double SPEpar[7];
     double Tmark=0;
     bool flag;
-    double Trecept=10e-12; //waiting the photons hit
+    double Trecept=500e-12; //waiting the photons hit
     double Treject=500e-12; //recover time,during this time any photons are rejected.
     //tts = r.Gaus(0,10.6e-12);
     //
@@ -73,24 +73,24 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
     //N=sizeof(par)/sizeof(par[0]);
     sort(par.begin(),par.end());
     int counter=0;
-    Tmark=par.at(0);
+    Tmark=par.at(0)*1e-9;
     for (int n=0;n<par.size();n++){
         //while(par[n]>5e-9){
 
-        if (x-par.at(n)<-30.e-9){
+        if (x-par.at(n)*1e-9<-30.e-9){
             val+=0;
         }
         else{
 
-            if(par.at(n)-Tmark<Trecept)
+            if(par.at(n)*1e-9-Tmark<Trecept)
             {
                 //r.SetSeed(par.at(n));
                 //tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
-                val+=response(x-tts.at(n)-par.at(n),SPEpar);
+                val+=response(x-tts.at(n)-par.at(n)*1e-9,SPEpar);
                 counter++;
             }
-            else if(par.at(n)-Tmark<(Trecept+Treject))
+            else if(par.at(n)*1e-9-Tmark<(Trecept+Treject))
             {
                 val+=0;
             }
@@ -100,7 +100,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
                 //r.SetSeed(par.at(n));
                 //tts = r.Gaus(0,ttssigma); //TTS of MCP-R3805U
                 //cout<<"tts= "<<tts<<endl;
-                val += response(x - tts.at(n) - par.at(n), SPEpar);
+                val += response(x - tts.at(n) - par.at(n)*1e-9, SPEpar);
                 counter++;
             }
 
@@ -169,15 +169,15 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         void DrawMyGraph(TGraph *datagraph, char *xtitle, char *ytitle, Size_t MSize=1, Style_t MStyle =28, Color_t MColor=1, Color_t LColor=1, Width_t LWidth=1, Style_t LStyle=1, Color_t FColor=16);
         void SetMyPad(TVirtualPad *pad,float left, float right, float top, float bottom);
         void DrawMyPad(TVirtualPad *pad,const char* xname,const char* yname,float x1,float x2,float y1,float y2);
-
-        //void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1);
-
+        void DrawMyHist1(TH1 *datahist, const char *xtitle,const char *ytitle, Float_t LWidth=2, Int_t LStyle=1, Color_t LColor=1, Color_t TitleColor=1);
 
 
 
-        gStyle->SetOptStat(1);
+
+        gStyle->SetOptStat(0);
         gStyle->SetOptFit(1111);
         gStyle->SetOptTitle(0);
+        TGaxis::SetMaxDigits(3);
 
         //TRandom3 r;
         //r.SetSeed(0);
@@ -194,35 +194,46 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
         //Double_t RL = -5e-9;
         //Double_t RR = 20e-9;
-        Double_t RL = -2e-9;
-        Double_t RR = 8e-9;
-        Double_t zoomRL = -2e-9;
-        Double_t zoomRR = 8e-9;
+        Double_t RL = -0; // the unit is ns
+        Double_t RR = 2;
+        Double_t zoomRL = -2;
+        Double_t zoomRR = 8;
         int binNum=0;
-        binNum = (RR-RL)/5e-12;
+        binNum = (RR-RL)/5e-3;
 
-        double ttssigma=20e-12;
+        double ttssigma=20e-12; //the unit is s.
+
         const int range =400;  // 25ps/sample
         Double_t thrd = -30; //Umax = -28.94mV
         double Rate=0;
 
         bool flagR=0,flagL=0;
         double xT0_L=0,xT0_R=0,xT0=0;
+        double T01stpeL=0,T01stpeR=0;
         int indexL=0,indexR=0;
         double keypointL=0,keypointR=0;
-        double InX=0,InY=0;
+        double InX=0,InY=0,InZ=0;
+        double InpX=0,InpY=0,InpZ=0;
         int npeL=0,npeR=0;
         double UL=0,UR=0;
-        const int certain=2;	
+        const int certain=0;	
 
         vector<double>* TR;
         vector<double>* TL;
         vector<double> *IncidX; //the position of incident event
         vector<double> *IncidY;
+        vector<double> *IncidZ;
+        vector<double> *IncidpX; //the momentum direction of incident event
+        vector<double> *IncidpY;
+        vector<double> *IncidpZ;
         TL = new vector<double>;
         TR = new vector<double>;
         IncidX = new vector<double>;
         IncidY = new vector<double>;
+        IncidZ = new vector<double>;
+        IncidpX = new vector<double>;
+        IncidpY = new vector<double>;
+        IncidpZ = new vector<double>;
         //count = new vector<int>;
         int N=0,temp=0;
         Double_t xR[range]={};
@@ -238,8 +249,12 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
         t1->SetBranchAddress("PmtR.t",&TR);
         t1->SetBranchAddress("PmtL.t",&TL);
-        t1->SetBranchAddress("ph.x", &IncidX);
-        t1->SetBranchAddress("ph.y", &IncidY);
+        t1->SetBranchAddress("int.x", &IncidX);
+        t1->SetBranchAddress("int.y", &IncidY);
+        t1->SetBranchAddress("int.z", &IncidZ);
+        t1->SetBranchAddress("int.px", &IncidpX);
+        t1->SetBranchAddress("int.py", &IncidpY);
+        t1->SetBranchAddress("int.pz", &IncidpZ);
 
 
         //sprintf(name,"Thrd_%g",abs(thrd));	
@@ -252,11 +267,16 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         t2->Branch("UR",&UR,"UR/D");
         t2->Branch("T0L",&xT0_L,"T0L/D");
         t2->Branch("T0R",&xT0_R,"T0R/D");
-        t2->Branch("T0",&xT0,"T0/D");	
+        t2->Branch("T01stpeL",&T01stpeL,"T01stpeL/D");	
+        t2->Branch("T01stpeR",&T01stpeR,"T01stpeR/D");	
         t2->Branch("npeL",&npeL,"npeL/I");	
         t2->Branch("npeR",&npeR,"npeR/I");	
         t2->Branch("InX",&InX,"InX/D");	
         t2->Branch("InY",&InY,"InY/D");	
+        t2->Branch("InZ",&InZ,"InZ/D");	
+        t2->Branch("InpX",&InpX,"InpX/D");	
+        t2->Branch("InpY",&InpY,"InpY/D");	
+        t2->Branch("InpZ",&InpZ,"InpZ/D");	
         //for(int s = 0; s<4;s++){
 
 
@@ -289,8 +309,8 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
 
         //count->clear();
-        //for(int i = certain; i < certain+1; i++){
-        for(int i = 0; i < N; i++){
+        for(int i = certain; i < certain+1; i++){
+        //for(int i = 0; i < N; i++){
 
             //-----------initial----------------------//
             TL->clear();
@@ -315,15 +335,20 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
             //par[i]=r.Gaus(2.4e-9,0.5e-9);
             //par[i]=4e-9;
             t1->GetEntry(i);
-            
+            if(!IncidX->empty()){
             InX = (*IncidX)[0];
             InY = (*IncidY)[0];
+            InZ = (*IncidZ)[0];
             
+            InpX = (*IncidpX)[0];
+            InpY = (*IncidpY)[0];
+            InpZ = (*IncidpZ)[0];
+            }
             temp = TR->size();
             //cout<<"counterR = "<< temp <<endl;
             for(int k=0;k<temp;k++){
                 //cout<< T[][k] <<endl;
-                parR.push_back((*TR)[k]*1e-9);
+                parR.push_back((*TR)[k]);
                 ttsR.push_back(r.Gaus(0,ttssigma));
                 //parR[k]=8.3e-9;
                 //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
@@ -333,12 +358,15 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
                 //myFun->SetParameter(k,par[k]);
             }
+            sort(parR.begin(), parR.end());
+        //cout<<">>> progress check <<<"<<endl;
+           if(!parR.empty()) T01stpeR = parR.at(0);
 
             temp = TL->size();	
             //cout<<"counterL = "<< temp <<endl;
             for(int k=0;k<temp;k++){
                 //cout<< T[][k] <<endl;
-                parL.push_back((*TL)[k]*1e-9);
+                parL.push_back((*TL)[k]);
                 ttsL.push_back(r.Gaus(0,ttssigma));
                 //cout<<" [+] par "<<k<<"\t"<<parL.at(k)<<endl;
 
@@ -347,6 +375,9 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
                 //myFun->SetParameter(k,par[k]);
             }
+            sort(parL.begin(), parL.end());
+        //cout<<">>> progress check <<<"<<endl;
+           if(!parL.empty()) T01stpeL = parL.at(0);
             
             // Initial these variable
             memset(xL, 0, sizeof(xL));
@@ -360,13 +391,13 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
             for(int j=0;j<range;j++){
                 xR[j]=(RR-RL)/range*j+RL;
-                yR[j]=outputfunc(xR[j],parR,ttsR,&npeR);
+                yR[j]=outputfunc(xR[j]*1e-9,parR,ttsR,&npeR);
                 //cout<<"process check======>"<<endl;
                 xL[j]=(RR-RL)/range*j+RL;
-                yL[j]=outputfunc(xL[j],parL,ttsL,&npeL);
+                yL[j]=outputfunc(xL[j]*1e-9,parL,ttsL,&npeL);
                 
-                xL[j]=((RR-RL)/range*j+RL)*1e9;
-                xR[j]=((RR-RL)/range*j+RL)*1e9;
+                xL[j]=(RR-RL)/range*j+RL;
+                xR[j]=(RR-RL)/range*j+RL;
 
 
 
@@ -471,12 +502,12 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
              * ==================================================*/
             TGraph *gR = new TGraph(range,xR,yR);
             TF1* fitR = pol3fit(gR,xR[indexR]- 60e-3,xR[indexR]+80e-3);
-            xT0_R=fitR->GetX(keypointR)*1e-9;
+            xT0_R=fitR->GetX(keypointR);
 
             //return;
             TGraph *gL = new TGraph(range,xL,yL);
             TF1* fitL = pol3fit(gL,xL[indexL]-60e-3,xL[indexL]+80e-3);
-            xT0_L=fitL->GetX(keypointL)*1e-9;
+            xT0_L=fitL->GetX(keypointL);
             //xT0_L = Discriminate(xL,yL,indexL);
 
             hSig[1]->Fill(xT0_L);
@@ -492,7 +523,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
 
             //cout<<"loop k = "<<k<<endl;
 
-
+            
         }
 
         f1->Close();
@@ -506,7 +537,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         //c->cd();
         gPad->Clear();
         c->Divide(2,1);
-        c->cd(1);
+        c->cd(2);
         SetMyPad(gPad,0.12,0.05,0.05,0.12);
         gR->Draw("AL");
         gPad->Update();
@@ -516,7 +547,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         ymax = gPad->GetUymax();
         if(UR<UL) ymin = UR*1.2;
         else ymin = UL*1.2;
-        DrawMyPad(gPad,"Time (ns)","Amp (mV)",RL*1e9, RR*1e9,ymin, ymax);
+        DrawMyPad(gPad,"Time (ns)","Amp (mV)",RL, RR, ymin, ymax);
 
         //return;
         //gR->Draw();
@@ -531,40 +562,33 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         //gR->Draw("AC");
 
         DrawMyGraph(gL,"Time (ns)","Amp (mV)",1,28,1,kBlue,2,1);
-        gL->Draw("L");
-        //gL->GetXaxis()->SetTitle("Time (s)");
-        //gL->Draw("same");
+        //gL->Draw("L");
+        
 
         TLegend* leg; 
         leg = DrawMyLeg(0.6,0.2,0.75,0.32);
         leg->AddEntry(gR,"PMT_Right","l");
         leg->AddEntry(gL,"PMT_Left","l");
         leg->Draw();
-        //gR->SetHistogram(hRSig);
-        //gL->SetHistogram(hLSig);
-        //hRSig->Draw();
-        //hLSig->Draw("same");
+       
 
 
-        c->cd(2);
-        h[0]->SetTitle("t0");
-        h[0]->GetXaxis()->SetTitle("Time (s)");
-        h[0]->GetYaxis()->SetTitle("Counts");
-        h[0]->SetLineColor(kRed);
+        c->cd(1);
+        SetMyPad(gPad,0.12,0.1,0.05,0.12);
+        DrawMyHist1(h[0],"Arrival Time (ns)","Counts",2,1,2);
+        DrawMyHist1(h[1],"Arrival Time (ns)","Counts",2,1,4);
         h[0]->Draw();
-        h[1]->SetLineColor(kBlue);
-        h[1]->Draw("SAMES");
+        //h[1]->Draw("SAMES");
 
         gPad->Update();
 
-
+/*
         TPaveStats *stL = (TPaveStats*)h[1]->FindObject("stats");
-        //stR->SetName("PMT_Right");
         stL->SetY1NDC(0.6);
         stL->SetY2NDC(0.78);
         gPad->Modified();
         gPad->Update();
-
+*/
 
         //t1->Draw("PmtR.t[0]>>ht(200,0,20)");
 
@@ -731,8 +755,8 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         datagraph->GetYaxis()->SetLabelColor(1);
         datagraph->GetXaxis()->SetLabelFont( 42 );
         datagraph->GetYaxis()->SetLabelFont( 42 );
-        datagraph->GetXaxis()->SetLabelSize( 0.05 );
-        datagraph->GetYaxis()->SetLabelSize( 0.05 );
+        datagraph->GetXaxis()->SetLabelSize( 0.06 );
+        datagraph->GetYaxis()->SetLabelSize( 0.06 );
         datagraph->GetXaxis()->SetLabelOffset( 0.01 );
         datagraph->GetYaxis()->SetLabelOffset( 0.01 );
         datagraph->GetXaxis()->SetTitleFont( 42 );
@@ -743,38 +767,43 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts,int* npe)
         datagraph->GetYaxis()->SetTitleSize(0.06);
         datagraph->GetXaxis()->SetTitleOffset(1.0);
         datagraph->GetYaxis()->SetTitleOffset(1.0);
+        datagraph->GetXaxis()->CenterTitle();
+        datagraph->GetYaxis()->CenterTitle();
     }
-    /*
-       void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1){
-       datahist->SetLineColor( LColor );
-       datahist->SetLineWidth( LWidth );
-       datahist->GetXaxis()->SetTitle( xtitle);
-       datahist->GetYaxis()->SetTitle( ytitle);
-       datahist->GetXaxis()->SetAxisColor(1);
-       datahist->GetYaxis()->SetAxisColor(1);
-       datahist->GetXaxis()->SetLabelColor(1);
-       datahist->GetYaxis()->SetLabelColor(1);
-       datahist->GetXaxis()->SetLabelFont( 42 );
-       datahist->GetYaxis()->SetLabelFont( 42 );
-       datahist->GetXaxis()->SetLabelSize( 0.06 );
-       datahist->GetYaxis()->SetLabelSize( 0.06 );
-       datahist->GetXaxis()->SetLabelOffset( 0.01 );
-       datahist->GetYaxis()->SetLabelOffset( 0.01 );
-       datahist->GetXaxis()->SetTitleFont( 42 );
-       datahist->GetYaxis()->SetTitleFont( 42 );
-       datahist->GetXaxis()->SetTitleColor( TitleColor);
-       datahist->GetYaxis()->SetTitleColor( TitleColor );
-       datahist->GetXaxis()->SetTitleSize(0.06);
-       datahist->GetYaxis()->SetTitleSize(0.06);
-       datahist->GetXaxis()->SetTitleOffset(1.0);
-       datahist->GetYaxis()->SetTitleOffset(1.0);
-    //datahist->GetXaxis()->SetBorderSize(5);
-    datahist->GetXaxis()->SetNdivisions(510);
-    datahist->GetYaxis()->SetNdivisions(510);
-    datahist->GetXaxis()->CenterTitle();
-    datahist->GetYaxis()->CenterTitle();
-    }
-    */
+void DrawMyHist1(TH1 *datahist, const char *xtitle,const char *ytitle, Float_t LWidth, Int_t LStyle, Color_t LColor, Color_t TitleColor){
+     
+     datahist->SetLineColor( LColor );
+     datahist->SetLineWidth( LWidth );
+     datahist->SetLineStyle( LStyle );
+     datahist->GetXaxis()->SetTitle( xtitle);
+     datahist->GetYaxis()->SetTitle( ytitle);
+     datahist->GetXaxis()->SetAxisColor(1);
+     datahist->GetYaxis()->SetAxisColor(1);
+     datahist->GetXaxis()->SetLabelColor(1);
+     datahist->GetYaxis()->SetLabelColor(1);
+     datahist->GetXaxis()->SetLabelFont( 42 );
+     datahist->GetYaxis()->SetLabelFont( 42 );
+     datahist->GetXaxis()->SetLabelSize( 0.06 );
+     datahist->GetYaxis()->SetLabelSize( 0.06 );
+     datahist->GetXaxis()->SetLabelOffset( 0.01 );
+     datahist->GetYaxis()->SetLabelOffset( 0.01 );
+     datahist->GetXaxis()->SetTitleFont( 42 );
+     datahist->GetYaxis()->SetTitleFont( 42 );
+     datahist->GetXaxis()->SetTitleColor( TitleColor);
+     datahist->GetYaxis()->SetTitleColor( TitleColor );
+     datahist->GetXaxis()->SetTitleSize(0.06);
+     datahist->GetYaxis()->SetTitleSize(0.06);
+     datahist->GetXaxis()->SetTitleOffset(1.0);
+     datahist->GetYaxis()->SetTitleOffset(1.0);
+     //datahist->GetXaxis()->SetBorderSize(5);
+     datahist->GetXaxis()->SetNdivisions(510);     
+     datahist->GetYaxis()->SetNdivisions(510);
+     //datahist->GetXaxis()->CenterTitle();
+     //datahist->GetYaxis()->CenterTitle();
+     
+     
+}
+    
 
 
 
