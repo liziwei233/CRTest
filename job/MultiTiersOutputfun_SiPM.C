@@ -66,11 +66,11 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
     double Tmark = 0;
     bool flag;
     //tts = 0;
-    /*
+    
     //
     // *-----------------SiPM+BJT650 output----------//
-    double Trecept = 10e-9;	//waiting the photons hit
-    double Treject = 100e-9; //recover time,during this time any
+    double Trecept = 500e-9;	//waiting the photons hit
+    double Treject = 500e-9; //recover time,during this time any
     SPEpar[0] = 2.4e6;	 //Gain
     SPEpar[1] = 1.6e-19; //e
     //SPEpar[2]=150e-12;  //Ca  ??
@@ -82,8 +82,8 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
     SPEpar[6] = 1.5e-9; //rise time 1.5ns
     // **
     //
-    */
     
+    /*
     //
     // 
     // *-----------------MCP-PMT R3809 output----------//
@@ -100,6 +100,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
     SPEpar[6] = 90e-12; //rise time 1.5ns
     // **
     //
+     */
 
 
     //int N;
@@ -232,9 +233,9 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
         //vector<double> parL2;
 
         Double_t RL = -5e-9;
-        Double_t RR = 20e-9;
+        Double_t RR = 30e-9;
         int binNum = 0;
-        binNum = (RR - RL) / 25e-12;
+        binNum = (RR - RL) / 50e-12;
 
         double ttssigma = 0e-12;
         const int range = (RR - RL) / 25e-12; //25ps/Sample

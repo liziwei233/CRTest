@@ -11,7 +11,7 @@
 #/gps/pos/type Plane
 #/gps/pos/shape Square
 /gps/pos/shape Circle
-/gps/pos/centre 0 -2.5 0 cm
+/gps/pos/centre 0 -2.5 20 cm
 #/gps/pos/halfx 2.5 mm
 #/gps/pos/halfy 2.5 mm
 /gps/pos/radius 0.005 mm
@@ -27,5 +27,5 @@
 /gps/ene/mono 3 GeV 
 
 #/run/initialize
-/run/beamOn 125
+/run/beamOn 1
 #/run/beamOn 100

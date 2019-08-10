@@ -3,7 +3,7 @@
 <!-- This file should be referenced in <solids></solids>-->
 <!-- Dependencies : MaterialDB.gdml_entity-->
 
-<opticalsurface name="Tyvek_surf" model="unified" finish="groundbackpainted" type="dielectric_dielectric" value="6.0*deg"/>
+<opticalsurface name="Tyvek_surf" model="unified" finish="groundbackpainted" type="dielectric_dielectric" value="1.0*deg"/>
 
 <opticalsurface name="Al_surf" model="unified" finish="polishedbackpainted" type="dielectric_dielectric" value="6.0*deg"/>
 

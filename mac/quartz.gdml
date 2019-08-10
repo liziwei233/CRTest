@@ -63,7 +63,7 @@
 	<volumeref ref="Detector"/>
   </skinsurface>
   
-  <skinsurface name="reflectedwrap" surfaceproperty="Al_surf">
+  <skinsurface name="reflectedwrap" surfaceproperty="Tyvek_surf">
 	<volumeref ref="Wrap"/>
   </skinsurface>
   
@@ -101,7 +101,7 @@
       </auxiliary>
       
       <auxiliary auxtype="Skin" auxvalue="reflectedwrap">
-        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
+        <auxiliary auxtype="SurfaceName" auxvalue="Tyvek_surf" />
         <auxiliary auxtype="LVname" auxvalue="Wrap" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
