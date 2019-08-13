@@ -7,7 +7,7 @@
     <- PMT -->
 
 <volume name="medium">
-  <materialref ref="BC408_PVT" />
+    <materialref ref="EJ230_PVT" />
   <solidref ref="mediumS" />
 </volume>
 
