@@ -33,6 +33,12 @@
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
+    <loop for="ibar" to="5" step="1">
+      <physvol copynumber="ibar">
+        <volumeref ref="barrier"/>
+        <position z="barPosZ[ibar+1]" />
+      </physvol>
+    </loop>
       <physvol >
           <volumeref ref="Detector" />
       </physvol>

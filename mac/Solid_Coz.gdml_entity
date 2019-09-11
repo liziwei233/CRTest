@@ -6,7 +6,8 @@
 
 <box lunit="mm" name="worldS" x="worldX" y="worldY" z="worldZ" />
 
-
+<!--barrier-->
+<box lunit="mm" name="barS" x="barX" y="barY" z="barZ"/>
 
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />

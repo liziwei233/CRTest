@@ -6,6 +6,12 @@
 <!-- Structure : Detector<-medium-lightguide
     <- PMT -->
 
+
+<volume name="barrier">
+  <materialref ref="G4_Al"/>
+  <solidref ref="barS"/>
+</volume>
+
 <volume name="medium">
   <materialref ref="SiO2" />
   <!--<materialref ref="AIR" />-->
