@@ -68,11 +68,11 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
 	double Tmark = 0;
 	bool flag;
 	//tts = 0;
-	/*
+	
     //
     // *-----------------SiPM+BJT650 output----------//
-    double Trecept = 10e-9;	//waiting the photons hit
-    double Treject = 100e-9; //recover time,during this time any
+    double Trecept = 500e-9;	//waiting the photons hit
+    double Treject = 500e-9; //recover time,during this time any
     SPEpar[0] = 2.4e6;	 //Gain
     SPEpar[1] = 1.6e-19; //e
     //SPEpar[2]=150e-12;  //Ca  ??
@@ -84,8 +84,8 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
     SPEpar[6] = 1.5e-9; //rise time 1.5ns
     // **
     //
-    */
-
+    
+/*
 	//
 	//
 	// *-----------------MCP-PMT R3809 output----------//
@@ -102,17 +102,18 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts, int *npe
 	SPEpar[6] = 90e-12;   //rise time 1.5ns
 	// **
 	//
-
+*/
 	//int N;
 	//N=sizeof(par)/sizeof(par[0]);
-	sort(par.begin(), par.end());
+	if (par.empty()) return val;
+        sort(par.begin(), par.end());
 	int counter = 0;
 	Tmark = par.at(0);
 	for (int n = 0; n < par.size(); n++)
 	{
 		//while(par[n]>5e-9){
 
-		if (x - par.at(n) < -30.e-9)
+		if (x - par.at(n) < -130.e-9)
 		{
 			val += 0;
 		}
@@ -280,7 +281,7 @@ void FindRisetime(double* y,double* x, double length,double Umax,double* risetim
 			}
 			*risetime = risetime_eighty-risetime_twenty;
 }
-void MultiTiersOutputfun_sample(const char *rootname = "", double fac = 0.2, const char *ParType = "CFD", int sample = 300)
+void MultiTiersOutputfun_sample(const char *rootname = "",int sample = 9e9, double fac = 0.2, const char *ParType = "CFD")
 {
 
 	TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05);
@@ -314,12 +315,12 @@ void MultiTiersOutputfun_sample(const char *rootname = "", double fac = 0.2, con
 
 
 	Double_t RL = -5e-9;
-	Double_t RR = 20e-9;
+	Double_t RR = 120e-9;
 	int binNum = 0;
-	binNum = (RR - RL) / 25e-12;
+	binNum = (RR - RL) / 50e-12;
 
 	double ttssigma = 0e-12;
-	const int range = (RR - RL) / 25e-12; //25ps/Sample
+	const int range = (RR - RL) / 50e-12; //25ps/Sample
 	const int certain = 5;
 	
 
@@ -689,7 +690,7 @@ void MultiTiersOutputfun_sample(const char *rootname = "", double fac = 0.2, con
 	gR->SetLineWidth(2);
 	gR->SetLineColor(kRed);
 	xA->SetTitle("Time (s)");
-	xA->SetRangeUser(RL, RR);
+	//xA->SetRangeUser(RL, RR);
 	xA->SetRangeUser(5, 10);
 	yA->SetTitle("Amplitude (mV)");
 	//myFun->SetNpx(5e3);

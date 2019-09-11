@@ -30,7 +30,6 @@
 <structure>
   &Slab;
 
-<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -41,10 +40,10 @@
       </physvol>
     </loop>
   </volume>
--->
 
 
 
+<!--
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -53,6 +52,7 @@
       </physvol>
   </volume>
 
+-->
 <!--
   <bordersurface name="medium_border" surfaceproperty="Al_surf" >
     <physvolref ref="medium_PV"/>
