@@ -1,0 +1,35 @@
+#/anaysis/verbose 1
+/run/verbose 0
+/run/initialize
+
+/control/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/gps/verbose 2
+/gps/particle e-
+/gps/pos/type Plane
+#/gps/pos/type Plane
+/gps/pos/shape Square
+#/gps/pos/shape Circle
+/gps/pos/centre 0 0 -300 cm
+/gps/pos/halfx 10 mm
+/gps/pos/halfy 10 mm
+#/gps/pos/radius 60 mm
+
+#rot1 define the x axis, and default is 1 0 0
+#/gps/pos/rot1 1 0 0
+
+#rot2 define the xy plane, and default is 0 1 0
+/gps/pos/rot2 0 1 0
+
+#/gps/pos/halfx 2.5 mm
+#/gps/pos/halfy 2.5 cm
+/gps/ang/type beam2d
+#/gps/ang/rot1 0 -1 0
+#/gps/ang/rot2 0 1 0
+/gps/direction 0 0 -1
+/gps/ene/mono 5 GeV 
+
+#/run/initialize
+/run/beamOn 100
+#/run/beamOn 100

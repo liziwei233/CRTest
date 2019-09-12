@@ -105,14 +105,17 @@
     <position unit="mm" z="mediumZ/2.+lgZ/2." />
   </physvol>-->
 
-  <physvol>
-    <volumeref ref="trigger" />
-    <position unit="mm" z="-30+cathodeZ+windowZ+SOZ+TRZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="SO_left" />
-    <position unit="mm" z="-30+cathodeZ+windowZ+SOZ/2." />
-  </physvol>
+  <!--
+
+    <physvol>
+      <volumeref ref="trigger" />
+      <position unit="mm" z="-30+cathodeZ+windowZ+SOZ+TRZ/2." />
+    </physvol>
+    <physvol>
+      <volumeref ref="SO_left" />
+      <position unit="mm" z="-30+cathodeZ+windowZ+SOZ/2." />
+    </physvol>
+  -->
 
   <physvol>
     <volumeref ref="Window_left" />
@@ -123,17 +126,19 @@
     <volumeref ref="Cathode_left" />
     <position unit="mm" z="-30+cathodeZ/2." />
   </physvol>
-  
-  <physvol>
-    <volumeref ref="lightguide_right" />
-    <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ+lgZ/2." />
-  </physvol>
+  <!--
 
-
-  <physvol>
-    <volumeref ref="SO_right" />
-    <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ/2." />
-  </physvol>
+    <physvol>
+      <volumeref ref="lightguide_right" />
+      <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ+lgZ/2." />
+    </physvol>
+    
+    
+    <physvol>
+      <volumeref ref="SO_right" />
+      <position unit="mm" z="mediumZ/2.+cathodeZ+windowZ+SOZ/2." />
+    </physvol>
+  -->
 
   <physvol>
     <volumeref ref="Window_right" />

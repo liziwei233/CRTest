@@ -6,15 +6,16 @@
 /run/initialize
 
 
-/gun/particle mu-
-/gun/energy 150 GeV
+#/gun/particle mu-
+/gun/particle e-
+/gun/energy 5 GeV
 
 #/gun/particle opticalphoton
 #/gun/energy 3.5 eV
 
 
 #/gun/position  0 -0.05 -15 cm
-/gun/position 0 5 -17. cm
+/gun/position 0 5 -400. cm
 #/gun/position  0 0 -18 cm
 #/gun/direction 0 -1 0    #90deg
 /gun/direction 0 -1 0    #0 deg

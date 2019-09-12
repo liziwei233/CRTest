@@ -68,15 +68,16 @@ void GdmlConstruction::Init(){
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
   fDetector = lvStore->GetVolume("Detector",false);
-  fTarget = lvStore->GetVolume("trigger", false);
+  //fTarget = lvStore->GetVolume("trigger", false);
   fPmtL = lvStore->GetVolume("Cathode_left",false);
   fPmtR = lvStore->GetVolume("Cathode_right",false);
 
-
-/*=====================================>>
-=========================================*/
+//*=====================================>>
+//*=========================================
 //	replace the lg model from a box to a cadmesh model
 //------------------------------------------------------
+
+/*
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
   flgPV = pvStore->GetVolume("lightguide_right_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_right",false);
@@ -104,7 +105,7 @@ void GdmlConstruction::Init(){
  
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
-
+*/
 
 /*
 //-----Dont take plase of origin cube----------------

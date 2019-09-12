@@ -3,12 +3,13 @@
 /tracking/verbose 0
 /event/verbose 0
 /gps/verbose 2
+#/gps/particle mu-
 /gps/particle mu-
 /gps/pos/type Point
 #/gps/pos/type Plane
 #/gps/pos/shape Square
 #/gps/pos/shape Circle
-/gps/pos/centre 0 0.0 40 cm
+/gps/pos/centre 0 0.0 -400 cm
 #/gps/pos/halfx 2.5 mm
 #/gps/pos/halfy 2.5 mm
 #/gps/pos/radius 5 mm
@@ -19,7 +20,7 @@
 /gps/ang/type beam2d
 #/gps/ang/rot1 0 -1 0
 #/gps/ang/rot2 0 1 0
-/gps/ene/mono 150 GeV 
-/gps/direction 0 0 -1 
+/gps/ene/mono 5 GeV 
+/gps/direction 0 0 1 
 #/run/initialize
-/run/beamOn 200
+/run/beamOn 1
