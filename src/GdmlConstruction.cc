@@ -68,7 +68,9 @@ void GdmlConstruction::Init(){
   if(!fWorld)
 	  fWorld = fWorldPV->GetLogicalVolume();
   fDetector = lvStore->GetVolume("Detector",false);
-  //fTarget = lvStore->GetVolume("trigger", false);
+  //fTarget = lvStore->GetVolume("tracker", false);
+  fTrackerL = lvStore->GetVolume("Window_left", false);
+  fTrackerR = lvStore->GetVolume("Window_right", false);
   fPmtL = lvStore->GetVolume("Cathode_left",false);
   fPmtR = lvStore->GetVolume("Cathode_right",false);
 
@@ -148,6 +150,26 @@ void GdmlConstruction::ConstructSDandField(){
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
 	*/
+	if(fTrackerL){
+	//if(fTarget){
+		G4String sdName = "Window_leftSD";
+		CryPositionSD* crySD = new CryPositionSD(sdName);
+        G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
+		SetSensitiveDetector(fTrackerL, crySD);
+
+		Analysis::Instance()->RegisterSD(crySD);
+		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
+	}
+	if(fTrackerR){
+	//if(fTarget){
+		G4String sdName = "Window_rightSD";
+		CryPositionSD* crySD = new CryPositionSD(sdName);
+        G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
+		SetSensitiveDetector(fTrackerR, crySD);
+
+		Analysis::Instance()->RegisterSD(crySD);
+		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
+	}
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";

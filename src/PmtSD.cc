@@ -42,9 +42,6 @@ void PmtSD::Initialize(G4HCofThisEvent *hce)
 	std::vector<double>().swap(*fHitEk);
 	std::vector<double>().swap(*fHitTime);
 	std::vector<double>().swap(*fFlyTime);
-	std::vector<double>().swap(*fOriginX);
-	std::vector<double>().swap(*fOriginY);
-	std::vector<double>().swap(*fOriginZ);
 	std::vector<double>().swap(*fHitX);
 	std::vector<double>().swap(*fHitY);
 	std::vector<double>().swap(*fHitZ);
@@ -88,10 +85,6 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 
 
 
-	G4ThreeVector originpos = theTrack->GetPosition();
-	fOriginX->push_back(originpos.x());
-	fOriginY->push_back(originpos.y());
-	fOriginZ->push_back(originpos.z());
 
 	G4ThreeVector pos = theParticle->GetPosition();
 	fHitX->push_back(pos.x());
@@ -130,9 +123,6 @@ void PmtSD::CreateEntry(
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".t"), *fHitTime);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".flyt"), *fFlyTime);
 
-	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".originx"), *fOriginX);
-	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".originy"), *fOriginY);
-	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".originz"), *fOriginZ);
 	
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".x"), *fHitX);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".y"), *fHitY);

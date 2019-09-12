@@ -12,6 +12,7 @@
   <solidref ref="barS"/>
 </volume>
 
+
 <volume name="medium">
   <materialref ref="SiO2" />
   <!--<materialref ref="AIR" />-->
@@ -35,6 +36,16 @@
 <volume name="Window_right">
   <materialref ref="SiO2" />
   <solidref ref="windowS" />
+</volume>
+
+<volume name="tracker_left">
+  <materialref ref="AIR"/>
+  <solidref ref="trackerS"/>
+</volume>
+
+<volume name="tracker_right">
+  <materialref ref="AIR"/>
+  <solidref ref="trackerS"/>
 </volume>
 
 <volume name="SO_left">

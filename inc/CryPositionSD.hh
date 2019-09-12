@@ -48,6 +48,9 @@ private:
 	G4int fFirstColID;
 	std::vector<double>* fEdep;
 	std::vector<int>* fCounter;
+
+	G4String fname;
+	G4String buff;
 };
 
 #endif /*CRTest_CryPositionSD_h*/

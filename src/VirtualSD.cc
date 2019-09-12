@@ -9,7 +9,6 @@ VirtualSD::VirtualSD(G4String name)
 	:G4VSensitiveDetector(name),fNvolume(0),fNphysvol(NULL),
 	fHitCopyNo(NULL),fHitEk(NULL), fHitTime(NULL),  fFlyTime(NULL),
 	fHitX(NULL),fHitY(NULL),fHitZ(NULL),
-	fOriginX(NULL),fOriginY(NULL),fOriginZ(NULL),
 	fHitPX(NULL),fHitPY(NULL),fHitPZ(NULL),fHitID(NULL)
 {
 	// TODO : #ifdef CRTest_SD_MORE
@@ -17,9 +16,6 @@ VirtualSD::VirtualSD(G4String name)
 	fHitEk= new std::vector<double>;
 	fHitTime= new std::vector<double>;
 	fFlyTime= new std::vector<double>;
-	fOriginX= new std::vector<double>;
-	fOriginY= new std::vector<double>;
-	fOriginZ= new std::vector<double>;
 	fHitX= new std::vector<double>;
 	fHitY= new std::vector<double>;
 	fHitZ= new std::vector<double>;
@@ -36,9 +32,6 @@ VirtualSD::~VirtualSD(){
 	delete fHitEk;
 	delete fHitTime;
 	delete fFlyTime;
-	delete fOriginX;
-	delete fOriginY;
-	delete fOriginZ;
 	delete fHitX;
 	delete fHitY;
 	delete fHitZ;

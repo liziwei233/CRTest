@@ -9,6 +9,9 @@
 <!--barrier-->
 <box lunit="mm" name="barS" x="barX" y="barY" z="barZ"/>
 
+<!--Tracker-->
+<box lunit="mm" name="trackerS" x="trackerX" y="trackerY" z="windowZ"/>
+
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
 

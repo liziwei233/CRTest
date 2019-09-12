@@ -12,6 +12,11 @@
 <variable name="barZ" value="10"/>
 <matrix name="barPosZ" coldim="1" values="3000. 2800. 2600. 2400. 2200." />
 
+<!--Tracker-->
+<variable name="trackerX" value="50"/>
+<variable name="trackerY" value="50"/>
+<variable name="trackerZ" value="10"/>
+
 
 <!-- entire size,  not half! -->
 <variable name="mediumX" value="15"/>
@@ -53,9 +58,15 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="100+detectorX*10." />
-<variable name="worldY" value="100+detectorY*10." />
-<variable name="worldZ" value="6000+detectorZ*4." />
+<variable name="worldX" value="detectorX*10." />
+<variable name="worldY" value="detectorY*10." />
+<variable name="worldZ" value="detectorZ*4." />
+<!--
+    <variable name="worldX" value="100+detectorX*10." />
+    <variable name="worldY" value="100+detectorY*10." />
+    <variable name="worldZ" value="6000+detectorZ*4." />
+
+-->
 
 <!-- Others-->
 <variable name="iDetector" value="0" />

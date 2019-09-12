@@ -14,7 +14,9 @@ CryPositionSD::CryPositionSD(G4String &name)
 	: VirtualSD(name), fHCID(0), fFirstColID(-1),
 	fEdep(NULL),fCounter(NULL)
 {
-    collectionName.insert("CryHC");
+	fname = name.erase(name.length()-2);
+	buff = fname+"HC";
+    collectionName.insert(buff);
 
 	fEdep = new std::vector<double>;
 	fCounter = new std::vector<int>;
@@ -42,6 +44,7 @@ void CryPositionSD::Initialize(G4HCofThisEvent *hce)
 		fEdep = new std::vector<double>;
 	
 	std::vector<int>().swap(*fCounter);
+	std::vector<int>().swap(*fHitCopyNo);
 	std::vector<double>().swap(*fHitEk);
 	std::vector<double>().swap(*fHitTime);
 	std::vector<double>().swap(*fHitX);
@@ -64,15 +67,21 @@ G4bool CryPositionSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
     if(edep <= 0) return false;
     
 	G4StepPoint* theParticle = theStep->GetPostStepPoint();
+	G4VPhysicalVolume *thePostPV = theParticle->GetPhysicalVolume();
+	G4cout<< "[-] thePostPV = "<<thePostPV->GetName()<<G4endl;
+	buff = fname+"_PV";
+	G4cout<< "[-] fname = "<<buff<<G4endl;
+	if (thePostPV->GetName() != buff) return false;
 	if(!fNphysvol)
 		CalculateNoPhysvols(theStep->GetPreStepPoint());
     
     CryHit* newHit = new CryHit();
+	G4int copyNo = CalculateCopyNo(theStep->GetPreStepPoint());
     newHit->SetEdep(edep);
-	newHit->SetDetectorID(CalculateCopyNo(theStep->GetPreStepPoint()));
+	newHit->SetDetectorID(copyNo);
 
     fHC->insert(newHit);
-	
+	fHitCopyNo->push_back(copyNo);
 	fHitEk->push_back(theParticle->GetKineticEnergy());
 	fHitTime->push_back(theParticle->GetGlobalTime());
 
@@ -109,18 +118,42 @@ void CryPositionSD::EndOfEvent(G4HCofThisEvent*){
 void CryPositionSD::CreateEntry(
 	G4int ntupleID, G4RootAnalysisManager* rootData)
 {
+	buff = fname+".Edep";
 	fFirstColID =
-		rootData->CreateNtupleDColumn(ntupleID, "int.Edep", *fEdep);
-	rootData->CreateNtupleIColumn(ntupleID, "int.count", *fCounter);
-	rootData->CreateNtupleDColumn(ntupleID, "int.E", *fHitEk);
-	rootData->CreateNtupleDColumn(ntupleID, "int.t", *fHitTime);
-	rootData->CreateNtupleDColumn(ntupleID, "int.x", *fHitX);
-	rootData->CreateNtupleDColumn(ntupleID, "int.y", *fHitY);
-	rootData->CreateNtupleDColumn(ntupleID, "int.z", *fHitZ);
-	rootData->CreateNtupleDColumn(ntupleID, "int.px", *fHitPX);
-	rootData->CreateNtupleDColumn(ntupleID, "int.py", *fHitPY);
-	rootData->CreateNtupleDColumn(ntupleID, "int.pz", *fHitPZ);
-	rootData->CreateNtupleIColumn(ntupleID, "int.trackID", *fHitID);
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fEdep);
+
+	buff = fname+".count";
+	rootData->CreateNtupleIColumn(ntupleID, buff, *fCounter);
+	
+	buff = fname+".id";
+	rootData->CreateNtupleIColumn(ntupleID, buff, *fHitCopyNo);
+
+	buff = fname+".E";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitEk);
+
+	buff = fname+".t";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitTime);
+
+	buff = fname+".x";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitX);
+
+	buff = fname+".y";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitY);
+
+	buff = fname+".z";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitZ);
+
+	buff = fname+".px";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitPX);
+
+	buff = fname+".py";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitPY);
+
+	buff = fname+".pz";
+	rootData->CreateNtupleDColumn(ntupleID, buff, *fHitPZ);
+
+	buff = fname+".trackID";
+	rootData->CreateNtupleIColumn(ntupleID, buff, *fHitID);
 }
 
 void CryPositionSD::FillEntry(
