@@ -6,14 +6,14 @@
 /tracking/verbose 0
 /event/verbose 0
 /gps/verbose 2
-/gps/particle e-
+/gps/particle mu-
 /gps/pos/type Plane
 #/gps/pos/type Plane
 /gps/pos/shape Square
 #/gps/pos/shape Circle
-/gps/pos/centre 0 0 -300 cm
-/gps/pos/halfx 10 mm
-/gps/pos/halfy 10 mm
+/gps/pos/centre 0 0 400 cm
+/gps/pos/halfx 5 mm
+/gps/pos/halfy 5 mm
 #/gps/pos/radius 60 mm
 
 #rot1 define the x axis, and default is 1 0 0

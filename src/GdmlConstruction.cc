@@ -72,12 +72,12 @@ void GdmlConstruction::Init(){
   fPmtL = lvStore->GetVolume("Cathode_left",false);
   fPmtR = lvStore->GetVolume("Cathode_right",false);
 
-//*=====================================>>
-//*=========================================
+
+/*=====================================>>
+=========================================*/
 //	replace the lg model from a box to a cadmesh model
 //------------------------------------------------------
-
-/*
+ /*
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
   flgPV = pvStore->GetVolume("lightguide_right_PV",false);
   fLightguide = lvStore->GetVolume("lightguide_right",false);
@@ -85,7 +85,6 @@ void GdmlConstruction::Init(){
   G4cout << "[?]lightguide.STL has been read succesfully! - ";
   fLightguide->SetSolid(cad.GetCADSolid());
   G4RotationMatrix* rotm  = new G4RotationMatrix();
-  
   
  
   
@@ -105,7 +104,8 @@ void GdmlConstruction::Init(){
  
   flgPV->SetRotation(rotm);
   flgPV->SetTranslation(pos1);
-*/
+  */
+
 
 /*
 //-----Dont take plase of origin cube----------------
@@ -137,6 +137,7 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 
 void GdmlConstruction::ConstructSDandField(){
+	/*
 	if(fLightguide){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
@@ -146,6 +147,7 @@ void GdmlConstruction::ConstructSDandField(){
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
+	*/
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";

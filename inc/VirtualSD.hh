@@ -50,6 +50,9 @@ protected:
 	std::vector<double>* fHitX;
 	std::vector<double>* fHitY;
 	std::vector<double>* fHitZ;
+	std::vector<double>* fOriginX;
+	std::vector<double>* fOriginY;
+	std::vector<double>* fOriginZ;
 	std::vector<double>* fHitPX;
 	std::vector<double>* fHitPY;
 	std::vector<double>* fHitPZ;

@@ -33,12 +33,13 @@
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
-    <loop for="ibar" to="5-1" step="1">
-      <physvol copynumber="ibar">
-        <volumeref ref="barrier"/>
-        <position z="barPosZ[ibar+1]" />
-      </physvol>
-    </loop>
+
+      <loop for="ibar" to="4" step="1">
+        <physvol copynumber="ibar">
+          <volumeref ref="barrier"/>
+          <position z="barPosZ[ibar+1]" />
+        </physvol>
+      </loop>
       <physvol >
           <volumeref ref="Detector" />
       </physvol>
@@ -93,15 +94,13 @@
     <physvolref ref="Detector_PV"/> 
   </bordersurface>
 -->
-
-
-
 <!--
+
   <bordersurface name="trigger_border" surfaceproperty="Alfoilground_surf" >
     <physvolref ref="trigger_PV"/>
     <physvolref ref="Detector_PV"/> 
   </bordersurface>
-
+  
   <bordersurface name="lgR_border" surfaceproperty="Alfoilground_surf" >
     <physvolref ref="lightguide_right_PV"/>
     <physvolref ref="Detector_PV"/>  
@@ -203,19 +202,20 @@
       </auxiliary>
 -->
 <!--
-       <auxiliary auxtype="Border" auxvalue="TRWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
-        <auxiliary auxtype="PVname" auxvalue="trigger_PV" />
-        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>
 
-      <auxiliary auxtype="Border" auxvalue="LGRWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
-        <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
-        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>
+  <auxiliary auxtype="Border" auxvalue="TRWrapper">
+    <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
+    <auxiliary auxtype="PVname" auxvalue="trigger_PV" />
+    <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+    <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+  </auxiliary>
+  
+  <auxiliary auxtype="Border" auxvalue="LGRWrapper">
+    <auxiliary auxtype="SurfaceName" auxvalue="Alfoilground_surf" />
+    <auxiliary auxtype="PVname" auxvalue="lightguide_right_PV" />
+    <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+    <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+  </auxiliary>
 -->
       
       <auxiliary auxtype="Border" auxvalue="windowL">
