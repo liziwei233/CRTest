@@ -69,8 +69,8 @@ void GdmlConstruction::Init(){
 	  fWorld = fWorldPV->GetLogicalVolume();
   fDetector = lvStore->GetVolume("Detector",false);
   //fTarget = lvStore->GetVolume("tracker", false);
-  fTrackerL = lvStore->GetVolume("Window_left", false);
-  fTrackerR = lvStore->GetVolume("Window_right", false);
+  //fTrackerL = lvStore->GetVolume("Window_left", false);
+  //fTrackerR = lvStore->GetVolume("Window_right", false);
   fPmtL = lvStore->GetVolume("Cathode_left",false);
   fPmtR = lvStore->GetVolume("Cathode_right",false);
 
@@ -150,6 +150,7 @@ void GdmlConstruction::ConstructSDandField(){
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
 	*/
+	/*
 	if(fTrackerL){
 	//if(fTarget){
 		G4String sdName = "Window_leftSD";
@@ -170,6 +171,7 @@ void GdmlConstruction::ConstructSDandField(){
 		Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
+	*/
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";

@@ -158,6 +158,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	//rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
 */
+	/*
 	fFirstColID =
 		rootData->CreateNtupleIColumn(ntupleID, "ph.Count", *fCount);
 	rootData->CreateNtupleIColumn(ntupleID, "ph.ID",*fID);
@@ -169,6 +170,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->CreateNtupleDColumn(ntupleID, "ph.px", *fPX);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.py", *fPY);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.pz", *fPZ);
+	*/
 }
 
 void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
