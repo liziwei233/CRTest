@@ -8,10 +8,10 @@ project(CRTest)
 # Find Geant4 package
 find_package(Geant4 REQUIRED ui_all vis_all)
 # Find ROOT
-set(ROOTSYS $ENV{ROOTSYS})
-if(DEFINED ROOTSYS AND NOT DEFINED ROOT_DIR)
-  set(ROOT_DIR ${ROOTSYS}/cmake)
-endif()
+#set(ROOTSYS $ENV{ROOTSYS})
+#if(DEFINED ROOTSYS AND NOT DEFINED ROOT_DIR)
+#  set(ROOT_DIR ${ROOTSYS}/cmake)
+#endif()
 find_package(ROOT REQUIRED)
 
 
