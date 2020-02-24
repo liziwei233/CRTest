@@ -65,10 +65,10 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	if(!fNphysvol)
 		CalculateNoPhysvols(theParticle);
 
-	PmtHit* newHit = new PmtHit;
 
 	G4int copyNo = CalculateCopyNo(theParticle);
-	newHit->SetPmtID(copyNo);
+	PmtHit* newHit = new PmtHit(copyNo);
+	//newHit->SetPmtID(copyNo);
 
     fHC->insert(newHit);
 	
