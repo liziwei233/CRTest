@@ -124,17 +124,18 @@ void GdmlConstruction::ConstructSDandField(){
 		G4String sdName = "CryPostionSD";
 		CryPositionSD* crySD = new CryPositionSD(sdName);
         G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
-		SetSensitiveDetector(fRadianer, crySD);
+		//SetSensitiveDetector(fRadianer, crySD);
 
-		Analysis::Instance()->RegisterSD(crySD);
+		//Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
 	if(fPmtL){
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";
 		PmtSD* pmtLSD = new PmtSD(sdName);
-
-		SetSensitiveDetector(fPmtL, pmtLSD);
+                
+		//fPmtL->SetSensitiveDetector(pmtLSD);
+		//SetSensitiveDetector(fPmtL, pmtLSD);
 
 		Analysis::Instance()->RegisterSD(pmtLSD);
 		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
@@ -144,9 +145,9 @@ void GdmlConstruction::ConstructSDandField(){
 		G4String sdName = "PmtRSD";
 		PmtSD* pmtRSD = new PmtSD(sdName);
 
-		SetSensitiveDetector(fPmtR, pmtRSD);
+		//SetSensitiveDetector(fPmtR, pmtRSD);
 
-		Analysis::Instance()->RegisterSD(pmtRSD);
+		//Analysis::Instance()->RegisterSD(pmtRSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
 	}
 	return;

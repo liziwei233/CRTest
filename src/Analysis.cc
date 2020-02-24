@@ -62,7 +62,7 @@ G4bool Analysis::CreateNtupleForRun(){
 	for(G4int i = 0 ; i < fRecorder->size() ; i++)
 		(*fRecorder)[i]->CreateEntry(fCurrentNtuple, rootData);
 	
-	//rootData->FinishNtuple();
+	rootData->FinishNtuple(fCurrentNtuple);
 
 	return true;
 }
