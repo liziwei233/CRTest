@@ -6,21 +6,32 @@ set(CMAKE_BUILD_TYPE Debug)
 project(CRTest)
 
 # Find Geant4 package
-find_package(Geant4 REQUIRED ui_all vis_all)
+option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
+if(WITH_GEANT4_UIVIS)
+  find_package(Geant4 REQUIRED ui_all vis_all)
+else()
+  find_package(Geant4 REQUIRED)
+endif()
+
+#find_package(Geant4 REQUIRED ui_all vis_all)
+
 # Find ROOT
 #set(ROOTSYS $ENV{ROOTSYS})
 #if(DEFINED ROOTSYS AND NOT DEFINED ROOT_DIR)
 #  set(ROOT_DIR ${ROOTSYS}/cmake)
 #endif()
+include(${Geant4_USE_FILE})
+
 find_package(ROOT REQUIRED)
 
 
 #Setup include directories for project
-include(${Geant4_USE_FILE}
-     ${ROOT_USE_FILE})
+#include(${Geant4_USE_FILE}
+#     ${ROOT_USE_FILE})
+
 # Locate source and headers for project
 include_directories(${PROJECT_SOURCE_DIR}/inc
-/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/include
+#/media/liziwei/Learning/geant4_10_02_p02/CADMesh_install/include
     ${Geant4_INCLUDE_DIR}
     ${ROOT_INCLUDE_DIRS}
     $ENV{CRYHOME}/src)

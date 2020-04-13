@@ -11,11 +11,25 @@
   <solidref ref="mediumS" />
 </volume>
 
+<volume name="PMT">
+  <materialref ref="G4_Si" />
+  <solidref ref="pmtS" />
+</volume>
+<volume name="Window">
+  <materialref ref="SiO2" />
+  <solidref ref="windowS" />
+</volume>
+<volume name="SO">
+  <materialref ref="EJ500" />
+  <solidref ref="SiOilS" />
+</volume>
 
+<!--
 <volume name="PMT_left">
   <materialref ref="G4_Si" />
   <solidref ref="pmtS" />
 </volume>
+
 
 <volume name="PMT_right">
   <materialref ref="G4_Si" />
@@ -24,19 +38,16 @@
 
 <volume name="Window_left">
   <materialref ref="SiO2" />
-  <solidref ref="windowS" />
-  
+  <solidref ref="windowS" />  
 </volume>
 
 
 
 <volume name="Window_right">
   <materialref ref="SiO2" />
-  <solidref ref="windowS" />
-   
+  <solidref ref="windowS" />   
 </volume>
 
-<!--
 <volume name="lightguide_left">
   <materialref ref="SiO2" />
   <solidref ref="lgS" />
@@ -46,20 +57,17 @@
   <materialref ref="SiO2" />
   <solidref ref="lgS" />
 </volume>
--->
 
 <volume name="SO_left">
-  <!--<materialref ref="EJ500" />-->
   <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
 
 <volume name="SO_right">
-  <!--<materialref ref="EJ500" />-->
   <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
-
+-->
 
 
 
@@ -89,7 +97,6 @@
     <volumeref ref="PMT_right" />
     <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ-pmtZ/2." />
   </physvol>
--->
   
   
     <physvol >
@@ -118,6 +125,7 @@
       <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2.-windowZ"/>
       </physvol>
   
+-->
 
   <!--
   <loop for="iSiPM" to="SiPMN-1" step="1">
@@ -137,9 +145,6 @@
       </physvol>
 
   </loop>
-  -->
-    
-
   <physvol>
     <volumeref ref="SO_left" />
     <position unit="mm" z="mediumZ/2.+SOZ/2." />
@@ -148,5 +153,37 @@
     <volumeref ref="SO_right" />
     <position unit="mm" z="-mediumZ/2.-SOZ/2." />
   </physvol>
+  -->
+    
+  <loop for="iPMT" to="PMTN-1" step="1">
+  
+      <physvol copynumber="iPMT">
+       <volumeref ref="Window" />
+       <!--<rotationref ref="rot"/>-->
+      <rotation unit="deg" x="0+iPMT*90" />
+
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)"/>
+      </physvol>
+
+      <physvol copynumber="iPMT">
+      <volumeref ref="PMT" />
+      <rotation unit="deg" x="0+iPMT*90" />
+      <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)"/>
+      </physvol>
+
+      <physvol copynumber="iPMT">
+      <volumeref ref="SO" />
+      <rotation unit="deg" x="0+iPMT*90" />
+      <position unit="mm" x="0" />
+	    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
+      </physvol>
+
+  </loop>
+
 
 </volume>

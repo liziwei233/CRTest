@@ -42,6 +42,10 @@ private:
 
 private:
     G4VPhysicalVolume* fWorldPV;
+	
+	G4LogicalVolume* fPDetector;
+	G4LogicalVolume* fQuartz;
+
 	G4LogicalVolume* fRadianer;
 	G4LogicalVolume* fPmtL;
 	G4LogicalVolume* fPmtR;
