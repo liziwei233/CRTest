@@ -48,13 +48,20 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
     */
     const G4VProcess *theProcess = fpSteppingManager->GetfCurrentProcess();
 
-/*
+
 	// for Muon (primary track)
 	if (theTrack->GetParentID() == 0){
+        if (thePostPoint->GetStepStatus() == fGeomBoundary)
+	{
+        if (thePrePV->GetName() == "World_PV" &&
+				thePostPV->GetName() == "Detector_PV")
+			{
 		MuonRecorder::Instance()->Record(theTrack);
+            }
+    }
 		return;
 	}
-*/
+
     //  for Optical
     if (theTrack->GetParticleDefinition() !=
         G4OpticalPhoton::OpticalPhotonDefinition())

@@ -32,7 +32,6 @@
 #include "Analysis.hh"
 #include "CryPositionSD.hh"
 #include "PmtSD.hh"
-#include "B5HodoscopeSD.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4GDMLAuxStructType.hh"
