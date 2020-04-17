@@ -47,10 +47,11 @@
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
-      <physvol >
+      <physvol copynumber="0">
           <volumeref ref="Detector" />
           <!--<rotationref ref="rot"/>-->
       </physvol>
+
   </volume>
 
   <!--<skinsurface name="det_skin" surfaceproperty="det_surf" >
@@ -112,15 +113,15 @@
   </bordersurface>
 -->
 
-<!--
 <bordersurface name="pmt_border" surfaceproperty="photocath" >
     <physvolref ref="Window_PV"/>
     <physvolref ref="PMT_PV"/>
   </bordersurface>
--->
+<!--
   <skinsurface name="skin" surfaceproperty="photocath">
 	<volumeref ref="PMT"/>
   </skinsurface>
+-->
 
 </structure>
 
@@ -206,21 +207,20 @@
         <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
       </auxiliary>
       -->
-<!--
 
       <auxiliary auxtype="Border" auxvalue="PhotocathodeR">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath"/>
         <auxiliary auxtype="PVname" auxvalue="Window_PV" />
         <auxiliary auxtype="PVname" auxvalue="PMT_PV" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754"/>
+        <auxiliary auxtype="Material" auxvalue="OpBorder_3805U"/>
       </auxiliary>
--->
+<!--
       <auxiliary auxtype="Skin" auxvalue="PhotocathodeR">
         <auxiliary auxtype="SurfaceName" auxvalue="photocath" />
-        <!--<auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />-->
         <auxiliary auxtype="LVname" auxvalue="PMT" />
-        <auxiliary auxtype="Material" auxvalue="OpBorder_R10754" />
+        <auxiliary auxtype="Material" auxvalue="OpBorder_3805U" />
       </auxiliary>
+-->
 
 
     </auxiliary>

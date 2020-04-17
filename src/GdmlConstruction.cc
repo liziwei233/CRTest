@@ -98,7 +98,7 @@ void GdmlConstruction::Init()
 	if (!fWorld)
 		fWorld = fWorldPV->GetLogicalVolume();
 	//fTarget = lvStore->GetVolume("Target", false);
-	fDetector = lvStore->GetVolume("Detector",false);
+	fDetector = lvStore->GetVolume("Detector", false);
 	fRadianer = lvStore->GetVolume("medium", false);
 	fPDetector = lvStore->GetVolume("PMT", false);
 
@@ -145,15 +145,15 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 	fWorld->SetVisAttributes(G4VisAttributes::Invisible);
 	fDetector->SetVisAttributes(G4VisAttributes::Invisible);
 
-	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0,0.3)); //white
-	 visAttributes = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0, 0.5)); //green
-	 visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 1.0)); //megenta
-	 
-	 visAttributes = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0, 1.0)); //blue
-	 //visAttributes->SetVisibility(false);
-	 
+	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 0.3)); //white
+	visAttributes = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0, 0.5));					//green
+	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 1.0));					//megenta
+
+	visAttributes = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0, 1.0)); //blue
+																	   //visAttributes->SetVisibility(false);
+
 	fRadianer->SetVisAttributes(visAttributes);
-	 visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0, 1.0)); //red
+	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0, 1.0)); //red
 	fPDetector->SetVisAttributes(visAttributes);
 	/*
 	G4bool checkOverlaps = true;
@@ -330,8 +330,8 @@ G4VPhysicalVolume *GdmlConstruction::Construct()
 
 void GdmlConstruction::ConstructSDandField()
 {
-	G4SDManager* SDManager = G4SDManager::GetSDMpointer();
-	
+	G4SDManager *SDManager = G4SDManager::GetSDMpointer();
+
 	//PmtSD *pmtSD = new PmtSD(sdName);
 	//fPDetector->SetSensitiveDetector(pmtSD);
 	//auto hodoscope1 = new B5HodoscopeSD("/hodoscope1");
@@ -339,49 +339,51 @@ void GdmlConstruction::ConstructSDandField()
 	//fPDetector->SetSensitiveDetector(hodoscope1);
 
 	//Analysis::Instance()->RegisterSD(pmtSD);
-	if(fPDetector){
+	if (fPDetector)
+	{
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtSD";
-		PmtSD* pmtSD = new PmtSD(sdName);
-        SDManager->AddNewDetector(pmtSD);  
+		PmtSD *pmtSD = new PmtSD(sdName);
+		SDManager->AddNewDetector(pmtSD);
 		fPDetector->SetSensitiveDetector(pmtSD);
 
 		Analysis::Instance()->RegisterSD(pmtSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
 	}
 
-	
-	if(fRadianer){
+	if (fRadianer)
+	{
 		G4String sdName = "CryPostionSD";
-		CryPositionSD* crySD = new CryPositionSD(sdName);
-        G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
+		CryPositionSD *crySD = new CryPositionSD(sdName);
+		G4cout << "[-] INFO - crySD has been set succesfully!" << G4endl;
 		//SetSensitiveDetector(fRadianer, crySD);
 
 		//Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
-	if(fPmtL){
+	if (fPmtL)
+	{
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtLSD";
-		PmtSD* pmtLSD = new PmtSD(sdName);
-        SDManager->AddNewDetector(pmtLSD);  
+		PmtSD *pmtLSD = new PmtSD(sdName);
+		SDManager->AddNewDetector(pmtLSD);
 		fPmtL->SetSensitiveDetector(pmtLSD);
-		
 
 		Analysis::Instance()->RegisterSD(pmtLSD);
 		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
 	}
-	if(fPmtR){
+	if (fPmtR)
+	{
 		// Create, Set & Register PmtSD
 		G4String sdName = "PmtRSD";
-		PmtSD* pmtRSD = new PmtSD(sdName);
-        SDManager->AddNewDetector(pmtRSD);  
+		PmtSD *pmtRSD = new PmtSD(sdName);
+		SDManager->AddNewDetector(pmtRSD);
 		fPmtR->SetSensitiveDetector(pmtRSD);
 
 		Analysis::Instance()->RegisterSD(pmtRSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
 	}
-	
+
 	return;
 }
 
@@ -584,15 +586,100 @@ G4bool GdmlConstruction::ReadBorderProperty(
 	G4OpticalSurface *OpSurf = NULL;
 	Surface = G4LogicalBorderSurface::GetSurface(thePrePV, thePostPV);
 	if (Surface)
+	{
+
+		G4cout << "===> the Opsurface(1):" << G4endl;
 		OpSurf =
 			dynamic_cast<G4OpticalSurface *>(Surface->GetSurfaceProperty());
-	if (OpSurf && !OpSurf->GetMaterialPropertiesTable())
-	{
-		OpSurf->SetMaterialPropertiesTable(
-			matptr->GetMaterialPropertiesTable());
-		assert(SurfaceName == OpSurf->GetName());
+		OpSurf->DumpInfo();
+		if (OpSurf && !OpSurf->GetMaterialPropertiesTable())
+		{
+			G4cout << "===> the Opsurface(2):" << G4endl;
+			OpSurf->SetMaterialPropertiesTable(
+				matptr->GetMaterialPropertiesTable());
+			assert(SurfaceName == OpSurf->GetName());
+			OpSurf->DumpInfo();
+		}
 	}
 
+	G4LogicalVolume *thePreMotherLV = NULL;
+	G4LogicalVolume *thePostMotherLV = NULL;
+	//G4VPhysicalVolume *thePreDaughterPV = NULL;
+	//G4VPhysicalVolume *thePostDaughterPV = NULL;
+
+	std::vector<G4VPhysicalVolume *> thePreDaughterPV;
+	std::vector<G4VPhysicalVolume *> thePostDaughterPV;
+	int PreNoDaughters = 1;
+	int PostNoDaughters = 1;
+	if (thePrePV->GetName() == "World_PV")
+	{
+		thePreDaughterPV.push_back(thePrePV);
+		G4cout << "===>" << thePreDaughterPV.at(0)->GetName()
+			   << "[" << thePreDaughterPV.at(0)->GetCopyNo()
+			   << G4endl;
+	}
+
+	else
+	{
+		thePreMotherLV = thePrePV->GetMotherLogical();
+		for (int i = 0; i < thePreMotherLV->GetNoDaughters(); i++)
+		{
+			if (thePrePV->GetName() == thePreMotherLV->GetDaughter(i)->GetName())
+			{
+
+				thePreDaughterPV.push_back(thePreMotherLV->GetDaughter(i));
+				G4cout << "===>" << thePrePV->GetName() << ", " << thePreDaughterPV.back()->GetName()
+					   << "[" << thePreDaughterPV.back()->GetCopyNo() << "]"
+					   << G4endl;
+			}
+		}
+	}
+	//return true;
+	PreNoDaughters = thePreDaughterPV.size();
+	G4cout << "===> NoDaughters" << PreNoDaughters << G4endl;
+	if (thePostPV->GetName() == "World_PV")
+	{
+		thePostDaughterPV.push_back(thePostPV);
+	}
+	else
+	{
+		thePostMotherLV = thePostPV->GetMotherLogical();
+		for (int i = 0; i < thePostMotherLV->GetNoDaughters(); i++)
+		{
+			if (thePostPV->GetName() == thePostMotherLV->GetDaughter(i)->GetName())
+			{
+				thePostDaughterPV.push_back(thePostMotherLV->GetDaughter(i));
+			}
+		}
+	}
+	PostNoDaughters = thePostDaughterPV.size();
+
+	G4LogicalBorderSurface *DaughterSurface = NULL;
+	G4OpticalSurface *DaughterOpSurf = NULL;
+	if (PreNoDaughters == PostNoDaughters)
+	{
+		for (int j = 0; j < PostNoDaughters; j++)
+		{
+			DaughterSurface = new G4LogicalBorderSurface("CathodeSurface", thePreDaughterPV.at(j), thePostDaughterPV.at(j), OpSurf);
+
+			G4cout << "===> the surface [" << j << "]:" << G4endl;
+			DaughterSurface->DumpInfo();
+		}
+	}
+	else
+	{
+		for (int i = 0; i < PreNoDaughters; i++)
+		{
+			for (int j = 0; j < PostNoDaughters; j++)
+			{
+
+				DaughterSurface = new G4LogicalBorderSurface("CathodeSurface", thePreDaughterPV.at(j), thePostDaughterPV.at(i), OpSurf);
+
+				G4cout << "===> the surface [" << j << "]:" << G4endl;
+				DaughterSurface->DumpInfo();
+			}
+		}
+	}
 	return true;
 }
 

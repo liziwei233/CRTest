@@ -33,6 +33,7 @@ public:
 		G4int ntupleID, G4RootAnalysisManager*);
 	
 	G4bool Record(const G4Track*);
+	std::vector<int>* fDetID;
 
 private:
 	static MuonRecorder* fgInstance;

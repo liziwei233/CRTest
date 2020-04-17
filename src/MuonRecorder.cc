@@ -22,6 +22,8 @@ MuonRecorder::MuonRecorder()
 	fPX = new std::vector<double>;
 	fPY = new std::vector<double>;
 	fPZ = new std::vector<double>;
+
+	fDetID = new std::vector<int>;
 }
 
 MuonRecorder::~MuonRecorder(){
@@ -35,6 +37,8 @@ MuonRecorder::~MuonRecorder(){
 	fPX->clear();delete fPX;
 	fPY->clear();delete fPY;
 	fPZ->clear();delete fPZ;
+
+	fDetID->clear();delete fDetID;
 }
 
 MuonRecorder* MuonRecorder::Instance(){
@@ -55,6 +59,8 @@ void MuonRecorder::Reset()
 	std::vector<double>().swap(*fPX);
 	std::vector<double>().swap(*fPY);
 	std::vector<double>().swap(*fPZ);
+
+	std::vector<int>().swap(*fDetID);
 }
 void MuonRecorder::CreateEntry(
 	G4int ntupleID, G4RootAnalysisManager* rootData)
@@ -70,6 +76,8 @@ void MuonRecorder::CreateEntry(
 	rootData->CreateNtupleDColumn(ntupleID, "mu.px", *fPX);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.py", *fPY);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.pz", *fPZ);
+
+	rootData->CreateNtupleIColumn(ntupleID, "mu.DetID", *fDetID);
 }
 
 void MuonRecorder::FillEntry(G4int,G4RootAnalysisManager*)

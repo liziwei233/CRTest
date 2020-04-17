@@ -119,18 +119,18 @@ TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
 
     TF1 *fitU = new TF1("fitU", "pol3", U_RL, U_RR);
     //fitU->SetParameter(1,g->GetMean());
-    TFitResultPtr p3 = g->Fit(fitU, "R");
+    TFitResultPtr p3 = g->Fit(fitU, "QR");
     //cout<<"p3=\t"<<p3<<endl;
     if (p3)
     {
         TF1 *fit2 = new TF1("fit2", "pol2", U_RL, U_RR);
-        TFitResultPtr p2 = g->Fit(fit2, "R");
+        TFitResultPtr p2 = g->Fit(fit2, "QR");
         //cout<<"p2=\t"<<p2<<endl;
 
         if (p2)
         {
             TF1 *fit1 = new TF1("fit1", "pol1", U_RL, U_RR);
-            TFitResultPtr p1 = g->Fit(fit1, "R");
+            TFitResultPtr p1 = g->Fit(fit1, "QR");
             //	cout<<"p1=\t"<<p1<<endl;
             return fit1;
         }
@@ -143,8 +143,8 @@ TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
     //g->Fit(fitU);
     return fitU;
 }
-
-void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "CFD",unsigned long processN=1)
+char path[1000]="/Users/liziwei/learning/CRTest/build";
+void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParType = "CFD",unsigned long processN=1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -202,26 +202,32 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
     bool flag = 0;
     int index = 0;
     double keypoint = 0;
-    double xT0[T] = {0};
-    double CHID[T] = {0};
-    double U[T] = {0};
-    double InX[T]={0};
+    double xT0[T] = {0}; //time stamp of waveform
+    int CHID[T] = {0};
+    int NPE[T] = {0};
+    double U[T] = {0}; //Amplitude of waveform
+    double InX[T]={0}; //incident position
     double InY[T]={0};
-    double T0_1stpe[T]={0};
+    double InZ[T]={0};
+    double InPX[T]={0}; //incident direction
+    double InPY[T]={0};
+    double InPZ[T]={0};
+    double T0_1stpe[T]={0}; // hit time of first pe
     const int certain = 2;
 
 	vector<vector<double> > par(T);
 	vector<vector<double> > tts(T);
 
-    vector<double> *hitT;
-    vector<double> *IncidX; //the position of incident event
-    vector<double> *IncidY;
-    vector<int> *ID;
+    vector<double> *hitT = new vector<double>;
+    vector<int> *ID = new vector<int>;
+    vector<double> *IncidX = new vector<double>; //the position of incident event
+    vector<double> *IncidY = new vector<double>;
+    vector<double> *IncidZ = new vector<double>;
+    vector<double> *IncidPX = new vector<double>; //the direction of incident event
+    vector<double> *IncidPY = new vector<double>;
+    vector<double> *IncidPZ = new vector<double>;
 
-    hitT = new vector<double>;
-    IncidX = new vector<double>;
-    IncidY = new vector<double>;
-    ID = new vector<int>;
+   
 
     //count = new vector<int>;
     int N = 0, hitN=0;
@@ -229,7 +235,7 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
     Double_t x[range] = {};
     Double_t y[T][range] = {};
 
-    sprintf(name, "%s", rootname);
+    sprintf(name, "%s/%s", path,rootname);
     sprintf(buff, "%s.root", name);
 
     TFile *f1 = new TFile(buff, "READ");
@@ -237,8 +243,12 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
 
     t1->SetBranchAddress("PmtS.t", &hitT);
     t1->SetBranchAddress("PmtS.id", &ID);
-    t1->SetBranchAddress("ph.x", &IncidX);
-    t1->SetBranchAddress("ph.y", &IncidY);
+    t1->SetBranchAddress("mu.x", &IncidX);
+    t1->SetBranchAddress("mu.y", &IncidY);
+    t1->SetBranchAddress("mu.z", &IncidZ);
+    t1->SetBranchAddress("mu.px", &IncidPX);
+    t1->SetBranchAddress("mu.py", &IncidPY);
+    t1->SetBranchAddress("mu.pz", &IncidPZ);
 
     //sprintf(name,"Thrd_%g",abs(thrd));
 
@@ -246,18 +256,29 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
 
     TFile *f2 = new TFile(buff, "RECREATE");
     TTree *t2 = new TTree("data", "restore analysed data  from G4");
+    sprintf(buff, "CHID[%d]/I", T);  // CHID
+    t2->Branch("CHID", &CHID, buff);
+    sprintf(buff, "NPE[%d]/I", T);  // NPE
+    t2->Branch("NPE", &NPE, buff);
     sprintf(buff, "U[%d]/D", T);
     t2->Branch("U", &U, buff);       //-mV
     sprintf(buff, "xT0[%d]/D", T);  // ns
     t2->Branch("xT0", &xT0, buff);
-    sprintf(buff, "CHID[%d]/I", T);  // CHID
-    t2->Branch("CHID", &CHID, buff);
     sprintf(buff, "T0_1stpe[%d]/D", T); //ns
     t2->Branch("T0_1stpe", &T0_1stpe, buff);
     sprintf(buff, "InX[%d]/D", T);
     t2->Branch("InX", &InX, buff);  //mm
     sprintf(buff, "InY[%d]/D", T);
     t2->Branch("InY", &InY, buff);  //mm
+    sprintf(buff, "InZ[%d]/D", T);
+    t2->Branch("InZ", &InZ, buff);  //mm
+    sprintf(buff, "InPX[%d]/D", T);
+    t2->Branch("InPX", &InPX, buff);  //mm
+    sprintf(buff, "InPY[%d]/D", T);
+    t2->Branch("InPY", &InPY, buff);  //mm
+    sprintf(buff, "InPZ[%d]/D", T);
+    t2->Branch("InPZ", &InPZ, buff);  //mm
+
     //for(int s = 0; s<4;s++){
 
     double t_L = -2;
@@ -286,14 +307,21 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
 
     //count->clear();
     //for(int i = certain; i < certain+1; i++){
+    //for (int i = 0; i < 1; i++)
+    //N=1;
     for (int i = 0; i < N; i++)
     {
+        cout<<"The Entry No: "<<i<<endl;
 
         //-----------initial----------------------//
         hitT->clear();
         ID->clear();
         IncidX->clear();
         IncidY->clear();
+        IncidZ->clear();
+        IncidPX->clear();
+        IncidPY->clear();
+        IncidPZ->clear();
 
         vector<vector<double> >(T).swap(par);
         vector<vector<double> >(T).swap(tts);
@@ -311,6 +339,10 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
         {
             InX[iT] = (*IncidX)[0];
             InY[iT] = (*IncidY)[0];
+            InZ[iT] = (*IncidZ)[0];
+            InPX[iT] = (*IncidPX)[0];
+            InPY[iT] = (*IncidPY)[0];
+            InPZ[iT] = (*IncidPZ)[0];
             CHID[iT] = iT;
             for (int k = 0; k < hitN; k++)
             {
@@ -323,6 +355,7 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
                     if(i==N-1) h[iT]->Fill(temp*1e9);
                 }
             }
+            NPE[iT] = par[iT].size(); 
             //parR[k]=8.3e-9;
             //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
             //cout<<"par"<<k<<" = "<<par[k]<<endl;
@@ -440,7 +473,6 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
             t2->Fill();
     }
     f1->Close();
-
     TCanvas *c = new TCanvas("c", "", 1600, 600);
 
     //c->cd();
@@ -458,16 +490,16 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
     DrawMyPad(gPad, "Time (ns)", "Amp (mV)", RL * 1e9, RR * 1e9, ymin, ymax);
 
     TLegend *leg;
-    leg = DrawMyLeg(0.6, 0.2, 0.75, 0.32);
+    leg = DrawMyLeg(0.6, 0.2, 0.8, 0.45);
     //return;
-    for(int iT;iT<T;iT++){
+    for(int iT=0;iT<T;iT++){
     DrawMyGraph(g[iT], "Time (ns)", "Amp (mV)", 1, 28, 1, iT+1, 2, 1);
     g[iT]->Draw("L");
     sprintf(buff,"PMT%d",iT);
     leg->AddEntry(g[iT], buff, "l");
     }
     leg->Draw();
-    //return;
+    cout<<" ===> progress check"<<endl;
 
     c->cd(2);
     SetMyPad(gPad, 0.12, 0.05, 0.05, 0.12);
@@ -495,10 +527,10 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
 
     sprintf(buff, "%s_Signal.png", name);
     c->SaveAs(buff);
-    //return ;
 
     //hSig[0]->FillRandom("gaus",1000);
     //hSig[0]->Draw();
+    //return ;
 
     TCanvas *c1 = new TCanvas("c1", "", 800, 600);
     SetMyPad(gPad, 0.12, 0.05, 0.05, 0.12);
@@ -510,7 +542,7 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
         if (iT==0) hSig[iT]->Draw();
         else hSig[iT]->Draw("SAMES");
         hSig[iT]->Rebin(1);
-        hSig[iT]->Fit(fSig[iT], "R");
+        hSig[iT]->Fit(fSig[iT], "QR");
         
         sprintf(buff,"pmt%d TR=%0.2f",iT,fSig[iT]->GetParameter(2));
         l[iT]=DrawMyLatex(buff,0.65,0.6-0.1*iT,62,0.05,iT+1);
@@ -547,13 +579,22 @@ void Output(const char *rootname = "", double fac = 0.2, const char *ParType = "
 
     //c->Delete();
     vector<double>().swap(*hitT);
+    vector<int>().swap(*ID);
     vector<double>().swap(*IncidX);
     vector<double>().swap(*IncidY);
-    vector<int>().swap(*ID);
+    vector<double>().swap(*IncidZ);
+    vector<double>().swap(*IncidPX);
+    vector<double>().swap(*IncidPY);
+    vector<double>().swap(*IncidPZ);
     delete hitT;
+    delete ID;
     delete IncidX;
     delete IncidY;
-    delete ID;
+    delete IncidZ;
+    delete IncidPX;
+    delete IncidPY;
+    delete IncidPZ;
+    
 
     /*=======================================================*
          * ================Procedure timing end==================*
