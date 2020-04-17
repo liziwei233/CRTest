@@ -62,7 +62,7 @@ G4bool Analysis::CreateNtupleForRun(){
 	for(G4int i = 0 ; i < fRecorder->size() ; i++)
 		(*fRecorder)[i]->CreateEntry(fCurrentNtuple, rootData);
 	
-	//rootData->FinishNtuple();
+	rootData->FinishNtuple(fCurrentNtuple);
 
 	return true;
 }
@@ -78,7 +78,7 @@ G4bool Analysis::FillEntryForRun(){
 	// FillNtupleIColumn(fCurrentNtuple, op_debug->nCol[scint,wls,det])
 		// or Call OpRecorder::FillEntry ?
 	for(G4int i = 0 ; i < fRecorder->size() ; i++)
-		(*fRecorder)[i]->FillEntry(0, rootData);
+		//(*fRecorder)[i]->FillEntry(0, rootData);
 
 	rootData->AddNtupleRow();
 

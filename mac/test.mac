@@ -10,7 +10,7 @@
 #/gun/particle e-
 #/gun/energy 2 MeV
 /gun/energy 3 GeV
-/gun/position  0 -1.2 0. cm
+/gun/position  0 -12 0. cm
 #/gun/position  0 0 124.80 cm
 /gun/direction 0 1 0    #90deg
 #/gun/direction 0 0 1    #0 deg

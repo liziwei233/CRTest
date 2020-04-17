@@ -11,9 +11,8 @@ OpRecorder *OpRecorder::fgInstance = 0;
 
 OpRecorder::OpRecorder()
     : VirtualRecorder(),
-	nCerenkov(0),nScintTotal(0),nQuartz2Air(0),nQuartz2GlueL(0),
-	nQuartz2GlueR(0),nWlsEmit(0),nGlue2PMTL(0),nGlue2PMTR(0),
-	nDetectionL(0),nDetectionR(0),nCathodL(0),nCathodR(0),
+	nCerenkov(0),nScintTotal(0),nQuartz2Air(0),nQuartz2Glue(0),nWlsEmit(0),nGlue2PMT(0),
+	nDetection(0),nCathod(0),
       nBoundaryAbsorption(0), nBoundaryTransmission(0),
       nFresnelReflection(0),nTotalInternalReflection(0),nLambertianReflection(0),
       nLobeReflection(0),nSpikeReflection(0),nBackScattering(0),nBoundaryRefraction(0),
@@ -65,15 +64,11 @@ void OpRecorder::Reset()
     nCerenkov = 0;
     nScintTotal = 0;
     nQuartz2Air = 0;
-    nQuartz2GlueL = 0;
-    nQuartz2GlueR = 0;
+    nQuartz2Glue = 0;
 	nWlsEmit = 0;
-	nGlue2PMTL = 0;
-    nGlue2PMTR = 0;
-	nCathodL = 0;
-	nCathodR = 0;
-	nDetectionL = 0;
-	nDetectionR = 0;
+	nGlue2PMT = 0;
+	nCathod = 0;
+	nDetection = 0;
     
     nBoundaryAbsorption = 0;
     nBoundaryTransmission = 0;
@@ -86,6 +81,7 @@ void OpRecorder::Reset()
 	nLobeReflection = 0;
 	nSpikeReflection = 0;
 	nBackScattering = 0;
+	nBoundaryRefraction = 0;
 
     nDebug = 0;
 
@@ -116,14 +112,10 @@ void OpRecorder::Print()
     G4cout << " | + Scintillation Total Count\t: " << nScintTotal << G4endl
            << " | + Cerenkov Total Count\t: " << nCerenkov << G4endl
            << " | + Quartz. to air Boundary\t: " << nQuartz2Air << G4endl
-		   << " | + Quartz. to silicone Oil (LEFT)\t\t: " << nQuartz2GlueL << G4endl
-           << " | + Quartz. to silicone Oil (Right)\t\t: " << nQuartz2GlueR << G4endl
-		   << " | + Oil to Window (LEFT)\t\t: " << nGlue2PMTL << G4endl
-           << " | + Oil to Window (Right)\t\t: " << nGlue2PMTR << G4endl
-		   << " | + PMT (Left) Hits\t\t: " << nCathodL << G4endl
-           << " | + PMT (Right) Hits\t\t: " <<  nCathodR << G4endl
-           << " | + Detected by PMT (Left)\t\t: " << nDetectionL << G4endl
-		   << " | + Detected by PMT (Right)\t\t: " << nDetectionR << G4endl
+		   << " | + Quartz. to silicone Oil \t\t: " << nQuartz2Glue << G4endl
+		   << " | + Oil to Window \t\t: " << nGlue2PMT << G4endl
+		   << " | + PMT Hits\t\t: " << nCathod << G4endl
+           << " | + Detected by PMT \t\t: " << nDetection << G4endl
 		   << " | + Boundary Details for " << boundaryName <<G4endl
 		   << " | + + Boundary Transmission\t: " << nBoundaryTransmission << G4endl
 		   << " | + + Boundary FresnelRefraction\t: " << nBoundaryRefraction << G4endl
@@ -143,8 +135,7 @@ void OpRecorder::Print()
 void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
 	fFirstColID = 
-		rootData->CreateNtupleIColumn(ntupleID, "op.crkov");
-		rootData->CreateNtupleIColumn(ntupleID, "op.scint");
+/*		rootData->CreateNtupleIColumn(ntupleID, "op.crkov");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2a");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2gL");
 	rootData->CreateNtupleIColumn(ntupleID, "op.q2gR");
@@ -157,7 +148,7 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 	rootData->CreateNtupleDColumn(ntupleID, "op.L",*fL);
 	rootData->CreateNtupleDColumn(ntupleID, "op.WaveL",*fWaveL);
 	rootData->CreateNtupleIColumn(ntupleID, "op.Bounce",*fBounce);
-
+*/
     rootData->CreateNtupleDColumn(ntupleID, "ph.Count", *fCount);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "ph.t", *fTime);
@@ -171,15 +162,16 @@ void OpRecorder::CreateEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 
 void OpRecorder::FillEntry(G4int ntupleID, G4RootAnalysisManager* rootData)
 {
+	/*
 	rootData->FillNtupleIColumn(ntupleID, fFirstColID, nCerenkov);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+1, nScintTotal);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+2, nQuartz2Air);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+3, nQuartz2GlueL);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+4, nQuartz2GlueR);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nWlsEmit);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTL);
-    rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nGlue2PMTR);
-	rootData->FillNtupleIColumn(ntupleID, fFirstColID+8, nDetectionL+nDetectionR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+1, nQuartz2Air);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+2, nQuartz2Glue);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+3, nQuartz2GlueR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+4, nWlsEmit);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+5, nGlue2PMTL);
+    rootData->FillNtupleIColumn(ntupleID, fFirstColID+6, nGlue2PMTR);
+	rootData->FillNtupleIColumn(ntupleID, fFirstColID+7, nDetectionL+nDetectionR);
+	*/
 }
 
 G4bool OpRecorder::Record(const G4Track* thePhoton)

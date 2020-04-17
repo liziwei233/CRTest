@@ -12,53 +12,20 @@
 </volume>
 
 
-<volume name="PMT_left">
+<volume name="SiPM">
   <materialref ref="G4_Si" />
-  <solidref ref="pmtS" />
+  <solidref ref="SiPMS" />
 </volume>
 
-<volume name="PMT_right">
-  <materialref ref="G4_Si" />
-  <solidref ref="pmtS" />
-</volume>
 
-<volume name="Window_left">
+<volume name="Window">
   <materialref ref="Resin" />
   <solidref ref="windowS" />
   
 </volume>
 
 
-
-<volume name="Window_right">
-  <materialref ref="Resin" />
-  <solidref ref="windowS" />
-   
-</volume>
-
-
-
-
-<!--
-<volume name="lightguide_left">
-  <materialref ref="SiO2" />
-  <solidref ref="lgS" />
-</volume>
-
-<volume name="lightguide_right">
-  <materialref ref="SiO2" />
-  <solidref ref="lgS" />
-</volume>
--->
-
-<volume name="SO_left">
-  <!--<materialref ref="EJ500" />-->
-  <materialref ref="EJ500" />
-  <solidref ref="SiOilS" />
-</volume>
-
-<volume name="SO_right">
-  <!--<materialref ref="EJ500" />-->
+<volume name="SO">
   <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
@@ -67,74 +34,32 @@
 
 
 
-<volume name="Module_left">
+
+<volume name="Module">
   <materialref ref="AIR" />
   <solidref ref="moduleS" />
   
   <physvol>
-      <volumeref ref="PMT_left" />
+      <volumeref ref="SiPM" />
       <position unit="mm" x="0" />
 	    <position unit="mm" y="0" />
-      <position unit="mm" z="(SOZ+pmtZ)/2."/>
+      <position unit="mm" z="SOZ/2.+windowZ/2."/>
   </physvol>
 
   <physvol >
-       <volumeref ref="Window_left" />
+       <volumeref ref="Window" />
 	    <position unit="mm" x="0"/>
       <position unit="mm" y="0"/>
-      <position unit="mm" z="(SOZ-pmtZ)/2."/>
+      <position unit="mm" z="-SiPMZ/2.+SOZ/2."/>
   </physvol>
   <physvol>
-    <volumeref ref="SO_left" />
-    <position unit="mm" z="-pmtZ" />
+    <volumeref ref="SO" />
+    <position unit="mm" z="-SiPMZ/2.-windowZ/2." />
   </physvol>
 
 </volume>
 
-<volume name="Module_right">
-  <materialref ref="AIR" />
-  <solidref ref="moduleS" />
-  
-  <physvol>
-      <volumeref ref="PMT_right" />
-      <position unit="mm" x="0" />
-	    <position unit="mm" y="0" />
-      <position unit="mm" z="-(SOZ+pmtZ)/2."/>
-  </physvol>
 
-  <physvol >
-       <volumeref ref="Window_right" />
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="0"/>
-      <position unit="mm" z="-(SOZ-pmtZ)/2."/>
-  </physvol>
-  <physvol>
-    <volumeref ref="SO_right" />
-    <position unit="mm" z="pmtZ" />
-  </physvol>
-  
-</volume>
-<!--
-  <physvol>
-    <volumeref ref="lightguide_left" />
-    <position unit="mm" z="160.+19." />
-  </physvol>
-  <physvol>
-    <volumeref ref="lightguide_right" />
-    <position unit="mm" z="-160.-19." />
-  </physvol>
--->
-
-<!--
-  <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="mediumZ/2.+SOZ+pmtZ+pmtZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="PMT_right" />
-    <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ-pmtZ/2." />
-  </physvol>
--->
   
   
 <volume name="Wrap">
@@ -149,19 +74,19 @@
       <position unit="mm" z="0"/>
       </physvol>
 
-      <physvol>
-
-       <volumeref ref="Module_left" />
-	<position unit="mm" x="0"/>
+      <physvol copynumber="0">
+      <volumeref ref="Module" />
+	    <position unit="mm" x="0"/>
       <position unit="mm" y="0"/>
-      <position unit="mm" z="mediumZ/2.+(SOZ+pmtZ*2)/2."/>
+      <position unit="mm" z="mediumZ/2.+(SOZ+SiPMZ+windowZ)/2."/>
       </physvol>
 
-      <physvol>
-      <volumeref ref="Module_right" />
+      <physvol copynumber="1">
+      <volumeref ref="Module" />
+      <rotation unit="deg" x="180"/>
       <position unit="mm" x="0" />
 	    <position unit="mm" y="0" />
-      <position unit="mm" z="-mediumZ/2.-(SOZ+pmtZ*2)/2." />
+      <position unit="mm" z="-mediumZ/2.-(SOZ+SiPMZ+windowZ)/2." />
       </physvol>
 </volume>
 
@@ -193,14 +118,14 @@
        <volumeref ref="Module_left" />
 	    <position unit="mm" x="SiPMPosX[iSiPM+1]"/>
       <position unit="mm" y="SiPMPosY[iSiPM+1]"/>
-      <position unit="mm" z="mediumZ/2.+(SOZ+pmtZ*2)/2."/>
+      <position unit="mm" z="mediumZ/2.+(SOZ+SiPMZ+windowZ)/2."/>
       </physvol>
 
       <physvol copynumber="iSiPM">
       <volumeref ref="Module_right" />
       <position unit="mm" x="SiPMPosX[iSiPM+1]" />
 	    <position unit="mm" y="SiPMPosY[iSiPM+1]" />
-      <position unit="mm" z="-mediumZ/2.-(SOZ+pmtZ*2)/2." />
+      <position unit="mm" z="-mediumZ/2.-(SOZ+SiPMZ+windowZ)/2." />
       </physvol>
 
   </loop>
@@ -212,14 +137,14 @@
        <volumeref ref="Module_left" />
 	    <position unit="mm" x="SiPMPosX[iSiPM+1]"/>
       <position unit="mm" y="SiPMPosY[iSiPM+1]"/>
-      <position unit="mm" z="mediumZ/2.+(SOZ+pmtZ*2)/2."/>
+      <position unit="mm" z="mediumZ/2.+(SOZ+SiPMZ+windowZ)/2."/>
       </physvol>
 
       <physvol copynumber="iSiPM">
       <volumeref ref="Module_right" />
       <position unit="mm" x="SiPMPosX[iSiPM+1]" />
 	    <position unit="mm" y="SiPMPosY[iSiPM+1]" />
-      <position unit="mm" z="-mediumZ/2.-(SOZ+pmtZ*2)/2." />
+      <position unit="mm" z="-mediumZ/2.-(SOZ+SiPMZ+windowZ)/2." />
       </physvol>
 
   </loop>

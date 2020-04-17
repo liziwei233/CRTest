@@ -8,6 +8,7 @@
 #include "Analysis.hh"
 #include "CryHit.hh"
 #include "OpRecorder.hh"
+#include "MuonRecorder.hh"
 
 #include "G4UserEventAction.hh"
 #include "G4Event.hh"
@@ -34,7 +35,8 @@ void EventAction::BeginOfEventAction(const G4Event *anEvent)
            << " begins. - by EventAction" << G4endl;
     OpRecorder* Recorder = OpRecorder::Instance();
     Recorder->Reset();
-
+    MuonRecorder::Instance()->Reset();
+    
 	//G4int ntupleID = 
 		//Analysis::Instance()->CreateNtupleForEvent(eventID);
 	//assert(ntupleID == eventID + 1);

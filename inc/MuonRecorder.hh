@@ -24,6 +24,7 @@ public:
 	virtual ~MuonRecorder();
 
 	static MuonRecorder* Instance();
+	void Reset();
 
 public:
 	virtual void CreateEntry(
@@ -32,12 +33,14 @@ public:
 		G4int ntupleID, G4RootAnalysisManager*);
 	
 	G4bool Record(const G4Track*);
+	std::vector<int>* fDetID;
 
 private:
 	static MuonRecorder* fgInstance;
 
 private: // Muon Track Information
-	std::vector<double>* fCount;
+	std::vector<int>* fCount;
+	std::vector<int>* fID;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
 	std::vector<double>* fX;

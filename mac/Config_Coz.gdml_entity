@@ -12,16 +12,19 @@
 
 <variable name="SiPMX" value="6"/>
 <variable name="SiPMY" value="6"/>
+<variable name="SiPMZ" value="1"/>
 <variable name="interval " value="1"/>
 
 <variable name="SOZ" value="0.1"/>
+<variable name="windowZ" value="0.1"/>
+
 <variable name="pmtZ" value="0.1"/>
 <variable name="lgZ" value="38"/>
 
 <!-- Detector Configuration -->
 <variable name="detectorX" value="mediumX+0.1" />
 <variable name="detectorY" value="mediumY+0.1" />
-<variable name="detectorZ" value="mediumZ+0.1" />
+<variable name="detectorZ" value="mediumZ+SOZ*2+windowZ*2+SiPMZ*2+0.1" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>

@@ -11,17 +11,19 @@
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
 <!-- Detector_wrap -->
-<box lunit="mm" name="wrapS" x="detectorX" y="detectorY" z="detectorZ" />
+<box lunit="mm" name="wrapS" x="detectorX-0.05" y="detectorY-0.05" z="detectorZ-0.05" />
 
 
  <!-- PMT -->
 <!--<tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />-->
 
-<box aunit="radian"  lunit="mm" name="moduleS" x="SiPMX" y="SiPMY" z="pmtZ*2+SOZ" />
+<!--module-->
+<box aunit="radian"  lunit="mm" name="moduleS" x="SiPMX" y="SiPMY" z="SiPMZ+windowZ+SOZ" />
 
-<box aunit="radian"  lunit="mm" name="pmtS" x="SiPMX" y="SiPMY" z="pmtZ" />
+<!-- SiPM -->
+<box aunit="radian"  lunit="mm" name="SiPMS" x="SiPMX" y="SiPMY" z="SiPMZ" />
 
-<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="pmtZ" />
+<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="windowZ" />
 
 
  <!-- rectangular quartz -->

@@ -27,21 +27,20 @@ StackAction::~StackAction()
 G4ClassificationOfNewTrack
 StackAction::ClassifyNewTrack(const G4Track *theTrack)
 {
+
+
+    //theTrack->GetUserInformation()->Print();
+	//G4cout<<"particle name is : "<<theTrack->GetParticleDefinition()->GetParticleName()<<G4endl;
+	//G4cout<<"particle process is : "<<theTrack->GetCreatorProcess()->GetProcessName() <<G4endl;
+	//G4cout<<"particle ParentID is : "<<theTrack->GetParentID()<<G4endl;
+	//G4cout<<"particle TrackID is : "<<theTrack->GetTrackID()<<G4endl;
+	
 	// Record muon
 	if(theTrack->GetParentID() == 0){
 		//MuonRecorder::Instance()->Record(theTrack);
 		return fUrgent;
 	}
 
-
-    //theTrack->GetUserInformation()->Print();
-    //G4cout<<theTrack->GetDefinition()->GetParticleName()<<G4endl;
-/* 
-	G4cout<<"particle name is : "<<theTrack->GetParticleDefinition()->GetParticleName()<<G4endl;
-	G4cout<<"particle process is : "<<theTrack->GetCreatorProcess()->GetProcessName() <<G4endl;
-	//G4cout<<"particle ParentID is : "<<theTrack->GetParentID()<<G4endl;
-	//G4cout<<"particle TrackID is : "<<theTrack->GetTrackID()<<G4endl;
-*/
     OpRecorder *Recorder = OpRecorder::Instance();
 	
 
@@ -56,7 +55,7 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 			//Analysis::Instance()->FillOpPhotonTrackForEvent(
 			//	theTrack, OpPhotonType::Scintillation);
 			Recorder->nCerenkov++;
-			//Recorder->Record(theTrack);
+			Recorder->Record(theTrack);
 		}
 		else if (theTrack->GetCreatorProcess()->GetProcessName() 
 			== "Scintillation")
@@ -64,7 +63,6 @@ StackAction::ClassifyNewTrack(const G4Track *theTrack)
 			//Analysis::Instance()->FillOpPhotonTrackForEvent(
 			//	theTrack, OpPhotonType::Scintillation);
 			Recorder->nScintTotal++;
-			Recorder->Record(theTrack);
 		}
 		else if (theTrack->GetCreatorProcess()->GetProcessName() 
 			== "OpWLS")
