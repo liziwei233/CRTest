@@ -305,13 +305,6 @@ void GdmlConstruction::ConstructSDandField()
 {
 	G4SDManager *SDManager = G4SDManager::GetSDMpointer();
 
-	//PmtSD *pmtSD = new PmtSD(sdName);
-	//fPDetector->SetSensitiveDetector(pmtSD);
-	//auto hodoscope1 = new B5HodoscopeSD("/hodoscope1");
-
-	//fPDetector->SetSensitiveDetector(hodoscope1);
-
-	//Analysis::Instance()->RegisterSD(pmtSD);
 	if (fPDetector)
 	{
 		// Create, Set & Register PmtSD
@@ -334,28 +327,8 @@ void GdmlConstruction::ConstructSDandField()
 		//Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
-	if (fPmtL)
-	{
-		// Create, Set & Register PmtSD
-		G4String sdName = "PmtLSD";
-		PmtSD *pmtLSD = new PmtSD(sdName);
-		SDManager->AddNewDetector(pmtLSD);
-		fPmtL->SetSensitiveDetector(pmtLSD);
-
-		Analysis::Instance()->RegisterSD(pmtLSD);
-		G4cout << "[-] INFO - pmtLSD has been registed succesfully!" << G4endl;
-	}
-	if (fPmtR)
-	{
-		// Create, Set & Register PmtSD
-		G4String sdName = "PmtRSD";
-		PmtSD *pmtRSD = new PmtSD(sdName);
-		SDManager->AddNewDetector(pmtRSD);
-		fPmtR->SetSensitiveDetector(pmtRSD);
-
-		Analysis::Instance()->RegisterSD(pmtRSD);
-		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
-	}
+	
+	
 
 	return;
 }
