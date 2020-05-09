@@ -80,7 +80,17 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         G4OpBoundaryProcessStatus status = boundary->GetStatus();
         G4bool gotThrough =
             (status == Transmission || status == FresnelRefraction);
-        if (gotThrough)
+        if (thePrePV->GetName() == "medium_PV" &&
+                 thePostPV->GetName() == "Detector_PV")
+        {
+            type = Quartz2Air;
+            Recorder->nQuartz2Air++;
+            Recorder->fBounce->push_back(theTrack->GetTrackID());
+
+            Recorder->SetBoundaryName("Quartz2Air");
+            BoundaryStats(boundary);
+        }
+        else if (gotThrough)
         {
             // OpPthoton got through boundary
             if (thePrePV->GetName() == "medium_PV" &&
@@ -88,8 +98,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
             {
                 type = Quartz2Glue;
                 Recorder->nQuartz2Glue += 1;
-                Recorder->SetBoundaryName("Quartz2Glue");
-                BoundaryStats(boundary);
+                //Recorder->SetBoundaryName("Quartz2Glue");
+                //BoundaryStats(boundary);
             }
             
             else if (thePrePV->GetName() == "SO_PV" &&
@@ -123,6 +133,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         }
         
         // For Debug boundary details
+        /*
         else if (thePrePV->GetName() == "medium_PV" &&
                  thePostPV->GetName() == "Detector_PV")
         {
@@ -130,9 +141,10 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
             Recorder->nQuartz2Air++;
             Recorder->fBounce->push_back(theTrack->GetTrackID());
 
-            //Recorder->SetBoundaryName("Quartz2Air");
-            //BoundaryStats(boundary);
+            Recorder->SetBoundaryName("Quartz2Air");
+            BoundaryStats(boundary);
         }
+        */
     }
     //Analysis::Instance()->FillOpPhotonTrackForEvent(theTrack, type);
 }

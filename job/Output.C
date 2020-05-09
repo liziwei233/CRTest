@@ -5,9 +5,9 @@
 #include <TH1.h>
 #include <TStyle.h>
 #include <TRandom.h>
-
+#include "DrawMyClass.h"
 TRandom3 r;
-TH1D *hr =new TH1D("hr","hr",2000,-0.1e-9,0.1e-9);
+TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
 using namespace std;
 
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts);
@@ -53,7 +53,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
     double SPEpar[7];
     double Tmark = 0;
     bool flag;
-    double Trecept = 10e-12;  //waiting the photons hit
+    double Trecept = 500e-12; //waiting the photons hit
     double Treject = 500e-12; //recover time,during this time any photons are rejected.
     //double ttssigma = 20e-12;
     //tts = r.Gaus(0,10.6e-12);
@@ -143,8 +143,8 @@ TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
     //g->Fit(fitU);
     return fitU;
 }
-char path[1000]="/Users/liziwei/learning/CRTest/build";
-void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParType = "CFD",unsigned long processN=1)
+char path[1000] = "/Users/liziwei/learning/CRTest/build";
+void Output(const char *rootname = "x0y0z0_model2", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -157,20 +157,21 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     double totaltime;
     start = clock();
 
+/*
     TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05);
 
     TLatex *DrawMyLatex(char *text, Double_t x = 0.65, Double_t y = 0.5, Int_t textFont = 62, Size_t textSize = 0.05, Color_t colorIndex = 2);
-    
+
     void DrawMyGraph(TGraph * datagraph, char *xtitle, char *ytitle, Size_t MSize = 1, Style_t MStyle = 28, Color_t MColor = 1, Color_t LColor = 1, Width_t LWidth = 1, Style_t LStyle = 1, Color_t FColor = 16);
-    
-    void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1);
-    
+
+    void DrawMyHist1(TH1 * datahist, char *xtitle, char *ytitle, Color_t LColor = 1, Width_t LWidth = 3, Color_t TitleColor = 1);
+
     void SetMyPad(TVirtualPad * pad, float left, float right, float top, float bottom);
 
     void DrawMyPad(TVirtualPad * pad, const char *xname, const char *yname, float x1, float x2, float y1, float y2);
 
     //void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1);
-
+*/
     gStyle->SetOptStat(0);
     gStyle->SetOptFit(0);
     gStyle->SetOptTitle(0);
@@ -194,7 +195,7 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     int binNum = 0;
     binNum = (RR - RL) / 5e-12;
 
-    double ttssigma=20e-12;
+    double ttssigma = 20e-12;
     const int range = 400; // 25ps/sample
     Double_t thrd = -30;   //Umax = -28.94mV
     double Rate = 0;
@@ -205,18 +206,18 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     double xT0[T] = {0}; //time stamp of waveform
     int CHID[T] = {0};
     int NPE[T] = {0};
-    double U[T] = {0}; //Amplitude of waveform
-    double InX[T]={0}; //incident position
-    double InY[T]={0};
-    double InZ[T]={0};
-    double InPX[T]={0}; //incident direction
-    double InPY[T]={0};
-    double InPZ[T]={0};
-    double T0_1stpe[T]={0}; // hit time of first pe
+    double U[T] = {0};   //Amplitude of waveform
+    double InX[T] = {0}; //incident position
+    double InY[T] = {0};
+    double InZ[T] = {0};
+    double InPX[T] = {0}; //incident direction
+    double InPY[T] = {0};
+    double InPZ[T] = {0};
+    double T0_1stpe[T] = {0}; // hit time of first pe
     const int certain = 2;
 
-	vector<vector<double> > par(T);
-	vector<vector<double> > tts(T);
+    vector<vector<double>> par(T);
+    vector<vector<double>> tts(T);
 
     vector<double> *hitT = new vector<double>;
     vector<int> *ID = new vector<int>;
@@ -227,15 +228,13 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     vector<double> *IncidPY = new vector<double>;
     vector<double> *IncidPZ = new vector<double>;
 
-   
-
     //count = new vector<int>;
-    int N = 0, hitN=0;
+    int N = 0, hitN = 0;
     double temp = 0.;
     Double_t x[range] = {};
     Double_t y[T][range] = {};
 
-    sprintf(name, "%s/%s", path,rootname);
+    sprintf(name, "%s/%s", path, rootname);
     sprintf(buff, "%s.root", name);
 
     TFile *f1 = new TFile(buff, "READ");
@@ -243,41 +242,42 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
 
     t1->SetBranchAddress("PmtS.t", &hitT);
     t1->SetBranchAddress("PmtS.id", &ID);
+    /*
     t1->SetBranchAddress("mu.x", &IncidX);
     t1->SetBranchAddress("mu.y", &IncidY);
     t1->SetBranchAddress("mu.z", &IncidZ);
     t1->SetBranchAddress("mu.px", &IncidPX);
     t1->SetBranchAddress("mu.py", &IncidPY);
     t1->SetBranchAddress("mu.pz", &IncidPZ);
-
+*/
     //sprintf(name,"Thrd_%g",abs(thrd));
 
     sprintf(buff, "%sdata.root", name);
 
     TFile *f2 = new TFile(buff, "RECREATE");
     TTree *t2 = new TTree("data", "restore analysed data  from G4");
-    sprintf(buff, "CHID[%d]/I", T);  // CHID
+    sprintf(buff, "CHID[%d]/I", T); // CHID
     t2->Branch("CHID", &CHID, buff);
-    sprintf(buff, "NPE[%d]/I", T);  // NPE
+    sprintf(buff, "NPE[%d]/I", T); // NPE
     t2->Branch("NPE", &NPE, buff);
     sprintf(buff, "U[%d]/D", T);
-    t2->Branch("U", &U, buff);       //-mV
-    sprintf(buff, "xT0[%d]/D", T);  // ns
+    t2->Branch("U", &U, buff);     //-mV
+    sprintf(buff, "xT0[%d]/D", T); // ns
     t2->Branch("xT0", &xT0, buff);
     sprintf(buff, "T0_1stpe[%d]/D", T); //ns
     t2->Branch("T0_1stpe", &T0_1stpe, buff);
     sprintf(buff, "InX[%d]/D", T);
-    t2->Branch("InX", &InX, buff);  //mm
+    t2->Branch("InX", &InX, buff); //mm
     sprintf(buff, "InY[%d]/D", T);
-    t2->Branch("InY", &InY, buff);  //mm
+    t2->Branch("InY", &InY, buff); //mm
     sprintf(buff, "InZ[%d]/D", T);
-    t2->Branch("InZ", &InZ, buff);  //mm
+    t2->Branch("InZ", &InZ, buff); //mm
     sprintf(buff, "InPX[%d]/D", T);
-    t2->Branch("InPX", &InPX, buff);  //mm
+    t2->Branch("InPX", &InPX, buff); //mm
     sprintf(buff, "InPY[%d]/D", T);
-    t2->Branch("InPY", &InPY, buff);  //mm
+    t2->Branch("InPY", &InPY, buff); //mm
     sprintf(buff, "InPZ[%d]/D", T);
-    t2->Branch("InPZ", &InPZ, buff);  //mm
+    t2->Branch("InPZ", &InPZ, buff); //mm
 
     //for(int s = 0; s<4;s++){
 
@@ -294,7 +294,7 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     for (int iT = 0; iT < T; iT++)
     {
         sprintf(buff, "h%d", iT);
-        h[iT] = new TH1D(buff, buff, binNum, RL*1e9, RR*1e9);
+        h[iT] = new TH1D(buff, buff, binNum, RL * 1e9, RR * 1e9);
         sprintf(buff, "hSig%d", iT);
         hSig[iT] = new TH1D(buff, buff, binNum, t_L, t_R);
         sprintf(buff, "fSig%d", iT);
@@ -311,7 +311,7 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     //N=1;
     for (int i = 0; i < N; i++)
     {
-        cout<<"The Entry No: "<<i<<endl;
+        cout << "The Entry No: " << i << endl;
 
         //-----------initial----------------------//
         hitT->clear();
@@ -323,9 +323,8 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
         IncidPY->clear();
         IncidPZ->clear();
 
-        vector<vector<double> >(T).swap(par);
-        vector<vector<double> >(T).swap(tts);
-
+        vector<vector<double>>(T).swap(par);
+        vector<vector<double>>(T).swap(tts);
 
         //for(int i = certain; i < certain+1; i++){
         //par[i]=r.Gaus(2.4e-9,0.5e-9);
@@ -337,31 +336,37 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
 
         for (int iT = 0; iT < T; iT++)
         {
+            if(!IncidX->empty()){
+
             InX[iT] = (*IncidX)[0];
             InY[iT] = (*IncidY)[0];
             InZ[iT] = (*IncidZ)[0];
             InPX[iT] = (*IncidPX)[0];
             InPY[iT] = (*IncidPY)[0];
             InPZ[iT] = (*IncidPZ)[0];
+            }
             CHID[iT] = iT;
             for (int k = 0; k < hitN; k++)
             {
                 //cout<< T[][k] <<endl;
                 temp = (*hitT)[k] * 1e-9;
-                if ((*ID)[k] == iT){
+                if ((*ID)[k] == iT)
+                {
                     //r.SetSeed(time(NULL)*processN+k);
                     par[iT].push_back(temp);
-                    tts[iT].push_back(r.Gaus(0,ttssigma));
-                    if(i==N-1) h[iT]->Fill(temp*1e9);
+                    tts[iT].push_back(r.Gaus(0, ttssigma));
+                    if (i == N - 1)
+                        h[iT]->Fill(temp * 1e9);
                 }
             }
-            NPE[iT] = par[iT].size(); 
+            NPE[iT] = par[iT].size();
             //parR[k]=8.3e-9;
             //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
             //cout<<"par"<<k<<" = "<<par[k]<<endl;
             sort(par[iT].begin(), par[iT].end());
-        //cout<<">>> progress check <<<"<<endl;
-           if(!par[iT].empty()) T0_1stpe[iT] = par[iT].at(0)*1e9;
+            //cout<<">>> progress check <<<"<<endl;
+            if (!par[iT].empty())
+                T0_1stpe[iT] = par[iT].at(0) * 1e9;
             //myFun->SetParameter(k,par[k]);
         }
 
@@ -378,7 +383,7 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
             {
                 x[j] = (RR - RL) / range * j + RL;
                 //cout<<"process check======>"<<endl;
-                y[iT][j] = outputfunc(x[j], par[iT],tts[iT]);
+                y[iT][j] = outputfunc(x[j], par[iT], tts[iT]);
                 x[j] = ((RR - RL) / range * j + RL) * 1e9;
 
                 //if(yR[j]<thrd&&flagR) {xT0_R=x[j];flagR = false;}
@@ -459,7 +464,6 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
              * =======Fit the signal and find the timestamp========
              * ==================================================*/
 
-
             //return;
             //xT0_L = Discriminate(xL,yL,indexL);
 
@@ -467,10 +471,9 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xR[indexR]<<"\t"<<xL[indexL]<<"\t"<<(xR[indexR]+xL[indexL])/2<<endl;
             //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xT0_R<<"\t"<<xT0_L<<"\t"<<xT0<<endl;
 
-
             //cout<<"loop k = "<<k<<endl;
         }
-            t2->Fill();
+        t2->Fill();
     }
     f1->Close();
     TCanvas *c = new TCanvas("c", "", 1600, 600);
@@ -485,32 +488,36 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     float ymin = 0;
     float ymax = 0;
     //ymax = gPad->GetUymax();
-    ymin = TMath::MinElement(T,U) * 1.2;
-    ymax = -0.2*ymin;
+    ymin = TMath::MinElement(T, U) * 1.2;
+    ymax = -0.2 * ymin;
     DrawMyPad(gPad, "Time (ns)", "Amp (mV)", RL * 1e9, RR * 1e9, ymin, ymax);
 
     TLegend *leg;
     leg = DrawMyLeg(0.6, 0.2, 0.8, 0.45);
     //return;
-    for(int iT=0;iT<T;iT++){
-    DrawMyGraph(g[iT], "Time (ns)", "Amp (mV)", 1, 28, 1, iT+1, 2, 1);
-    g[iT]->Draw("L");
-    sprintf(buff,"PMT%d",iT);
-    leg->AddEntry(g[iT], buff, "l");
+    for (int iT = 0; iT < T; iT++)
+    {
+        DrawMyGraph(g[iT], "Time (ns)", "Amp (mV)", 1, 28, 1, iT + 1, 2, 1);
+        g[iT]->Draw("L");
+        sprintf(buff, "PMT%d", iT);
+        leg->AddEntry(g[iT], buff, "l");
     }
     leg->Draw();
-    cout<<" ===> progress check"<<endl;
+    cout << " ===> progress check" << endl;
 
     c->cd(2);
     SetMyPad(gPad, 0.12, 0.05, 0.05, 0.12);
-    TLatex* l[T];
-    for(int iT=0;iT<T;iT++){
+    TLatex *l[T];
+    for (int iT = 0; iT < T; iT++)
+    {
 
-        DrawMyHist1(h[iT],"Time (ns)","Counts",iT+1,2);
-        if (iT==0) h[iT]->Draw();
-        else h[iT]->Draw("SAMES");
-        sprintf(buff,"pmt%d hitN=%g",iT,h[iT]->GetSum());
-        l[iT]=DrawMyLatex(buff,0.65,0.6-0.1*iT,62,0.05,iT+1);
+        DrawMyHist(h[iT], "Time (ns)", "Counts", iT + 1, 2);
+        if (iT == 0)
+            h[iT]->Draw();
+        else
+            h[iT]->Draw("SAMES");
+        sprintf(buff, "pmt%d hitN=%g", iT, h[iT]->GetSum());
+        l[iT] = DrawMyLatex(buff, 0.65, 0.6 - 0.1 * iT, 62, 0.05, iT + 1);
     }
 
     gPad->Modified();
@@ -536,23 +543,25 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     SetMyPad(gPad, 0.12, 0.05, 0.05, 0.12);
 
     c1->cd();
-    for(int iT=0;iT<T;iT++){
+    for (int iT = 0; iT < T; iT++)
+    {
 
-        DrawMyHist1(hSig[iT],"Time (ns)","Counts",iT+1,2);
-        if (iT==0) hSig[iT]->Draw();
-        else hSig[iT]->Draw("SAMES");
+        DrawMyHist(hSig[iT], "Time (ns)", "Counts", iT + 1, 2);
+        if (iT == 0)
+            hSig[iT]->Draw();
+        else
+            hSig[iT]->Draw("SAMES");
         hSig[iT]->Rebin(1);
         hSig[iT]->Fit(fSig[iT], "QR");
-        
-        sprintf(buff,"pmt%d TR=%0.2f",iT,fSig[iT]->GetParameter(2));
-        l[iT]=DrawMyLatex(buff,0.65,0.6-0.1*iT,62,0.05,iT+1);
-    }
 
+        sprintf(buff, "pmt%d TR=%0.2f", iT, fSig[iT]->GetParameter(2));
+        l[iT] = DrawMyLatex(buff, 0.65, 0.6 - 0.1 * iT, 62, 0.05, iT + 1);
+    }
 
     sprintf(buff, "%s_Twosides_timeresolution.png", name);
     c1->SaveAs(buff);
 
-/*
+    /*
     TCanvas *c2 = new TCanvas("c2", "", 800, 600);
     c2->cd();
     hSIG->Draw();
@@ -594,7 +603,6 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     delete IncidPX;
     delete IncidPY;
     delete IncidPZ;
-    
 
     /*=======================================================*
          * ================Procedure timing end==================*
@@ -604,6 +612,225 @@ void Output(const char *rootname = "x2y2z1", double fac = 0.2, const char *ParTy
     cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
 }
 
+void PrintResults(const char *rootname = "x2y2z1data")
+{
+
+    TF1 *profilefit(TH2 * Rt, double rbU, double rbt, double tRL, double tRR, double URL, double URR, char *name);
+    TF1 *gausfit(TH1 * h, int rbU, double *U_RL, double *U_RR);
+    void twoguasfit(TH1 * ht, double *tRL, double *tRR, double fac = 0.4, int rbt = 1);
+    //void MygStyle();
+    //MygStyle();
+    gStyle->SetOptFit(111);
+
+    char name[100];
+    char buff[1024];
+
+    //***************************************************//
+    //--------------Configuration-----------------------//
+    //***************************************************//
+    double tL = 0.;
+    double tR = 3.;
+
+    double uL = -1e3;
+    double uR = 0;
+
+    int rbt = 2;
+    int rbu = 1;
+
+    // the range set After Correct
+    //double L2 = -100e-12;
+    //double R2 = 100e-12;
+    int bint = (tR - tL) / 1e-3;
+    int binu = (uR - uL) / 30;
+    const int T = 4;
+    const int iter = 5; //the number of iteration
+    //---------------------------------------------------//
+    //***************************************************//
+
+    //double RL,RR;
+    //double U_RL,U_RR;
+    //int binT = (init_tR-init_tL)/0.5e-12;
+    //int binU = (init_UR-init_UL)/1;
+
+    cout << "Start =====>>>>" << endl;
+    //return;
+    //cout<<"<<---- Succeed excuating ---->>"<<endl;
+    //return;
+    //thrd = (s+1)*0.2;
+    sprintf(name, "%s/%s", path, rootname);
+
+    sprintf(buff, "%s.root", name);
+    TFile *f = new TFile(buff, "READ");
+    TTree *t = (TTree *)f->Get("data");
+
+    double xT0[T] = {0}; //time stamp of waveform
+    int CHID[T] = {0};
+    int NPE[T] = {0};
+    double U[T] = {0};   //Amplitude of waveform
+    double InX[T] = {0}; //incident position
+    double InY[T] = {0};
+    double InZ[T] = {0};
+    double InPX[T] = {0}; //incident direction
+    double InPY[T] = {0};
+    double InPZ[T] = {0};
+    double T0_1stpe[T] = {0}; // hit time of first pe
+
+    double Utemp = 0, Ttemp = 0;
+    double T0_cor = 0;
+    float TT[1000000] = {0.};
+
+    t->SetBranchAddress("CHID", CHID);
+    t->SetBranchAddress("NPE", NPE);
+    t->SetBranchAddress("U", U); //-mV
+    t->SetBranchAddress("xT0", xT0);
+    t->SetBranchAddress("T0_1stpe", T0_1stpe);
+    t->SetBranchAddress("InX", InX);   //mm
+    t->SetBranchAddress("InY", InY);   //mm
+    t->SetBranchAddress("InZ", InZ);   //mm
+    t->SetBranchAddress("InPX", InPX); //mm
+    t->SetBranchAddress("InPY", InPY); //mm
+    t->SetBranchAddress("InPZ", InPZ); //mm
+
+    TCanvas *c1;
+
+    TH1D *ht[4];
+    TH1D *h1st[4];
+    TH1D *hNPE[4];
+    TH1D *hU[4];
+    for (int iT = 0; iT < T; iT++)
+    {
+        sprintf(buff, "ht%d", iT);
+        ht[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
+        sprintf(buff, "h1st%d", iT);
+        h1st[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
+        sprintf(buff, "hU%d", iT);
+        hU[iT] = new TH1D(buff, ";Amplitude (mV);Counts", binu, uL, uR);
+        sprintf(buff, "hNPE%d", iT);
+        hNPE[iT] = new TH1D(buff, ";NPE;Counts", 100, 0, 100);
+    }
+    //t->Draw("T0>>h");
+
+    int N = 0;
+    N = t->GetEntries();
+    cout << "the Entries is :" << N << endl;
+    for (int i = 0; i < N; i++)
+    {
+        t->GetEntry(i);
+
+        for (int iT = 0; iT < T; iT++)
+        {
+
+            if (U[iT] < 0 && xT0[iT] != 0)
+            {
+
+                ht[iT]->Fill(xT0[iT]);
+                h1st[iT]->Fill(T0_1stpe[iT]);
+                hU[iT]->Fill(U[iT]);
+                hNPE[iT]->Fill(NPE[iT]);
+            }
+        }
+    }
+    int CCounter = 0;
+    //c1 = cdC(CCounter++);
+    //RL = h->GetMean();
+    //cout<<"RL = "<<RL<<endl;
+    //return;
+    //c1->Divide(2,2);
+    
+   // DrawMyCanvas((TH1**)&ht[0],2, 2);
+    //TH1F *hFrame = (TH1F*) (*(&ht[0]+1))->Clone();
+    //hFrame->Draw();
+    //return;
+    /*
+    for (int i = 0; i < 4; i++)
+    {
+        c1 = cdC(CCounter++);
+         ht[i]->Draw();
+         DrawMyHist(ht[i], "", "");
+        sprintf(buff, "Mean=%.0fps", ht[i]->GetMean()*1e3);
+        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+        sprintf(buff, "RMS=%.0fps", ht[i]->GetRMS()*1e3);
+        DrawMyLatex(buff, 0.6, 0.4,42,0.06,2);
+        sprintf(buff, "%s_Time%d.png", name,i);
+        c1->SaveAs(buff);
+    }
+ */
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2,0.01,0.01);
+    for (int i = 0; i < 4; i++)
+    {
+        c1->cd(i + 1);
+        ht[i]->Draw();
+        DrawMyHist(ht[i], "", "");
+        ht[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "Mean=%.0fps", ht[i]->GetMean()*1e3);
+        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+        sprintf(buff, "RMS=%.0fps", ht[i]->GetRMS()*1e3);
+        DrawMyLatex(buff, 0.6, 0.4,42,0.06,2);
+    }
+    sprintf(buff, "%s_Time.png", name);
+    c1->SaveAs(buff);
+
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2,0.01,0.01);
+    for (int i = 0; i < 4; i++)
+    {
+        c1->cd(i + 1);
+        h1st[i]->Draw();
+        DrawMyHist(h1st[i], "", "");
+        h1st[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "Mean=%.0fps", h1st[i]->GetMean()*1e3);
+        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+        sprintf(buff, "RMS=%.0fps", h1st[i]->GetRMS()*1e3);
+        DrawMyLatex(buff, 0.6, 0.4,42,0.06,2);
+    }
+    sprintf(buff, "%s_1stPETime.png", name);
+    c1->SaveAs(buff);
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2,0,0);
+    for (int i = 0; i < 4; i++)
+    {
+        c1->cd(i + 1);
+        hNPE[i]->Draw();
+        DrawMyHist(hNPE[i], "", "");
+        hNPE[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "Mean=%.0f PE", hNPE[i]->GetMean());
+        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+    }
+    sprintf(buff, "%s_NPE.png", name);
+    c1->SaveAs(buff);
+
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2);
+    for (int i = 0; i < 4; i++)
+    {
+        c1->cd(i + 1);
+        hU[i]->Draw();
+        DrawMyHist(hU[i], "", "");
+        hU[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "Mean=%.0fps", hU[i]->GetMean());
+        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+    }
+    sprintf(buff, "%s_Amp.png", name);
+    c1->SaveAs(buff);
+}
+/*
 TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05)
 {
     TLegend *leg = new TLegend(xlow, ylow, xup, yup);
@@ -702,33 +929,34 @@ void DrawMyGraph(TGraph *datagraph, char *xtitle, char *ytitle, Size_t MSize = 1
     datagraph->GetYaxis()->SetTitleOffset(1.0);
 }
 
-void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1){
-       datahist->SetLineColor( LColor );
-       datahist->SetLineWidth( LWidth );
-       datahist->GetXaxis()->SetTitle( xtitle);
-       datahist->GetYaxis()->SetTitle( ytitle);
-       datahist->GetXaxis()->SetAxisColor(1);
-       datahist->GetYaxis()->SetAxisColor(1);
-       datahist->GetXaxis()->SetLabelColor(1);
-       datahist->GetYaxis()->SetLabelColor(1);
-       datahist->GetXaxis()->SetLabelFont( 42 );
-       datahist->GetYaxis()->SetLabelFont( 42 );
-       datahist->GetXaxis()->SetLabelSize( 0.06 );
-       datahist->GetYaxis()->SetLabelSize( 0.06 );
-       datahist->GetXaxis()->SetLabelOffset( 0.01 );
-       datahist->GetYaxis()->SetLabelOffset( 0.01 );
-       datahist->GetXaxis()->SetTitleFont( 42 );
-       datahist->GetYaxis()->SetTitleFont( 42 );
-       datahist->GetXaxis()->SetTitleColor( TitleColor);
-       datahist->GetYaxis()->SetTitleColor( TitleColor );
-       datahist->GetXaxis()->SetTitleSize(0.06);
-       datahist->GetYaxis()->SetTitleSize(0.06);
-       datahist->GetXaxis()->SetTitleOffset(1.0);
-       datahist->GetYaxis()->SetTitleOffset(1.0);
+void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor = 1, Width_t LWidth = 3, Color_t TitleColor = 1)
+{
+    datahist->SetLineColor(LColor);
+    datahist->SetLineWidth(LWidth);
+    datahist->GetXaxis()->SetTitle(xtitle);
+    datahist->GetYaxis()->SetTitle(ytitle);
+    datahist->GetXaxis()->SetAxisColor(1);
+    datahist->GetYaxis()->SetAxisColor(1);
+    datahist->GetXaxis()->SetLabelColor(1);
+    datahist->GetYaxis()->SetLabelColor(1);
+    datahist->GetXaxis()->SetLabelFont(42);
+    datahist->GetYaxis()->SetLabelFont(42);
+    datahist->GetXaxis()->SetLabelSize(0.06);
+    datahist->GetYaxis()->SetLabelSize(0.06);
+    datahist->GetXaxis()->SetLabelOffset(0.01);
+    datahist->GetYaxis()->SetLabelOffset(0.01);
+    datahist->GetXaxis()->SetTitleFont(42);
+    datahist->GetYaxis()->SetTitleFont(42);
+    datahist->GetXaxis()->SetTitleColor(TitleColor);
+    datahist->GetYaxis()->SetTitleColor(TitleColor);
+    datahist->GetXaxis()->SetTitleSize(0.06);
+    datahist->GetYaxis()->SetTitleSize(0.06);
+    datahist->GetXaxis()->SetTitleOffset(1.0);
+    datahist->GetYaxis()->SetTitleOffset(1.0);
     //datahist->GetXaxis()->SetBorderSize(5);
     datahist->GetXaxis()->SetNdivisions(510);
     datahist->GetYaxis()->SetNdivisions(510);
     datahist->GetXaxis()->CenterTitle();
     datahist->GetYaxis()->CenterTitle();
 }
-    
+*/

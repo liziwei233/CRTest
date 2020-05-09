@@ -13,6 +13,7 @@
 
 
  <!-- PMT -->
+ <tube name="moduleS" rmin="0" rmax="pmtR" z="pmtZ+windowZ+SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 <tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 <tube name="windowS" rmin="0" rmax="pmtR" z="windowZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 
@@ -23,6 +24,23 @@
 
  <!-- rectangular quartz -->
 <box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="mediumY" z="mediumZ" /> 
+
+
+<xtru name = "theXtru" lunit= "mm" > 
+<twoDimVertex x="-42.93" y="-50" /> 
+<twoDimVertex x="42.93" y="-50" /> 
+<twoDimVertex x="50" y="-42.93" /> 
+<twoDimVertex x="50" y="42.93" /> 
+<twoDimVertex x="42.93" y="50" /> 
+<twoDimVertex x="-42.93" y="50" /> 
+<twoDimVertex x="-50" y="42.93" /> 
+<twoDimVertex x="-50" y="-42.93" /> 
+
+  <section zOrder="1" zPosition="-5" xOffset="0" yOffset="0" scalingFactor="1" /> 
+  <section zOrder="2" zPosition="5" xOffset="0" yOffset="0" scalingFactor="1" />
+</xtru>
+
+
 
  <!-- lightguide -->
 <box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 

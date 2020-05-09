@@ -47,10 +47,12 @@
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
+    
+
       <physvol copynumber="0">
           <volumeref ref="Detector" />
-          <!--<rotationref ref="rot"/>-->
       </physvol>
+ 
 
   </volume>
 
@@ -83,15 +85,15 @@
     <physvolref ref="lightguide_PV"/>
     <physvolref ref="medium_PV"/>
   </bordersurface>-->
-<!--
-  <bordersurface name="medium_border" surfaceproperty="scint_surf" >
+  <bordersurface name="medium_border" surfaceproperty="Al_surf" >
     <physvolref ref="medium_PV"/>
     <physvolref ref="Detector_PV"/>
   </bordersurface>
--->
+<!--
   <skinsurface name="skin" surfaceproperty="Al_surf">
 	<volumeref ref="Detector"/>
   </skinsurface>
+-->
 
 <!--
   <bordersurface name="SOL_border" surfaceproperty="scint_surf" >
@@ -132,19 +134,21 @@
         <auxiliary auxtype="LVname" auxvalue="Detector" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>-->
+
+      <!--
       <auxiliary auxtype="Skin" auxvalue="MediumWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
-        <!--<auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />-->
         <auxiliary auxtype="LVname" auxvalue="Detector" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
-      <!--<auxiliary auxtype="Border" auxvalue="MediumWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="scint_surf"/>
+      -->
+
+      <auxiliary auxtype="Border" auxvalue="MediumWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
         <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
       </auxiliary>
--->
 <!--
       <auxiliary auxtype="Border" auxvalue="SOLWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="scint_surf" />

@@ -106,7 +106,7 @@ void GdmlConstruction::Init()
 	fPmtR = lvStore->GetVolume("PMT_right", false);
 
 	fStepLimit = new G4UserLimits();
-	fStepLimit->SetUserMaxTime(200 * ns);
+	fStepLimit->SetUserMaxTime(20 * ns);
 	fRadianer->SetUserLimits(fStepLimit);
 
 	/*
@@ -143,12 +143,12 @@ void GdmlConstruction::Init()
 G4VPhysicalVolume *GdmlConstruction::Construct()
 {
 	fWorld->SetVisAttributes(G4VisAttributes::Invisible);
-	fDetector->SetVisAttributes(G4VisAttributes::Invisible);
 
 	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 0.3)); //white
 	visAttributes = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0, 0.5));					//green
-	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 1.0));					//megenta
+	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.3));					//megenta
 
+	fDetector->SetVisAttributes(visAttributes);
 	visAttributes = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0, 1.0)); //blue
 																	   //visAttributes->SetVisibility(false);
 

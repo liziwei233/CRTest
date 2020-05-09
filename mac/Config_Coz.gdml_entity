@@ -15,9 +15,12 @@
 <variable name="interval " value="0.2"/>
 <variable name="pmtR" value="5"/>
 
+<variable name="mediumposZ" value="(mediumZ/2.*sqrt(2)-pmtR)*2"/>
 <variable name="SOZ" value="0.01"/>
 <variable name="pmtZ" value="0.1"/>
 <variable name="windowZ" value="1.5"/>
+<variable name="moduleZ" value="pmtZ+windowZ+SOZ"/>
+
 <variable name="lgZ" value="38"/>
 
 <!-- Detector Configuration -->
@@ -50,9 +53,13 @@
 <variable name="iPMT" value="0" />
 <constant name="PMTN" value="4" />
 <matrix name="PMTPosX" coldim="1" values="0. -14. -28 -42" />
+<matrix name="PMTPosY" coldim="1" values="1. 1. -1. -1." />
+<matrix name="PMTPosZ" coldim="1" values="1. -1. -1. 1." />
+
+<!--
 <matrix name="PMTPosY" coldim="1" values="0. 1. 0. -1." />
 <matrix name="PMTPosZ" coldim="1" values="1. 0. -1. 0." />
-
+-->
 <variable name="iSiPM" value="0" />
 <constant name="SiPMN" value="16" />
 <matrix name="SiPMPosX" coldim="1" values="-4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 " />

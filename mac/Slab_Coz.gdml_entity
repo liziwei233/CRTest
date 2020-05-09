@@ -8,8 +8,10 @@
 
 <volume name="medium">
   <materialref ref="SiO2" />
-  <solidref ref="mediumS" />
+  <!--<solidref ref="mediumS" />-->
+  <solidref ref="theXtru" />
 </volume>
+
 
 <volume name="PMT">
   <materialref ref="G4_Si" />
@@ -69,9 +71,91 @@
 </volume>
 -->
 
+<volume name="Module">
+  <materialref ref="AIR" />
+  <solidref ref="moduleS" />
+  
+  <physvol>
+      <volumeref ref="PMT" />
+      <position unit="mm" x="0" />
+            <position unit="mm" y="0" />
+      <position unit="mm" z="SOZ/2.+windowZ/2."/>
+  </physvol>
 
+  <physvol >
+       <volumeref ref="Window" />
+            <position unit="mm" x="0"/>
+      <position unit="mm" y="0"/>
+      <position unit="mm" z="-pmtZ/2.+SOZ/2."/>
+  </physvol>
+  <physvol>
+    <volumeref ref="SO" />
+    <position unit="mm" z="-pmtZ/2.-windowZ/2." />
+  </physvol>
+
+</volume>
 
 <volume name="Detector">
+  <materialref ref="AIR" />
+  <solidref ref="detectorS" />
+  <physvol>
+    <volumeref ref="medium" />
+    <rotation unit="deg" y="90" />
+  </physvol>
+<loop for="iPMT" to="PMTN-1" step="1">
+  
+      <physvol copynumber="iPMT">
+       <volumeref ref="Module" />
+      <rotation unit="deg" y="90" />
+
+	    <position unit="mm" x="-mediumX/2.-moduleZ/2."/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumY/4)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/4)"/>
+      </physvol>
+
+      <!--
+      <physvol copynumber="iPMT">
+       <volumeref ref="Module" />
+      <rotation unit="deg" x="45+iPMT*90" />
+
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
+      </physvol>
+      -->
+
+<!--
+      <physvol copynumber="iPMT">
+       <volumeref ref="Window" />
+      <rotation unit="deg" x="45+iPMT*90" />
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ+windowZ/2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ+windowZ/2.)"/>
+      </physvol>
+
+      <physvol copynumber="iPMT">
+      <volumeref ref="PMT" />
+      <rotation unit="deg" x="45+iPMT*90" />
+      <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ+windowZ+pmtZ/2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ+windowZ+pmtZ/2.)"/>
+      </physvol>
+
+      <physvol copynumber="iPMT">
+      <volumeref ref="SO" />
+      <rotation unit="deg" x="45+iPMT*90" />
+      <position unit="mm" x="0" />
+	    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ/2.)" />
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ/2.)" />
+      </physvol>
+-->
+  </loop>
+
+
+</volume>
+
+
+<volume name="Detector1">
   <materialref ref="AIR" />
   <solidref ref="detectorS" />
   <physvol>
