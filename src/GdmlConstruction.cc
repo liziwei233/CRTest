@@ -656,7 +656,7 @@ G4bool GdmlConstruction::ReadBorderProperty(
 
 	G4LogicalBorderSurface *DaughterSurface = NULL;
 	G4OpticalSurface *DaughterOpSurf = NULL;
-	if (PreNoDaughters == PostNoDaughters)
+	if (PreNoDaughters == PostNoDaughters && PostNoDaughters >1)
 	{
 		for (int j = 0; j < PostNoDaughters; j++)
 		{
@@ -673,7 +673,7 @@ G4bool GdmlConstruction::ReadBorderProperty(
 			for (int j = 0; j < PostNoDaughters; j++)
 			{
 
-				DaughterSurface = new G4LogicalBorderSurface("CathodeSurface", thePreDaughterPV.at(j), thePostDaughterPV.at(i), OpSurf);
+				DaughterSurface = new G4LogicalBorderSurface("CathodeSurface", thePreDaughterPV.at(i), thePostDaughterPV.at(j), OpSurf);
 
 				G4cout << "===> the surface [" << j << "]:" << G4endl;
 				DaughterSurface->DumpInfo();

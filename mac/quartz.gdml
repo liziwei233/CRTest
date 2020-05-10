@@ -56,9 +56,12 @@
 
   </volume>
 
-  <!--<skinsurface name="det_skin" surfaceproperty="det_surf" >
+<!--
+
+  <skinsurface name="det_skin" surfaceproperty="det_surf" >
     <volumeref ref="Detector"/>
-  </skinsurface>-->
+  </skinsurface>
+-->
 
   <!--<skinsurface name="medium_skin" surfaceproperty="quartz_surf" >
     <volumeref ref="medium"/>
@@ -85,15 +88,32 @@
     <physvolref ref="lightguide_PV"/>
     <physvolref ref="medium_PV"/>
   </bordersurface>-->
+
+<!--
   <bordersurface name="medium_border" surfaceproperty="Al_surf" >
     <physvolref ref="medium_PV"/>
     <physvolref ref="Detector_PV"/>
   </bordersurface>
-<!--
-  <skinsurface name="skin" surfaceproperty="Al_surf">
-	<volumeref ref="Detector"/>
-  </skinsurface>
 -->
+  
+  <skinsurface name="skin" surfaceproperty="Black_surf">
+	<volumeref ref="medium"/>
+  </skinsurface>
+
+
+
+<bordersurface name="SOborder" surfaceproperty="quartz_surf" >
+    <physvolref ref="medium_PV"/>
+    <physvolref ref="SO_PV"/>
+  </bordersurface>
+
+
+  <bordersurface name="Alwrapborder" surfaceproperty="Al_surf" >
+    <physvolref ref="medium_PV"/>
+    <physvolref ref="Alwrap_PV"/>
+  </bordersurface>
+
+
 
 <!--
   <bordersurface name="SOL_border" surfaceproperty="scint_surf" >
@@ -129,26 +149,46 @@
 
   <userinfo>
     <auxiliary auxtype="Property">
-      <!--<auxiliary auxtype="Skin" auxvalue="DetectorWrapper">
+
+<!--
+
+      <auxiliary auxtype="Skin" auxvalue="DetectorWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="det_surf" />
         <auxiliary auxtype="LVname" auxvalue="Detector" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-      </auxiliary>-->
-
-      <!--
-      <auxiliary auxtype="Skin" auxvalue="MediumWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
-        <auxiliary auxtype="LVname" auxvalue="Detector" />
-        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
       </auxiliary>
-      -->
+-->
 
-      <auxiliary auxtype="Border" auxvalue="MediumWrapper">
-        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf"/>
+
+      <auxiliary auxtype="Skin" auxvalue="BlackWrapper">
+        <auxiliary auxtype="SurfaceName" auxvalue="Black_surf" />
+        <auxiliary auxtype="LVname" auxvalue="medium" />
+        <!--
+          <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+        -->
+        <auxiliary auxtype="Material" auxvalue="endWrapper_Quartz" />
+      </auxiliary>
+
+
+      <auxiliary auxtype="Border" auxvalue="SOborder">
+        <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
-        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="PVname" auxvalue="SO_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
       </auxiliary>
+
+
+
+
+      <auxiliary auxtype="Border" auxvalue="Alwrapborder">
+        <auxiliary auxtype="SurfaceName" auxvalue="Al_surf"/>
+        <auxiliary auxtype="PVname" auxvalue="medium_PV" />
+        <auxiliary auxtype="PVname" auxvalue="Alwrap_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
+      </auxiliary>
+
+
+
 <!--
       <auxiliary auxtype="Border" auxvalue="SOLWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="scint_surf" />

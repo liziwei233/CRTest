@@ -12,6 +12,10 @@
   <solidref ref="theXtru" />
 </volume>
 
+<volume name="Alwrap">
+  <materialref ref="G4_Al" />
+  <solidref ref="AlwrapS" />
+</volume>
 
 <volume name="PMT">
   <materialref ref="G4_Si" />
@@ -102,8 +106,20 @@
     <volumeref ref="medium" />
     <rotation unit="deg" y="90" />
   </physvol>
+
+  <physvol copynumber="0">
+    <volumeref ref="Alwrap" />
+    <position unit="mm" x="-AlwrapX/2.-mediumX/2."/>
+  </physvol>
+
+  <physvol copynumber="1">
+    <volumeref ref="Alwrap" />
+    <position unit="mm" x="AlwrapX/2.+mediumX/2."/>
+  </physvol>
+
 <loop for="iPMT" to="PMTN-1" step="1">
   
+  <!--
       <physvol copynumber="iPMT">
        <volumeref ref="Module" />
       <rotation unit="deg" y="90" />
@@ -112,8 +128,7 @@
       <position unit="mm" y="PMTPosY[iPMT+1]*(mediumY/4)"/>
       <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/4)"/>
       </physvol>
-
-      <!--
+-->
       <physvol copynumber="iPMT">
        <volumeref ref="Module" />
       <rotation unit="deg" x="45+iPMT*90" />
@@ -122,7 +137,6 @@
       <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
       <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
       </physvol>
-      -->
 
 <!--
       <physvol copynumber="iPMT">

@@ -144,7 +144,7 @@ TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
     return fitU;
 }
 char path[1000] = "/Users/liziwei/learning/CRTest/build";
-void Output(const char *rootname = "x0y0z0_model2", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
+void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 

@@ -22,6 +22,9 @@
 -->
 
 
+ <!-- Al wrap -->
+ <box aunit="radian" lunit="mm" name="AlwrapS" x="AlwrapX" y="AlwrapY" z="AlwrapZ" /> 
+
  <!-- rectangular quartz -->
 <box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="mediumY" z="mediumZ" /> 
 

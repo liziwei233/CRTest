@@ -10,6 +10,10 @@
 <variable name="mediumY" value="100"/>
 <variable name="mediumZ" value="100"/>
 
+<variable name="AlwrapX" value="1"/>
+<variable name="AlwrapY" value="mediumY"/>
+<variable name="AlwrapZ" value="mediumZ"/>
+
 <variable name="SiPMX" value="23"/>
 <variable name="SiPMY" value="23"/>
 <variable name="interval " value="0.2"/>
