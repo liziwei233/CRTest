@@ -143,8 +143,9 @@ TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
     //g->Fit(fitU);
     return fitU;
 }
+//char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 char path[1000] = "/Users/liziwei/learning/CRTest/build";
-void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
+void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -157,7 +158,7 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
     double totaltime;
     start = clock();
 
-/*
+    /*
     TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05);
 
     TLatex *DrawMyLatex(char *text, Double_t x = 0.65, Double_t y = 0.5, Int_t textFont = 62, Size_t textSize = 0.05, Color_t colorIndex = 2);
@@ -172,8 +173,8 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
 
     //void DrawMyHist1(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor=1, Width_t LWidth=3, Color_t TitleColor=1);
 */
-    gStyle->SetOptStat(0);
-    gStyle->SetOptFit(0);
+    //gStyle->SetOptStat(0);
+    //gStyle->SetOptFit(0);
     gStyle->SetOptTitle(0);
 
     //TRandom3 r;
@@ -242,14 +243,14 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
 
     t1->SetBranchAddress("PmtS.t", &hitT);
     t1->SetBranchAddress("PmtS.id", &ID);
-    /*
+
     t1->SetBranchAddress("mu.x", &IncidX);
     t1->SetBranchAddress("mu.y", &IncidY);
     t1->SetBranchAddress("mu.z", &IncidZ);
     t1->SetBranchAddress("mu.px", &IncidPX);
     t1->SetBranchAddress("mu.py", &IncidPY);
     t1->SetBranchAddress("mu.pz", &IncidPZ);
-*/
+
     //sprintf(name,"Thrd_%g",abs(thrd));
 
     sprintf(buff, "%sdata.root", name);
@@ -311,7 +312,7 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
     //N=1;
     for (int i = 0; i < N; i++)
     {
-        cout << "The Entry No: " << i << endl;
+        //cout << "The Entry No: " << i << endl;
 
         //-----------initial----------------------//
         hitT->clear();
@@ -336,14 +337,15 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
 
         for (int iT = 0; iT < T; iT++)
         {
-            if(!IncidX->empty()){
+            if (!IncidX->empty())
+            {
 
-            InX[iT] = (*IncidX)[0];
-            InY[iT] = (*IncidY)[0];
-            InZ[iT] = (*IncidZ)[0];
-            InPX[iT] = (*IncidPX)[0];
-            InPY[iT] = (*IncidPY)[0];
-            InPZ[iT] = (*IncidPZ)[0];
+                InX[iT] = (*IncidX)[0];
+                InY[iT] = (*IncidY)[0];
+                InZ[iT] = (*IncidZ)[0];
+                InPX[iT] = (*IncidPX)[0];
+                InPY[iT] = (*IncidPY)[0];
+                InPZ[iT] = (*IncidPZ)[0];
             }
             CHID[iT] = iT;
             for (int k = 0; k < hitN; k++)
@@ -503,7 +505,6 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
         leg->AddEntry(g[iT], buff, "l");
     }
     leg->Draw();
-    cout << " ===> progress check" << endl;
 
     c->cd(2);
     SetMyPad(gPad, 0.12, 0.05, 0.05, 0.12);
@@ -612,15 +613,32 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, c
     cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
 }
 
+void OutputResults(const char *rootname = "x2y2z1data")
+{
+    char name[100];
+    char buff[1024];
+    sprintf(buff, "%s.dat", rootname);
+
+    ofstream out(buff);
+    cout << "===> Create your date file: " << buff << endl;
+
+    sprintf(name, "%s/%s", path, rootname);
+
+    sprintf(buff, "%s.root", name);
+    TFile *f = new TFile(buff, "READ");
+    TTree *t = (TTree *)f->Get("data");
+}
+
 void PrintResults(const char *rootname = "x2y2z1data")
 {
 
-    TF1 *profilefit(TH2 * Rt, double rbU, double rbt, double tRL, double tRR, double URL, double URR, char *name);
-    TF1 *gausfit(TH1 * h, int rbU, double *U_RL, double *U_RR);
-    void twoguasfit(TH1 * ht, double *tRL, double *tRR, double fac = 0.4, int rbt = 1);
     //void MygStyle();
     //MygStyle();
-    gStyle->SetOptFit(111);
+    //gStyle->SetOptFit(111);
+
+    sprintf(buff, "%s/%s.dat", path, rootname);
+    ofstream out(buff);
+    cout << "===> Create your date file: " << buff << endl;
 
     char name[100];
     char buff[1024];
@@ -640,7 +658,7 @@ void PrintResults(const char *rootname = "x2y2z1data")
     // the range set After Correct
     //double L2 = -100e-12;
     //double R2 = 100e-12;
-    int bint = (tR - tL) / 1e-3;
+    int bint = (tR - tL) / 5e-3;
     int binu = (uR - uL) / 30;
     const int T = 4;
     const int iter = 5; //the number of iteration
@@ -691,8 +709,6 @@ void PrintResults(const char *rootname = "x2y2z1data")
     t->SetBranchAddress("InPY", InPY); //mm
     t->SetBranchAddress("InPZ", InPZ); //mm
 
-    TCanvas *c1;
-
     TH1D *ht[4];
     TH1D *h1st[4];
     TH1D *hNPE[4];
@@ -706,7 +722,7 @@ void PrintResults(const char *rootname = "x2y2z1data")
         sprintf(buff, "hU%d", iT);
         hU[iT] = new TH1D(buff, ";Amplitude (mV);Counts", binu, uL, uR);
         sprintf(buff, "hNPE%d", iT);
-        hNPE[iT] = new TH1D(buff, ";NPE;Counts", 100, 0, 100);
+        hNPE[iT] = new TH1D(buff, ";NPE;Counts", 20, 0, 30);
     }
     //t->Draw("T0>>h");
 
@@ -731,13 +747,83 @@ void PrintResults(const char *rootname = "x2y2z1data")
         }
     }
     int CCounter = 0;
+    TLatex *la;
+    TF1 *ff;
+    TCanvas *c1;
+    double ANPE[T] = {0};
+    double ANPEErr[T] = {0};
+    double TRSigma[T] = {0};
+    double TRSigmaErr[T] = {0};
+    double TRMean[T] = {0};
+    double TRMeanErr[T] = {0};
+
+    for (int i = 0; i < 1; i++)
+    {
+        // --- Draw NPE distribution ---
+        c1 = cdC(CCounter++);
+        DrawMyHist(hNPE[i], "Number of Photons", "Counts");
+        hNPE[i]->Draw();
+        ANPE[i] = -1;
+        ANPEErr[i] = -999;
+        ANPE[i] = hNPE[i]->GetMean();
+        ANPEErr[i] = hNPE[i]->GetRMS();
+        /*
+        ff = gausfit(hNPE[i], 5, 2, 2, 1, 0, 30);
+        if (ff)
+        {
+            ANPE[i] = ff->GetParameter(1);
+            ANPEErr[i] = ff->GetParError(1);
+        }
+        */
+        sprintf(buff, "Npe=%.0f", ANPE[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "%s/%sCH%dPhotonNum.png", path, rootname, i);
+        c1->SaveAs(buff);
+
+        // ---Time distribution ---//
+        c1 = cdC(CCounter++);
+        DrawMyHist(ht[i], "TimeRes (ns)", "Counts");
+        ht[i]->Draw();
+        ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
+        TRSigma[i] = -999;
+        TRSigmaErr[i] = -999;
+        if (ff)
+        {
+            TRMean[i] = ff->GetParameter(1) * 1e3;
+            TRMeanErr[i] = ff->GetParError(1) * 1e3;
+            TRSigma[i] = ff->GetParameter(2) * 1e3;
+            TRSigmaErr[i] = ff->GetParError(2) * 1e3;
+        }
+        sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.35);
+        
+        sprintf(buff, "%s/%sCH%dTR.png", path, rootname, i);
+        c1->SaveAs(buff);
+    }
+    out << InX[0] << "\t"
+        << InY[0] << "\t"
+        << InZ[0] << "\t"
+        << InPX[0] << "\t"
+        << InPY[0] << "\t"
+        << InPZ[0] << endl;
+    for (int i = 0; i < T; i++)
+    {
+
+        out << ANPE[i] << "\t"
+            << ANPEErr[i] << "\t"
+            << TRSigma[i] << "\t"
+            << TRSigmaErr[i] << endl;
+    }
+    return;
     //c1 = cdC(CCounter++);
     //RL = h->GetMean();
     //cout<<"RL = "<<RL<<endl;
     //return;
     //c1->Divide(2,2);
-    
-   // DrawMyCanvas((TH1**)&ht[0],2, 2);
+
+    // DrawMyCanvas((TH1**)&ht[0],2, 2);
     //TH1F *hFrame = (TH1F*) (*(&ht[0]+1))->Clone();
     //hFrame->Draw();
     //return;
@@ -756,27 +842,65 @@ void PrintResults(const char *rootname = "x2y2z1data")
     }
  */
     c1 = cdC(CCounter++);
-    c1->Divide(2, 2,0.01,0.01);
+    c1->Divide(2, 2, 0.01, 0.01);
+    for (int i = 0; i < T; i++)
+    {
+        c1->cd(i + 1);
+        hNPE[i]->Draw();
+        DrawMyHist(hNPE[i], "", "");
+        hNPE[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "CH%d", i+1);
+        DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
+        sprintf(buff, "Mean=%.0f PE", hNPE[i]->GetMean());
+        DrawMyLatex(buff, 0.6, 0.5, 42, 0.06, 2);
+    }
+    sprintf(buff, "%s_NPE.png", name);
+    c1->SaveAs(buff);
+
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2, 0.01, 0.01);
     for (int i = 0; i < 4; i++)
     {
         c1->cd(i + 1);
         ht[i]->Draw();
         DrawMyHist(ht[i], "", "");
+        ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
+        TRSigma[i] = -999;
+        TRSigmaErr[i] = -999;
+        if (ff)
+        {
+            TRMean[i] = ff->GetParameter(1) * 1e3;
+            TRMeanErr[i] = ff->GetParError(1) * 1e3;
+            TRSigma[i] = ff->GetParameter(2) * 1e3;
+            TRSigmaErr[i] = ff->GetParError(2) * 1e3;
+        }
         ht[i]->GetXaxis()->SetNdivisions(505);
         gPad->SetLeftMargin(0.2);
         gPad->SetRightMargin(0.01);
         gPad->SetTopMargin(0.01);
         gPad->SetBottomMargin(0.2);
-        sprintf(buff, "Mean=%.0fps", ht[i]->GetMean()*1e3);
-        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
-        sprintf(buff, "RMS=%.0fps", ht[i]->GetRMS()*1e3);
-        DrawMyLatex(buff, 0.6, 0.4,42,0.06,2);
+
+        sprintf(buff, "CH%d", i+1);
+        DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
+
+        sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.35);
     }
     sprintf(buff, "%s_Time.png", name);
     c1->SaveAs(buff);
 
+    /* 
+//
+// -- print 1st pe arrival time distrubutions --
+//
     c1 = cdC(CCounter++);
-    c1->Divide(2, 2,0.01,0.01);
+    c1->Divide(2, 2, 0.01, 0.01);
     for (int i = 0; i < 4; i++)
     {
         c1->cd(i + 1);
@@ -787,33 +911,19 @@ void PrintResults(const char *rootname = "x2y2z1data")
         gPad->SetRightMargin(0.01);
         gPad->SetTopMargin(0.01);
         gPad->SetBottomMargin(0.2);
-        sprintf(buff, "Mean=%.0fps", h1st[i]->GetMean()*1e3);
-        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
-        sprintf(buff, "RMS=%.0fps", h1st[i]->GetRMS()*1e3);
-        DrawMyLatex(buff, 0.6, 0.4,42,0.06,2);
+        sprintf(buff, "Mean=%.0fps", h1st[i]->GetMean() * 1e3);
+        DrawMyLatex(buff, 0.6, 0.5, 42, 0.06, 2);
+        sprintf(buff, "RMS=%.0fps", h1st[i]->GetRMS() * 1e3);
+        DrawMyLatex(buff, 0.6, 0.4, 42, 0.06, 2);
     }
     sprintf(buff, "%s_1stPETime.png", name);
     c1->SaveAs(buff);
-    c1 = cdC(CCounter++);
-    c1->Divide(2, 2,0,0);
-    for (int i = 0; i < 4; i++)
-    {
-        c1->cd(i + 1);
-        hNPE[i]->Draw();
-        DrawMyHist(hNPE[i], "", "");
-        hNPE[i]->GetXaxis()->SetNdivisions(505);
-        gPad->SetLeftMargin(0.2);
-        gPad->SetRightMargin(0.01);
-        gPad->SetTopMargin(0.01);
-        gPad->SetBottomMargin(0.2);
-        sprintf(buff, "Mean=%.0f PE", hNPE[i]->GetMean());
-        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
-    }
-    sprintf(buff, "%s_NPE.png", name);
-    c1->SaveAs(buff);
 
+    //
+    // -- print AMP distributions --
+    //
     c1 = cdC(CCounter++);
-    c1->Divide(2, 2);
+    c1->Divide(2, 2, 0.01, 0.01);
     for (int i = 0; i < 4; i++)
     {
         c1->cd(i + 1);
@@ -825,11 +935,137 @@ void PrintResults(const char *rootname = "x2y2z1data")
         gPad->SetTopMargin(0.01);
         gPad->SetBottomMargin(0.2);
         sprintf(buff, "Mean=%.0fps", hU[i]->GetMean());
-        DrawMyLatex(buff, 0.6, 0.5,42,0.06,2);
+        DrawMyLatex(buff, 0.6, 0.5, 42, 0.06, 2);
     }
     sprintf(buff, "%s_Amp.png", name);
     c1->SaveAs(buff);
+    */
 }
+
+void Output(const char *rootname = "x2y2z1_model2blackwrap")
+{
+    gStyle->SetOptFit(111);
+    char buff[1024];
+    sprintf(buff, "%s/%sdata.root", path,rootname);
+    cout<<"Check File :"<<buff<<endl;
+    if (gSystem->AccessPathName(buff))
+    {
+        cout << "==> the file isn't exist!" << endl;
+        CalculateTR(rootname, 0.2, "CFD", 1);
+    }
+    sprintf(buff, "%sdata", rootname);
+    PrintResults(buff);
+}
+
+void readdatresults()
+{
+    gStyle->SetOptTitle(1);
+    int theta[] = {5, 10, 15, 20, 25, 30, 35};
+    int phi[] = {45, 60, 75, 90, 105, 120, 135};
+    const int T = 4;
+    double NPE[T] = {0};
+    double NPEErr[T] = {0};
+    double TRSigma[T] = {0};
+    double TRSigmaErr[T] = {0};
+    double InX[T] = {0}; //incident position
+    double InY[T] = {0};
+    double InZ[T] = {0};
+    double InPX[T] = {0}; //incident direction
+    double InPY[T] = {0};
+    double InPZ[T] = {0};
+
+    char buff[200];
+    char name[200];
+    TH2D *hTR[T];
+    TH2D *hNPE[T];
+    ifstream input;
+    int xNum = sizeof(phi) / sizeof(phi[0]);
+    double xMin = phi[0] - 0.5 * (phi[1] - phi[0]);
+    double xMax = phi[xNum - 1] + 0.5 * (phi[1] - phi[0]);
+
+    int yNum = sizeof(theta) / sizeof(theta[0]);
+    double yMin = theta[0] - 0.5 * (theta[1] - theta[0]);
+    double yMax = theta[yNum - 1] + 0.5 * (theta[1] - theta[0]);
+
+    for (int i = 0; i < T; i++)
+    {
+        sprintf(buff, "hTR%d", i);
+        sprintf(name, "TR(ps),CH=%d", i);
+        hTR[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
+        sprintf(buff, "hNPE%d", i);
+        sprintf(name, "NPE,CH=%d", i);
+        hNPE[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
+        ifstream input;
+        for (int j = 0; j < xNum; j++)
+        {
+            for (int k = 0; k < yNum; k++)
+            {
+
+                sprintf(buff, "%s/model1_theta%dphi%ddata.dat", path, theta[j], phi[k]);
+                cout << " ==> Read data file: " << buff << endl;
+                if (gSystem->AccessPathName(buff))
+                {
+                    cout << "the file isn't exist!" << endl;
+                    return;
+                }
+                input.open(buff);
+                input >> InX[0] >> InY[0] >> InZ[0] >> InPX[0] >> InPY[0] >> InPZ[0];
+                for (int ich = 0; ich < T; ich++)
+                {
+
+                    input >> NPE[ich] >> NPEErr[ich] >> TRSigma[ich] >> TRSigmaErr[ich];
+                }
+
+                cout << NPE[i] << "\t" << TRSigma[i] << endl;
+                //hTR[i]->Fill(phi[k],theta[j]);
+                //cout<<reTrkLTRSigma<<endl;
+
+                TRSigma[i] = URound(TRSigma[i], 1);
+                hTR[i]->SetBinContent(k + 1, j + 1, TRSigma[i]);
+
+                cout << " TR " << i << "\t:" << TRSigma[i] << endl;
+
+                NPE[i] = URound(NPE[i], 0);
+                hNPE[i]->SetBinContent(k + 1, j + 1, NPE[i]);
+                input.close();
+            }
+        }
+    }
+
+    //return;
+    TCanvas *c;
+    int cNum = 1;
+
+    //char prefix[100] = "nogroundpi";
+    for (int i = 1; i < 2; i++)
+    {
+
+        c = cdC(cNum++);
+        DrawMy2dHist(hTR[i], "#phi (degree)", "#theta (degree)");
+        hTR[i]->Draw("colz");
+        //TExec *ex1 = new TExec("ex1", "Pal();");
+        TExec *ex1 = new TExec("ex1", "gStyle->SetPalette(55, 0, 0.45);");
+        ex1->Draw();
+
+        hTR[i]->Draw("colz TEXT SAME");
+        hTR[i]->SetMarkerSize(2.8);
+        sprintf(buff, "%s/CH%dTR.png", path, i);
+        c->Update();
+        c->Modified();
+        c->SaveAs(buff);
+
+        c = cdC(cNum++);
+        DrawMy2dHist(hNPE[i], "#phi (degree)", "#theta (degree)");
+        hNPE[i]->Draw("colz");
+        TExec *ex2 = new TExec("ex2", "gStyle->SetPalette(55, 0, 0.45);");
+        ex2->Draw();
+        hNPE[i]->Draw("colz text SAME");
+        hNPE[i]->SetMarkerSize(2.8);
+        sprintf(buff, "%s/CH%dNPE.png", path, i);
+        c->SaveAs(buff);
+    }
+}
+
 /*
 TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05)
 {

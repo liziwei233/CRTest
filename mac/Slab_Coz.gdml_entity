@@ -8,8 +8,13 @@
 
 <volume name="medium">
   <materialref ref="SiO2" />
-  <!--<solidref ref="mediumS" />-->
+  <!--
+  <materialref ref="AIR" />
+  -->
+  <solidref ref="mediumS" />
+  <!--
   <solidref ref="theXtru" />
+  -->
 </volume>
 
 <volume name="Alwrap">
@@ -29,6 +34,17 @@
   <materialref ref="EJ500" />
   <solidref ref="SiOilS" />
 </volume>
+
+<volume name="lightguide">
+  <materialref ref="SiO2" />
+  <solidref ref="lgS_tube" />
+  <!--<solidref ref="lgS_trd" />-->
+
+</volume>
+
+
+
+
 
 <!--
 <volume name="PMT_left">
@@ -104,7 +120,9 @@
   <solidref ref="detectorS" />
   <physvol>
     <volumeref ref="medium" />
+    <!--
     <rotation unit="deg" y="90" />
+    -->
   </physvol>
 
   <physvol copynumber="0">
@@ -119,7 +137,9 @@
 
 <loop for="iPMT" to="PMTN-1" step="1">
   
-  <!--
+      
+
+  <!--PMTs are placed in model3
       <physvol copynumber="iPMT">
        <volumeref ref="Module" />
       <rotation unit="deg" y="90" />
@@ -129,13 +149,45 @@
       <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/4)"/>
       </physvol>
 -->
+
+  <!-- PMTs are placed in model2
+      <physvol copynumber="iPMT">
+       <volumeref ref="lightguide" />
+      <rotation unit="deg" x="45+iPMT*90" />
+
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+trdZ/2.)/sqrt(2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+trdZ/2.)/sqrt(2.)"/>
+      </physvol>
       <physvol copynumber="iPMT">
        <volumeref ref="Module" />
       <rotation unit="deg" x="45+iPMT*90" />
 
 	    <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+moduleZ/2.)/sqrt(2.)"/>
+      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+lgZ+moduleZ/2.)/sqrt(2.)"/>
+      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+lgZ+moduleZ/2.)/sqrt(2.)"/>
+      </physvol>
+-->
+
+  <!-- PMTs are placed in model1 
+  -->
+
+  <physvol copynumber="iPMT">
+       <volumeref ref="lightguide" />
+      <rotation unit="deg" x="iPMT*90" />
+
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="Model1PMTPosY[iPMT+1]*(mediumZ/2.+trdZ/2.)"/>
+      <position unit="mm" z="Model1PMTPosZ[iPMT+1]*(mediumZ/2.+trdZ/2.)"/>
+      </physvol>
+
+      <physvol copynumber="iPMT">
+       <volumeref ref="Module" />
+      <rotation unit="deg" x="iPMT*90" />
+
+	    <position unit="mm" x="0"/>
+      <position unit="mm" y="Model1PMTPosY[iPMT+1]*(mediumZ/2.+lgZ+moduleZ/2.)"/>
+      <position unit="mm" z="Model1PMTPosZ[iPMT+1]*(mediumZ/2.+lgZ+moduleZ/2.)"/>
       </physvol>
 
 <!--

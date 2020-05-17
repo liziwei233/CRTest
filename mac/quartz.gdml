@@ -42,12 +42,24 @@
     </loop>
   </volume>
 -->
-
+  <volume name="Tracker">
+  <materialref ref="G4_Al" />
+  <solidref ref="TrackerS" />
+</volume>
 
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
-    
+    <!--
+    -->
+
+      <loop for="iTracker" to="TrackerN-1" step="1">
+      <physvol copynumber="iTracker">
+       <volumeref ref="Tracker" />
+
+	    <position unit="mm" x="TrackerPosX[iTracker+1]"/>
+      </physvol>
+      </loop>
 
       <physvol copynumber="0">
           <volumeref ref="Detector" />
@@ -96,16 +108,32 @@
   </bordersurface>
 -->
   
-  <skinsurface name="skin" surfaceproperty="Black_surf">
+  <skinsurface name="mediumskin" surfaceproperty="Black_surf">
 	<volumeref ref="medium"/>
   </skinsurface>
 
+  <!--
+  <skinsurface name="lgskin" surfaceproperty="lg_surf">
+	<volumeref ref="lightguide"/>
+  </skinsurface>
+  -->
 
+<bordersurface name="lgsideborder" surfaceproperty="lg_surf" >
+    <physvolref ref="Detector_PV"/>
+    <physvolref ref="lightguide_PV"/>
+  </bordersurface>
 
+<bordersurface name="lgborder" surfaceproperty="quartz_surf" >
+    <physvolref ref="medium_PV"/>
+    <physvolref ref="lightguide_PV"/>
+  </bordersurface>
+  
+  <!--
 <bordersurface name="SOborder" surfaceproperty="quartz_surf" >
     <physvolref ref="medium_PV"/>
     <physvolref ref="SO_PV"/>
   </bordersurface>
+  -->
 
 
   <bordersurface name="Alwrapborder" surfaceproperty="Al_surf" >
@@ -159,6 +187,14 @@
       </auxiliary>
 -->
 
+<!--
+
+      <auxiliary auxtype="Skin" auxvalue="lgSurf">
+        <auxiliary auxtype="SurfaceName" auxvalue="lg_surf" />
+        <auxiliary auxtype="LVname" auxvalue="lightguide" />
+          <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+      </auxiliary>
+-->
 
       <auxiliary auxtype="Skin" auxvalue="BlackWrapper">
         <auxiliary auxtype="SurfaceName" auxvalue="Black_surf" />
@@ -169,11 +205,18 @@
         <auxiliary auxtype="Material" auxvalue="endWrapper_Quartz" />
       </auxiliary>
 
+      <auxiliary auxtype="Border" auxvalue="lgsideborder">
+        <auxiliary auxtype="SurfaceName" auxvalue="lg_surf"/>
+        <auxiliary auxtype="PVname" auxvalue="Detector_PV" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_PV" />
+        <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
+      </auxiliary>
 
-      <auxiliary auxtype="Border" auxvalue="SOborder">
+
+      <auxiliary auxtype="Border" auxvalue="lgborder">
         <auxiliary auxtype="SurfaceName" auxvalue="quartz_surf"/>
         <auxiliary auxtype="PVname" auxvalue="medium_PV" />
-        <auxiliary auxtype="PVname" auxvalue="SO_PV" />
+        <auxiliary auxtype="PVname" auxvalue="lightguide_PV" />
         <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz"/>
       </auxiliary>
 

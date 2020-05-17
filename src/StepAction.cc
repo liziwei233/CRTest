@@ -55,10 +55,16 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         if (thePostPoint->GetStepStatus() == fGeomBoundary)
         {
 
-            if (thePrePV->GetName() == "World_PV" && thePostPV->GetName() == "Detector_PV")
+            if (thePrePV->GetName() == "World_PV" && thePostPV->GetName() == "Tracker_PV")
             {
                 MuonRecorder::Instance()->Record(theTrack);
                 MuonRecorder::Instance()->fDetID->push_back(thePostPV->GetCopyNo());
+            }
+
+            if (thePrePV->GetName() == "World_PV" && thePostPV->GetName() == "Detector_PV")
+            {
+                MuonRecorder::Instance()->Record(theTrack);
+                MuonRecorder::Instance()->fDetID->push_back(100+thePostPV->GetCopyNo());
             }
         }
         return;

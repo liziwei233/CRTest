@@ -12,5 +12,6 @@
 
 <opticalsurface name="scint_surf" model="unified" finish="polished" type="dielectric_metal" value="0"/>
 <opticalsurface name="photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
-<opticalsurface name="lg_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
+
+<opticalsurface name="lg_surf" model="unified" finish="ground" type="dielectric_dielectric" value="0.0*degree"/>
 <opticalsurface name="det_surf" model="unified" finish="polished" type="dielectric_metal" value="0.01"/>

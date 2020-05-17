@@ -95,8 +95,9 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
         
         G4ThreeVector position = GetWorldBoundary();
 
-//*
-//** put genaretor vetex upside 
+/*
+//
+//** put genaretor vetex upside y axis -> - y axis
 //       
         position.setX(position.x()*(1-2*G4UniformRand()));
         position.setY(position.y());
@@ -104,11 +105,11 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
         fParticleGun->SetParticlePosition(position);
         fParticleGun->SetParticleMomentumDirection(
             G4ThreeVector(particle->u(),particle->w(),-particle->v()));
-        
-
+  */      
+/*
 //
-//** put generator vetex on side plane        
-/* 
+//** put generator vetex on side plane   z axis -> - z axis
+ 
         position.setX(position.x()*(1-2*G4UniformRand()));
         position.setY(position.y()*(1-2*G4UniformRand()));
         position.setZ(position.z());
@@ -116,6 +117,16 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
         fParticleGun->SetParticleMomentumDirection(
             G4ThreeVector(particle->u(),particle->v(),particle->w()));
 */
+
+//
+//** put generator vetex on side plane   z axis -> - z axis
+ 
+        position.setX(position.x());
+        position.setY(position.y()*(1-2*G4UniformRand()));
+        position.setZ(position.z()*(1-2*G4UniformRand()));
+        fParticleGun->SetParticlePosition(position);
+        fParticleGun->SetParticleMomentumDirection(
+            G4ThreeVector(particle->w(),particle->v(),particle->u()));
 
         fParticleGun->GeneratePrimaryVertex(anEvent);
 

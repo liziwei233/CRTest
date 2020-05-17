@@ -6,7 +6,8 @@
 
 <box lunit="mm" name="worldS" x="worldX" y="worldY" z="worldZ" />
 
-
+<!-- Tracker -->
+<box lunit="mm" name="TrackerS" x="TrackerX" y="TrackerY" z="TrackerZ" />
 
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
@@ -30,14 +31,14 @@
 
 
 <xtru name = "theXtru" lunit= "mm" > 
-<twoDimVertex x="-42.93" y="-50" /> 
-<twoDimVertex x="42.93" y="-50" /> 
-<twoDimVertex x="50" y="-42.93" /> 
-<twoDimVertex x="50" y="42.93" /> 
-<twoDimVertex x="42.93" y="50" /> 
-<twoDimVertex x="-42.93" y="50" /> 
-<twoDimVertex x="-50" y="42.93" /> 
-<twoDimVertex x="-50" y="-42.93" /> 
+<twoDimVertex x="-1*mediumtru" y="-1*mediumY/2" /> 
+<twoDimVertex x="mediumtru" y="-1*mediumY/2" /> 
+<twoDimVertex x="1*mediumY/2" y="-1*mediumtru" /> 
+<twoDimVertex x="1*mediumY/2" y="mediumtru" /> 
+<twoDimVertex x="mediumtru" y="mediumY/2" /> 
+<twoDimVertex x="-1*mediumtru" y="mediumY/2" /> 
+<twoDimVertex x="-1*mediumY/2" y="mediumtru" /> 
+<twoDimVertex x="-1*mediumY/2" y="-1*mediumtru" /> 
 
   <section zOrder="1" zPosition="-5" xOffset="0" yOffset="0" scalingFactor="1" /> 
   <section zOrder="2" zPosition="5" xOffset="0" yOffset="0" scalingFactor="1" />
@@ -46,7 +47,19 @@
 
 
  <!-- lightguide -->
-<box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 
+<!--<box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> -->
+
+<trd name = "trd" x1="10" x2="10" y1="trdW" y2="10" z="trdZ" lunit= "mm"/>
+<tube name = "tube" rmin="0" rmax="pmtR" z="5" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+
+
+<union name="lgS_trd" > 
+<first ref="trd" /> 
+<second ref="tube"/> 
+<positionref ref="unionPos" /> 
+ </union>
+
+<tube name = "lgS_tube" rmin="0" rmax="pmtR" z="lgZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 
 <!-- optical glue -->
 <!--<box aunit="radian" lunit="mm" name="SiOilS" x="SiPMX" y="SiPMY" z="SOZ" />--> 

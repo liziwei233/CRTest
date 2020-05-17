@@ -7,8 +7,10 @@
 
 <!-- entire size,  not half! -->
 <variable name="mediumX" value="10"/>
-<variable name="mediumY" value="100"/>
-<variable name="mediumZ" value="100"/>
+<variable name="mediumY" value="180"/>
+<variable name="mediumZ" value="180"/>
+
+
 
 <variable name="AlwrapX" value="1"/>
 <variable name="AlwrapY" value="mediumY"/>
@@ -19,18 +21,29 @@
 <variable name="interval " value="0.2"/>
 <variable name="pmtR" value="5"/>
 
-<variable name="mediumposZ" value="(mediumZ/2.*sqrt(2)-pmtR)*2"/>
 <variable name="SOZ" value="0.01"/>
 <variable name="pmtZ" value="0.1"/>
 <variable name="windowZ" value="1.5"/>
 <variable name="moduleZ" value="pmtZ+windowZ+SOZ"/>
 
-<variable name="lgZ" value="38"/>
+
+<variable name="trdZ" value="5"/>
+<variable name="trdW" value="10"/>
+<variable name="lgZ" value="5"/>
+
+<variable name="mediumtru" value="mediumY/2-trdW/sqrt(2)"/>
+<variable name="mediumposZ" value="mediumY*sqrt(2)-trdW"/>
+
 
 <!-- Detector Configuration -->
-<variable name="detectorX" value="mediumX+0.01+pmtZ*2+windowZ*2+SOZ*2" />
-<variable name="detectorY" value="mediumY+0.01+pmtZ*2+windowZ*2+SOZ*2" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2" />
+<variable name="detectorX" value="mediumX+0.01+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
+<variable name="detectorY" value="mediumY+0.01+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
+<variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
+
+<!-- Tracker Configuration -->
+<variable name="TrackerX" value="15" />
+<variable name="TrackerY" value="150" />
+<variable name="TrackerZ" value="150" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>
@@ -38,6 +51,7 @@
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
+<position name="unionPos" unit="mm" x="0" y="0" z="lgZ/2" />
 <rotation name="rot" unit="deg" x="90" y="" z=""/>
 
 <!--<constant name="detectorN" value="4" />
@@ -45,25 +59,31 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*10.+500" />
-<variable name="worldY" value="detectorY*10.+500" />
-<variable name="worldZ" value="detectorZ*4.+500" />
+<variable name="worldX" value="detectorX*2+500" />
+<variable name="worldY" value="detectorY*4" />
+<variable name="worldZ" value="detectorZ*4" />
 
 <!-- Others-->
 <variable name="iDetector" value="0" />
 <constant name="detectorN" value="4" />
 <matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />
 
+<variable name="iTracker" value="0" />
+<constant name="TrackerN" value="5" />
+<variable name="gap" value="50" />
+
+<matrix name="TrackerPosX" coldim="1" values="200 135 70 -150 -215" />
+
 <variable name="iPMT" value="0" />
 <constant name="PMTN" value="4" />
 <matrix name="PMTPosX" coldim="1" values="0. -14. -28 -42" />
+
 <matrix name="PMTPosY" coldim="1" values="1. 1. -1. -1." />
 <matrix name="PMTPosZ" coldim="1" values="1. -1. -1. 1." />
 
-<!--
-<matrix name="PMTPosY" coldim="1" values="0. 1. 0. -1." />
-<matrix name="PMTPosZ" coldim="1" values="1. 0. -1. 0." />
--->
+<matrix name="Model1PMTPosY" coldim="1" values="0. 1. 0. -1." />
+<matrix name="Model1PMTPosZ" coldim="1" values="1. 0. -1. 0." />
+
 <variable name="iSiPM" value="0" />
 <constant name="SiPMN" value="16" />
 <matrix name="SiPMPosX" coldim="1" values="-4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 " />
