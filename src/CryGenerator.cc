@@ -119,7 +119,7 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
 */
 
 //
-//** put generator vetex on side plane   z axis -> - z axis
+//** put generator vetex on side plane   x axis -> - x axis
  
         position.setX(position.x());
         position.setY(position.y()*(1-2*G4UniformRand()));

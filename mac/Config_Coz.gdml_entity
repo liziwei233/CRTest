@@ -59,9 +59,15 @@
 
 
 <!-- World Configuration-->
+<!--
 <variable name="worldX" value="detectorX*2+500" />
 <variable name="worldY" value="detectorY*4" />
 <variable name="worldZ" value="detectorZ*4" />
+-->
+<variable name="worldX" value="detectorX+20" />
+<variable name="worldY" value="detectorY+20" />
+<variable name="worldZ" value="detectorZ+20" />
+
 
 <!-- Others-->
 <variable name="iDetector" value="0" />

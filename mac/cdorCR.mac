@@ -6,5 +6,5 @@
 /run/initialize
 
 /CRTest/generator/set CRY
-/run/beamOn 100
+/run/beamOn 200
 

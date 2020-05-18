@@ -51,7 +51,6 @@
     <materialref ref="AIR" />
     <solidref ref="worldS" />
     <!--
-    -->
 
       <loop for="iTracker" to="TrackerN-1" step="1">
       <physvol copynumber="iTracker">
@@ -60,6 +59,7 @@
 	    <position unit="mm" x="TrackerPosX[iTracker+1]"/>
       </physvol>
       </loop>
+    -->
 
       <physvol copynumber="0">
           <volumeref ref="Detector" />
