@@ -7,10 +7,10 @@
     <- PMT -->
 
 <volume name="medium">
-  <!--
   <materialref ref="SiO2" />
-  -->
+  <!--
   <materialref ref="AIR" />
+  -->
   <solidref ref="mediumS" />
   <!--
   <solidref ref="theXtru" />

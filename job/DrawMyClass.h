@@ -24,7 +24,10 @@
 char buff[1024];
 char line[180];
 int counter = 0;
-
+Color_t clr[] = {kPink - 1, kOrange + 7, kOrange - 2, kGreen + 2, kCyan + 1, kBlue + 1, kMagenta - 9, 1, 2, 4, 6, 7};
+Marker_t mk[] = {20, 21, 23, 29, 33, 49, 41};
+Color_t clr2[] = { kRed + 1,1, kGreen + 2, kOrange + 1, kBlue + 1, kOrange + 7, kMagenta - 9, 1, 2, 4, 6, 7};
+Style_t Lst[] = {1,3,4,6,7,8,9,10};
 //TFile *sfile = NULL;
 //TFile *prefile = NULL;
 

@@ -65,7 +65,7 @@
 #
 # Many other options are available with /vis/modeling and /vis/filtering.
 # For example, to select colour by particle ID:
-/vis/modeling/trajectories/create/drawByParticleID
+#/vis/modeling/trajectories/create/drawByParticleID
 #/vis/modeling/trajectories/drawByParticleID-0/default/setDrawStepPts true
 # To select or override default colours (note: e+ is blue by default):
 #/vis/modeling/trajectories/list
@@ -75,7 +75,7 @@
 /vis/scene/endOfEventAction accumulate
 #
 # Re-establish auto refreshing and verbosity:
-/vis/viewer/set/autoRefresh true
+#/vis/viewer/set/autoRefresh true
 /vis/verbose warnings
 #
 # For file-based drivers, use this to create an empty detector view:

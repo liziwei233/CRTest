@@ -122,8 +122,11 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
 //** put generator vetex on side plane   x axis -> - x axis
  
         position.setX(position.x());
-        position.setY(position.y()*(1-2*G4UniformRand()));
-        position.setZ(position.z()*(1-2*G4UniformRand()));
+        position.setY(0);
+        position.setZ(0);
+
+        //position.setY(position.y()*(1-2*G4UniformRand()));
+        //position.setZ(position.z()*(1-2*G4UniformRand()));
         fParticleGun->SetParticlePosition(position);
         fParticleGun->SetParticleMomentumDirection(
             G4ThreeVector(particle->w(),particle->v(),particle->u()));

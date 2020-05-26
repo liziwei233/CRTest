@@ -42,9 +42,12 @@ void PduGenerator::GeneratePrimaries(G4Event *anEvent)
 {
   // muon position
   G4ThreeVector position = GetWorldBoundary();
-  position.setX(position.x() * (1 - 2 * G4UniformRand()));
+  position.setX(position.x());
   position.setY(position.y() * (1 - 2 * G4UniformRand()));
-  position.setZ(-position.z());
+  position.setZ(position.z() * (1 - 2 * G4UniformRand()));
+  //position.setX(position.x() * (1 - 2 * G4UniformRand()));
+  //position.setY(position.y() * (1 - 2 * G4UniformRand()));
+  //position.setZ(-position.z());
   fParticleGun->SetParticlePosition(position);
 
   // muon kinetic energy
@@ -54,10 +57,15 @@ void PduGenerator::GeneratePrimaries(G4Event *anEvent)
 
   // muon momentum direction
   G4double phi = G4UniformRand() * TMath::Pi() * 2.;
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(-1*TMath::Cos(theta),
+      TMath::Sin(theta) * TMath::Sin(phi),
+      TMath::Sin(theta) * TMath::Cos(phi)
+      ));
+      /*
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(
       TMath::Cos(theta) * TMath::Cos(phi),
       TMath::Cos(theta) * TMath::Sin(phi),
-      TMath::Sin(theta)));
+      TMath::Sin(theta)));*/
 
   fParticleGun->GeneratePrimaryVertex(anEvent);
 }
@@ -74,7 +82,7 @@ G4double PduGenerator::GetTheta()
     val = TMath::Cos(theta) * TMath::Cos(theta);
     rnd = G4UniformRand();
   } while (rnd > val);
-  return val;
+  return theta;
 }
 
 G4ThreeVector PduGenerator::GetDirection()
