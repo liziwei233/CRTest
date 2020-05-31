@@ -171,18 +171,20 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
         g->Draw();
         exp[i] = g->GetFunction("pol1")->Eval(targetX);
         //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
-        delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][0])-g->GetFunction("pol1")->Eval(p[0][N-1]);
+        delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][N-1])-g->GetFunction("pol1")->Eval(p[0][0]);
     }
     *targetY = exp[0];
     *targetZ = exp[1];
     // x =(1,0,0), line=()
-    delta[0] = p[0][0] - p[0][N - 1];
+    delta[0] = p[0][N-1] - p[0][0];
     v1.SetX(delta[0]);
     v1.SetY(delta[1]);
     v1.SetZ(delta[2]);
-    *theta = v1.Angle(vXaxis);
-    *phi = TMath::ACos(v1.z() / v1.Perp());
-    cout<<"theta = "<< *theta<<", phi"<<*phi<<endl;
+    //*theta = v1.Angle(vXaxis);
+    *theta = TMath::ACos(-1*v1.x()/v1.Mag());
+    *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z()*v1.z()+v1.y()*v1.y()));
+    if(v1.y()<0) *phi = -1 * (*phi);
+    //cout<<"theta = "<< *theta<<", phi"<<*phi<<endl;
     /*
     cout<<"theta 1 = "<< *theta<<endl;
     *theta = TMath::ACos(delta[0]/TMath::Sqrt(delta[1]*delta[1]+delta[2]*delta[2]+delta[0]*delta[0])); //Unit: rad
@@ -463,7 +465,10 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
                         InPY[j + Detcounter * 4] = (*IncidPY)[i];
                         InPZ[j + Detcounter * 4] = (*IncidPZ)[i];
                         Intheta[j + Detcounter * 4] = TMath::ACos(-1 * InPX[j + Detcounter * 4]);
-                        Inphi[j + Detcounter * 4] = TMath::ATan(InPY[j + Detcounter * 4] / InPZ[j + Detcounter * 4]);
+
+                        Inphi[j + Detcounter * 4] = TMath::ACos(InPZ[j + Detcounter * 4]/ TMath::Sqrt(InPY[j + Detcounter * 4] * InPY[j + Detcounter * 4]+InPZ[j + Detcounter * 4]*InPZ[j + Detcounter * 4]));
+                        if(InPY[j + Detcounter * 4]<0) Inphi[j + Detcounter * 4] = -1 * Inphi[j + Detcounter * 4];
+                        //Inphi[j + Detcounter * 4] = TMath::ATan(InPY[j + Detcounter * 4] / InPZ[j + Detcounter * 4]);
                         //cout<< "SIMU Y ,Z " <<InY[j]<<", "<<InZ[j]<<endl;
                         //cout<<"theta SIMU = "<< Intheta[j]<<endl;
                         //cout<<"Phi SIMU = "<< Inphi[j]<<endl;
@@ -853,7 +858,7 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
 
     TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
     TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
-    TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -1.5, 1.5);
+    TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
     TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
     TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
 
