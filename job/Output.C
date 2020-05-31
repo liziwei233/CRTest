@@ -200,7 +200,7 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
 
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 char path[1000] = "/Users/liziwei/learning/CRTest/build";
-void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
+void CalculateTR(const char *path="", const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -1352,7 +1352,7 @@ void PrintResults(const char *rootname = "x2y2z1data")
     */
 }
 
-void Output(const char *rootname = "x2y2z1_model2blackwrap")
+void Output(const char *path="", const char *rootname = "")
 {
     gStyle->SetOptFit(111);
     char buff[1024];
@@ -1361,10 +1361,10 @@ void Output(const char *rootname = "x2y2z1_model2blackwrap")
     if (gSystem->AccessPathName(buff))
     {
         cout << "==> the file isn't exist!" << endl;
-        CalculateTR(rootname, 0.2, "CFD", 1);
+        CalculateTR(path, rootname, 0.2, "CFD", 1);
     }
     sprintf(buff, "%sdata", rootname);
-    PrintResults(buff);
+    //PrintResults(buff);
 }
 
 void readdatresults()
