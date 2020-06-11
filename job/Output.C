@@ -171,19 +171,20 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
         g->Draw();
         exp[i] = g->GetFunction("pol1")->Eval(targetX);
         //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
-        delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][N-1])-g->GetFunction("pol1")->Eval(p[0][0]);
+        delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][N - 1]) - g->GetFunction("pol1")->Eval(p[0][0]);
     }
     *targetY = exp[0];
     *targetZ = exp[1];
     // x =(1,0,0), line=()
-    delta[0] = p[0][N-1] - p[0][0];
+    delta[0] = p[0][N - 1] - p[0][0];
     v1.SetX(delta[0]);
     v1.SetY(delta[1]);
     v1.SetZ(delta[2]);
     //*theta = v1.Angle(vXaxis);
-    *theta = TMath::ACos(-1*v1.x()/v1.Mag());
-    *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z()*v1.z()+v1.y()*v1.y()));
-    if(v1.y()<0) *phi = -1 * (*phi);
+    *theta = TMath::ACos(-1 * v1.x() / v1.Mag());
+    *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
+    if (v1.y() < 0)
+        *phi = -1 * (*phi);
     //cout<<"theta = "<< *theta<<", phi"<<*phi<<endl;
     /*
     cout<<"theta 1 = "<< *theta<<endl;
@@ -201,7 +202,8 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
 }
 
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
-char path[1000] = "/Users/liziwei/learning/CRTest/build";
+//char path[1000] = "/Users/liziwei/learning/CRTest/build";
+char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
 void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
@@ -466,8 +468,9 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
                         InPZ[j + Detcounter * 4] = (*IncidPZ)[i];
                         Intheta[j + Detcounter * 4] = TMath::ACos(-1 * InPX[j + Detcounter * 4]);
 
-                        Inphi[j + Detcounter * 4] = TMath::ACos(InPZ[j + Detcounter * 4]/ TMath::Sqrt(InPY[j + Detcounter * 4] * InPY[j + Detcounter * 4]+InPZ[j + Detcounter * 4]*InPZ[j + Detcounter * 4]));
-                        if(InPY[j + Detcounter * 4]<0) Inphi[j + Detcounter * 4] = -1 * Inphi[j + Detcounter * 4];
+                        Inphi[j + Detcounter * 4] = TMath::ACos(InPZ[j + Detcounter * 4] / TMath::Sqrt(InPY[j + Detcounter * 4] * InPY[j + Detcounter * 4] + InPZ[j + Detcounter * 4] * InPZ[j + Detcounter * 4]));
+                        if (InPY[j + Detcounter * 4] < 0)
+                            Inphi[j + Detcounter * 4] = -1 * Inphi[j + Detcounter * 4];
                         //Inphi[j + Detcounter * 4] = TMath::ATan(InPY[j + Detcounter * 4] / InPZ[j + Detcounter * 4]);
                         //cout<< "SIMU Y ,Z " <<InY[j]<<", "<<InZ[j]<<endl;
                         //cout<<"theta SIMU = "<< Intheta[j]<<endl;
@@ -478,8 +481,8 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
                 else
                 {
                     TrackerX[Trackercounter] = IncidX->at(i);
-                    TrackerY[Trackercounter] = IncidY->at(i)+r.Gaus(0, possigma);
-                    TrackerZ[Trackercounter] = IncidZ->at(i)+r.Gaus(0, possigma);
+                    TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
+                    TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
                     Trackercounter++;
                 }
             }
@@ -861,32 +864,50 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
     TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
     TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
+    TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
 
-    TH2D *hpos = new TH2D("hpos",";Y (mm); Z (mm)",200,-90,90,200,-90,90);
+    TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
 
-    TH2D *hNPE = new TH2D("hNPE",";PMTID; NPE",8,0,8,16,-1,15);
+    TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
+    TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
+
     TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
     TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
     TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
-    
+
     double DetTime[2] = {0};
     double FlyTime = 0;
     int N = t->GetEntries();
     double Timestamp = 0;
     double TimeSum = 0;
+    double PMTtime = 0;
     for (int i = 0; i < N; i++)
     {
         t->GetEntry(i);
-        hdtheta->Fill(Caltheta[0]-Intheta[0]);
-        hdphi->Fill(Calphi[0]-Inphi[0]);
+        hdtheta->Fill(Caltheta[0] - Intheta[0]);
+        hdphi->Fill(Calphi[0] - Inphi[0]);
         htheta->Fill(Caltheta[0]);
         hphi->Fill(Calphi[0]);
-        hpos->Fill(InY[0],InZ[0]);
-        
+        hpos->Fill(InY[0], InZ[0]);
 
+        for (int s = 0; s < T; s++)
+        {
 
+            hNPE->Fill(CHID[s], NPE[s]);
+        }
         Timestamp = 0;
+        PMTtime = 0;
         //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
+        int PMTcounter = 0;
+        for (int k = 0; k < PMTN; k++)
+        {
+            if (U[PMTN + k] < 0 && xT0[PMTN + k] != 0 && U[k] < 0 && xT0[k] != 0)
+            {
+                PMTtime += xT0[PMTN + k] - xT0[k];
+                PMTcounter++;
+            }
+        }
+        /*
         for (int j = 0; j < DetN; j++)
         {
             int PMTcounter = 0;
@@ -894,23 +915,43 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
             TimeSum = 0;
             for (int k = 0; k < PMTN; k++)
             {
-                hNPE->Fill(CHID[j * PMTN + k],NPE[j * PMTN + k]);
+                //hNPE->Fill(CHID[j * PMTN + k],NPE[j * PMTN + k]);
                 //if (1)
                 if (U[j * PMTN + k] < 0 && xT0[j * PMTN + k] != 0)
                 {
+                    
                     TimeSum += xT0[j * PMTN + k];
                     PMTcounter++;
                     //cout << "DetTime " << PMTcounter << "\t," << TimeSum << endl;
                 }
             }
-            if (PMTcounter >= 4)
+            //if (InY[0]*InY[0]+InZ[0]*InZ[0]<5*5)
+            //if (PMTcounter == 1)
+            if (1)
             {
-                DetTime[j] = TimeSum / PMTcounter;
+                DetTime[j] = xT0[j * PMTN + 3];
+                //DetTime[j] = TimeSum / PMTcounter;
                 //cout << "DetTime & PMTcounter: " << PMTcounter << "& " << DetTime[j] << endl;
             }
         }
-        FlyTime = (InX[PMTN] - InX[0]) / cos(Caltheta[0]) / 1.e3 / 3.e8 * 1.e9;
+        */
+        FlyTime = (InX[0] - InX[PMTN]) / cos(Caltheta[0]) / 1.e3 / 3.e8 * 1.e9;
+        Timestamp = PMTtime / PMTcounter - FlyTime;
+        hNPMT->Fill(PMTcounter);
+        h2dPMT->Fill(PMTcounter,Timestamp);
+
         //cout<<"FlyTime"<<FlyTime<<endl;
+        if (PMTcounter >= 1)
+        {
+
+            //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
+            //cout << "timestamp: " << Timestamp << endl;
+            ht->Fill(Timestamp);
+            htheta_cut->Fill(Caltheta[0]);
+            hphi_cut->Fill(Calphi[0]);
+            hpos_cut->Fill(InY[0], InZ[0]);
+        }
+        /*
         if (DetTime[1] > 0 && DetTime[0] > 0)
         {
 
@@ -922,104 +963,142 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
             hphi_cut->Fill(Calphi[0]);
             hpos_cut->Fill(InY[0],InZ[0]);
         }
+        */
     }
     TCanvas *c;
-    int CNum=0;
-    TF1* fit;
+    int CNum = 0;
+    TF1 *fit;
     TLegend *leg;
     TLatex *la;
+
+    char pngprefix[100];
+    sprintf(pngprefix, "%s/ALLPMT", path);
+    //
+    // ---------draw Time Res --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(ht, "", "", 1, 2);
+    //ht->Rebin(2);
+    ht->Draw();
+    fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sTimeRes.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+    //
+    // ---------draw Number of fired PMT--------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hNPMT, "", "", 1, 2);
+    //ht->Rebin(2);
+    hNPMT->Draw();
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sNPMT.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+    //
+    // ---------draw NPMT vs TR --------//
+    //
+    c = cdC(CNum++);
+    DrawMy2dHist(h2dPMT, "", "", 1, 2);
+    //ht->Rebin(2);
+    h2dPMT->Draw("colz");
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%s2dPMT.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
 
 
     //
     // ---------draw delta theta --------//
     //
-    c=cdC(CNum++);
-    DrawMyHist(hdtheta,"","",1,2);
+    c = cdC(CNum++);
+    DrawMyHist(hdtheta, "", "", 1, 2);
     //ht->Rebin(2);
+    hdtheta->GetXaxis()->SetNdivisions(505);
     hdtheta->Draw();
-    fit = gausfit(hdtheta,1e-3,3,3,1,-0.1,0.1);
-    sprintf(buff,"#sigma_{#theta}=%.0fmrad",fit->GetParameter(2)*1e3);
-    la = DrawMyLatex(buff,0.2,0.4);
-    sprintf(buff, "%s/%sdeltatheta.png", path, rootname);
+    fit = gausfit(hdtheta, 1e-3, 3, 3, 1, -0.1, 0.1);
+    sprintf(buff, "#sigma_{#theta}=%.0fmrad", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltatheta.png", pngprefix);
     c->SaveAs(buff);
+
     //
     // ---------draw delta phi --------//
     //
-    c=cdC(CNum++);
-    DrawMyHist(hdphi,"","",1,2);
+    c = cdC(CNum++);
+    DrawMyHist(hdphi, "", "", 1, 2);
     //ht->Rebin(2);
+    hdphi->GetXaxis()->SetNdivisions(505);
     hdphi->Draw();
-    fit = gausfit(hdphi,10e-3,3,3,1,-0.1,0.1);
-    sprintf(buff,"#sigma_{#phi}=%.0fmrad",fit->GetParameter(2)*1e3);
-    la = DrawMyLatex(buff,0.2,0.4);
-    sprintf(buff, "%s/%sdeltaphi.png", path, rootname);
+    fit = gausfit(hdphi, 1e-3, 3, 3, 1, -0.1, 0.1);
+    sprintf(buff, "#sigma_{#phi}=%.0fmrad", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltaphi.png", pngprefix);
     c->SaveAs(buff);
 
-
-    //
-    // ---------draw Time Res --------//
-    //
-    c=cdC(CNum++);
-    DrawMyHist(ht,"","",1,2);
-    //ht->Rebin(2);
-    ht->Draw();
-    fit = gausfit(ht,20e-3,3,3,1,tL,tR);
-    sprintf(buff,"TR=%.0fps",fit->GetParameter(2)*1e3);
-    la = DrawMyLatex(buff,0.2,0.4);
-    sprintf(buff, "%s/%sTimeRes.png", path, rootname);
-    c->SaveAs(buff);
     //
     // ---------draw NPE --------//
     //
-    c=cdC(CNum++);
-    SetMyPad(gPad,0.15,0.15,0.05,0.15);
-    DrawMy2dHist(hNPE,"","");
+    c = cdC(CNum++);
+    SetMyPad(gPad, 0.15, 0.15, 0.05, 0.15);
+    DrawMy2dHist(hNPE, "", "");
     hNPE->Draw("colz");
-    sprintf(buff, "%s/%sNPE.png", path, rootname);
+    sprintf(buff, "%sNPE.png", pngprefix);
     c->SaveAs(buff);
 
     //
     // ---------draw theta --------//
     //
-    c=cdC(CNum++);
-    leg = DrawMyLeg(0.6,0.7,0.8,0.9);
-    DrawMyHist(htheta,"","",1,2);
+    c = cdC(CNum++);
+    leg = DrawMyLeg(0.6, 0.7, 0.8, 0.9);
+    DrawMyHist(htheta, "", "", 1, 2);
     htheta->Draw();
-    leg->AddEntry(htheta,"No cut","l");
-    DrawMyHist(htheta_cut,"","",2,2);
+    leg->AddEntry(htheta, "No cut", "l");
+    DrawMyHist(htheta_cut, "", "", 2, 2);
     htheta_cut->Draw("SAME");
-    leg->AddEntry(htheta_cut,"All NPE>0","l");
+    leg->AddEntry(htheta_cut, "All NPE>0", "l");
     leg->Draw();
-    sprintf(buff, "%s/%stheta.png", path, rootname);
+    sprintf(buff, "%stheta.png", pngprefix);
     c->SaveAs(buff);
     //
     // ---------draw phi --------//
     //
-    c=cdC(CNum++);
-    DrawMyHist(hphi,"","",1,2);
+    c = cdC(CNum++);
+    DrawMyHist(hphi, "", "", 1, 2);
     hphi->Draw();
-    DrawMyHist(hphi_cut,"","",2,2);
+    hphi->GetYaxis()->SetRangeUser(0, 15e3);
+    DrawMyHist(hphi_cut, "", "", 2, 2);
+    //hphi_cut->Draw("");
     hphi_cut->Draw("SAME");
     leg->Draw();
-    leg->Draw();
-
-    leg = DrawMyLeg(0.6,0.8,0.9,0.9);
-    leg->SetNColumns(2);
-    sprintf(buff, "%s/%sphi.png", path, rootname);
+    sprintf(buff, "%sphi.png", pngprefix);
     c->SaveAs(buff);
+
     //
     // ---------draw hit pos--------//
     //
-    c=cdC(CNum++);
-    DrawMy2dHist(hpos,"","",24,1,1);
+    leg = DrawMyLeg(0.6, 0.85, 0.9, 0.9);
+    leg->SetNColumns(2);
+    c = cdC(CNum++, 800, 800);
+    DrawMy2dHist(hpos, "", "", 24, 1, 1);
     hpos->Draw();
-    leg->AddEntry(hpos,"No cut","l");
+    leg->AddEntry(hpos, "No cut", "l");
 
-    DrawMy2dHist(hpos_cut,"","",3,2,1);
+    DrawMy2dHist(hpos_cut, "", "", 3, 2, 1);
     hpos_cut->Draw("SAME");
-    leg->AddEntry(hpos_cut,"All NPE>0","p");
+    leg->AddEntry(hpos_cut, "All NPE>0", "p");
     leg->Draw();
-    sprintf(buff, "%s/%shitpos.png", path, rootname);
+    sprintf(buff, "E=%.2f", hpos_cut->Integral() / hpos->Integral());
+    la = DrawMyLatex(buff, 0.2, 0.85);
+    sprintf(buff, "%shitpos.png", pngprefix);
     c->SaveAs(buff);
 }
 

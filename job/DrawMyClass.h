@@ -337,10 +337,10 @@ void DrawMyPad(TVirtualPad *pad, const char *xname, const char *yname, float x1,
     pad->Modified();
     pad->Update();
 }
-TCanvas *cdC(int n, double left = 0.15, double right = 0.1, double up = 0.1, double down = 0.15)
+TCanvas *cdC(int n, double w=800, double h=600, double left = 0.15, double right = 0.1, double up = 0.1, double down = 0.15)
 {
     sprintf(buff, "c%d", n);
-    TCanvas *c = new TCanvas(buff, buff, 800, 600);
+    TCanvas *c = new TCanvas(buff, buff, w, h);
     c->cd();
     //gPad->SetGrid();
     //SetMyPad(gPad, 0.15, 0.05, 0.1, 0.14);
