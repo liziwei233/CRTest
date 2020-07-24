@@ -8,6 +8,7 @@
 #include "G4Event.hh"
 #include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
+#include "G4IonTable.hh"
 #include "G4ParticleDefinition.hh"
 
 #include "G4LogicalVolumeStore.hh"
@@ -39,6 +40,19 @@ Generator::~Generator()
 
 void Generator::GeneratePrimaries(G4Event *anEvent)
 {
+     G4ParticleDefinition* particle = fParticleGun->GetParticleDefinition();
+  if (particle == G4ParticleTable::GetParticleTable()->FindParticle("mu-")) {
+    //fluorine 
+    G4int Z = 92, A = 238;
+    G4double ionCharge   = 72.*eplus;
+    G4double excitEnergy = 0.*keV;
+    
+    G4ParticleDefinition* ion
+       = G4IonTable::GetIonTable()->GetIon(Z,A,excitEnergy);
+    fParticleGun->SetParticleDefinition(ion);
+    fParticleGun->SetParticleCharge(ionCharge);
+  }
+
     G4ThreeVector position = GetWorldBoundary();
     position.setX(0. );
     //position.setY(0.75 *cm);
