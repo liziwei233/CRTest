@@ -12,7 +12,8 @@ cluster=$6
 rootname=${NAME}/${process}
 mkdir ${NAME}
 echo ${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} ${process} 
-${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} ${process} 
+#${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} ${process} 
+
 #echo $NAME > $PWD/name.log
 #root -b -q "MultiTiersOutputfun_SiPM.C(\"$NAME\")"
 

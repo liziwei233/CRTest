@@ -11,7 +11,7 @@ EXE = g4exe.sh
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 500
+N_JOBS = 200
 
 OUT_DIR = /home/lizw/work/condor_output
 
@@ -19,7 +19,7 @@ initialdir = /home/lizw/work/CRTest/job
 
 datadir = /home/lizw/work/CRTest/build
 
-RUNname = Pdu10million
+RUNname = Pdu1million
 
 Universe = vanilla
 
