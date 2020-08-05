@@ -1,0 +1,58 @@
+#/anaysis/verbose 1
+/run/verbose 0
+/run/initialize
+
+/control/verbose 0
+/tracking/verbose 0
+/event/verbose 0
+/gps/verbose 2
+/gps/particle e-
+#/gps/pos/type Point
+/gps/pos/type Plane
+#/gps/pos/shape Square
+/gps/pos/shape Circle
+/gps/pos/centre -5.1 0. 0 mm
+#/gps/pos/halfx 2.5 mm
+#/gps/pos/halfy 2.5 mm
+/gps/pos/radius 0.5 mm
+#/gps/pos/rot1 1 0 0
+/gps/pos/rot2 1 0 0
+
+#/gps/pos/halfx 2.5 mm
+#/gps/pos/halfy 2.5 cm
+/gps/ang/type beam2d
+#/gps/ang/rot1 0 -1 0
+#/gps/ang/rot2 0 1 0
+/gps/direction 0 0 1 
+
+
+/gps/ene/type Arb
+/gps/hist/type arb
+/gps/hist/point 0. 0.
+/gps/hist/point 0.486131 586.294
+/gps/hist/point 0.665693 1401.02
+/gps/hist/point 0.70073	1979.7
+/gps/hist/point 0.792701 2474.62
+/gps/hist/point 0.818978 2588.83
+/gps/hist/point 0.840876 2581.22
+/gps/hist/point 0.867153 2573.6
+/gps/hist/point 0.889051 2543.15
+/gps/hist/point 0.919708 2497.46
+/gps/hist/point 0.959124 2444.16
+/gps/hist/point 1.05547 2261.42
+/gps/hist/point 1.09051 2162.44
+/gps/hist/point 1.13431 2093.91
+/gps/hist/point 1.16934	1972.08
+/gps/hist/point 1.18248	1857.87
+/gps/hist/point 1.28321	1545.69
+/gps/hist/point 1.34891	1355.33
+/gps/hist/point 1.43212	1203.05
+/gps/hist/point 1.58978	921.32
+/gps/hist/point 1.65109	791.878
+/gps/hist/point 1.8219 403.553
+/gps/hist/point 1.93139	296.954
+/gps/hist/inter Log
+
+#/run/initialize
+/run/beamOn 10
+#/run/beamOn 100
