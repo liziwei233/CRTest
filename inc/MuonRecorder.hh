@@ -16,7 +16,7 @@
 #include "G4Track.hh"
 
 #include "globals.hh"
-
+#include <map>
 class MuonRecorder : public VirtualRecorder {
 
 public:
@@ -34,6 +34,7 @@ public:
 	
 	G4bool Record(const G4Track*);
 	std::vector<int>* fDetID;
+	std::map<int, bool> flag; 
 
 private:
 	static MuonRecorder* fgInstance;
@@ -49,6 +50,7 @@ private: // Muon Track Information
 	std::vector<double>* fPX;
 	std::vector<double>* fPY;
 	std::vector<double>* fPZ;
+	
 };
 
 #endif
