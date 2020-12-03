@@ -61,6 +61,7 @@ void MuonRecorder::Reset()
 	std::vector<double>().swap(*fPZ);
 
 	std::vector<int>().swap(*fDetID);
+	std::map<int, bool>().swap(flag); 
 }
 void MuonRecorder::CreateEntry(
 	G4int ntupleID, G4RootAnalysisManager* rootData)

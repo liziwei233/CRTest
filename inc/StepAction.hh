@@ -20,8 +20,12 @@ public:
     virtual ~StepAction();
 public:
     virtual void UserSteppingAction(const G4Step*);
+    int CalculateCopyNo(const G4StepPoint *thePoint);
 private:
     G4bool BoundaryStats(G4OpBoundaryProcess*);
+
+     
+    
 };
 
 #endif /*CRTest_StepAction_h*/

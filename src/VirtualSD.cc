@@ -38,7 +38,7 @@ VirtualSD::~VirtualSD(){
 	delete fHitPZ;
 	delete fHitID;
 }
-
+//the number of replicas in each hierarchy
 void VirtualSD::CalculateNoPhysvols(const G4StepPoint* thePoint){
 	// VERBOSE
 	G4cout << "[+] VERBOSE - Physical Volume : Numbers" << G4endl;
@@ -47,7 +47,7 @@ void VirtualSD::CalculateNoPhysvols(const G4StepPoint* thePoint){
 
 	G4TouchableHistory* touchable
 		= (G4TouchableHistory*)(thePoint->GetTouchable());
-	for(int i = 0 ; i < 10 ; i++){
+	for(int i = 0 ; i < touchable->GetHistoryDepth() ; i++){
 		G4VPhysicalVolume* thePV = touchable->GetVolume(i);
 		G4String pvName = thePV->GetName();
 		if(pvName == "World_PV")
@@ -55,12 +55,14 @@ void VirtualSD::CalculateNoPhysvols(const G4StepPoint* thePoint){
 		int nSibling = 
 			thePV->GetMotherLogical()->GetNoDaughters();
 		int nPV = 0;
-		for(int idxPV = 0 ; idxPV < nSibling ; idxPV++)
+		for(int idxPV = 0 ; idxPV < nSibling ; idxPV++){
+
 			if(thePV->GetMotherLogical()->GetDaughter(idxPV)->GetName()
 				== pvName)
 				nPV ++;
+		}
 		fNphysvol->push_back(nPV);
-		fNvolume *= nPV;
+		fNvolume *= nPV; //total
 		// VERBOSE
 		G4cout << "\t" << pvName << "\t" << nPV << G4endl;
 	}
