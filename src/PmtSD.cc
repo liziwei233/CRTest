@@ -76,7 +76,8 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	// TODO : move to DumpHit and call in EndOfEvent
 	fHitCopyNo->push_back(copyNo);
 	fHitEk->push_back(theParticle->GetKineticEnergy());
-	fHitTime->push_back(theParticle->GetGlobalTime());
+	//fHitTime->push_back(theParticle->GetGlobalTime());
+	fHitTime->push_back(theParticle->GetLocalTime());
 
 	fHitID->push_back(theTrack->GetTrackID());
 

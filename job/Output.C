@@ -774,6 +774,8 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     //***************************************************//
     double tL = -1.;
     double tR = 1.;
+    //double tL = 0.;
+    //double tR = 2.;
 
     double uL = -1e3;
     double uR = 0;
@@ -869,11 +871,14 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
     TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
     
+    double theTime[2] = {0};
     double DetTime[2] = {0};
+    double DetFastTime[2] = {0};
     double FlyTime = 0;
     int N = t->GetEntries();
     double Timestamp = 0;
     double TimeSum = 0;
+    vector<double> vecTime;
     for (int i = 0; i < N; i++)
     {
         t->GetEntry(i);
@@ -891,18 +896,23 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
         {
             int PMTcounter = 0;
             DetTime[j] = 0;
+            DetFastTime[j] = 0;
             TimeSum = 0;
+            vecTime.clear();
             for (int k = 0; k < PMTN; k++)
             {
                 hNPE->Fill(CHID[j * PMTN + k],NPE[j * PMTN + k]);
                 //if (1)
-                if (U[j * PMTN + k] < 0 && xT0[j * PMTN + k] != 0)
+                if (U[j * PMTN + k] < 0 && xT0[j * PMTN + k] > 0)
                 {
                     TimeSum += xT0[j * PMTN + k];
                     PMTcounter++;
                     //cout << "DetTime " << PMTcounter << "\t," << TimeSum << endl;
+                    vecTime.push_back(xT0[j * PMTN + k]);
                 }
             }
+            if(!vecTime.empty()&&PMTcounter>0)
+            DetFastTime[j] = TMath::MinElement(PMTcounter,&vecTime[0]);
             if (PMTcounter >= 4)
             {
                 DetTime[j] = TimeSum / PMTcounter;
@@ -910,11 +920,19 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
             }
         }
         FlyTime = (InX[PMTN] - InX[0]) / cos(Caltheta[0]) / 1.e3 / 3.e8 * 1.e9;
+        theTime[0] = xT0[0];
+        theTime[1] = xT0[5];
         //cout<<"FlyTime"<<FlyTime<<endl;
-        if (DetTime[1] > 0 && DetTime[0] > 0)
+        //if (DetTime[1] > 0 && DetTime[0] > 0)
+        //if (DetFastTime[1] > 0 && DetFastTime[0] > 0)
+        if (theTime[1] > 0 && theTime[0] > 0)
         {
 
-            Timestamp = DetTime[1] - DetTime[0] + FlyTime;
+            //Timestamp = DetTime[1] - DetTime[0];
+            //Timestamp = DetTime[1] - DetTime[0] + FlyTime;
+            //Timestamp = DetFastTime[1] - DetFastTime[0] + FlyTime;
+            //Timestamp = DetFastTime[1] - DetFastTime[0];
+            Timestamp = theTime[1] - theTime[0]+FlyTime;
             //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
             //cout << "timestamp: " << Timestamp << endl;
             ht->Fill(Timestamp);
