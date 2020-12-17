@@ -41,6 +41,7 @@ void PmtSD::Initialize(G4HCofThisEvent *hce)
 	std::vector<int>().swap(*fHitCopyNo);
 	std::vector<double>().swap(*fHitEk);
 	std::vector<double>().swap(*fHitTime);
+	std::vector<double>().swap(*fTOPTime);
 	std::vector<double>().swap(*fHitX);
 	std::vector<double>().swap(*fHitY);
 	std::vector<double>().swap(*fHitZ);
@@ -76,8 +77,8 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	// TODO : move to DumpHit and call in EndOfEvent
 	fHitCopyNo->push_back(copyNo);
 	fHitEk->push_back(theParticle->GetKineticEnergy());
-	//fHitTime->push_back(theParticle->GetGlobalTime());
-	fHitTime->push_back(theParticle->GetLocalTime());
+	fHitTime->push_back(theParticle->GetGlobalTime());
+	fTOPTime->push_back(theParticle->GetLocalTime());
 
 	fHitID->push_back(theTrack->GetTrackID());
 
@@ -116,6 +117,7 @@ void PmtSD::CreateEntry(
 	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".id"), *fHitCopyNo);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".E"), *fHitEk);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".t"), *fHitTime);
+	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".TOP"), *fTOPTime);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".x"), *fHitX);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".y"), *fHitY);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".z"), *fHitZ);

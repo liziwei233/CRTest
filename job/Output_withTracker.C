@@ -200,11 +200,225 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
     cout<<"y="<<v1.Mag()*sin(*theta)*sin(*phi)<<endl;
     */
 }
+double remainder(double A, int r)
+{
+    int n = int(A) / r;
+    return A - n * r;
+}
+double RebuildTrack(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
+{
+    /*
+        double Ox, Oy, Oz;
+        Oz = A1z;
+        Ox = (A1z - Inz) / pz * px + Inx;
+        //cout<<Ox<<endl;
+        Oy = (A1z - Inz) / pz * py + Iny;
+        return sqrt(Ox * Ox + Oy * Oy + Oz * Oz);
+        //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
+*/
+    //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << Px << "\t" << Py << "\t" << Pz << endl;
+    double Ax0, Ay0, Az0;
+    double px, py, pz;
+    double swap;
+    if (ID == 1 || ID == 3)
+    {
+        Az0 = -1 * (ID - 2) * 90;
+        Ax0 = 0;
+        Ay0 = 0;
+        px = Px;
+        py = Py;
+        pz = -1 * (ID - 2) * Pz;
+    }
+    if (ID == 2 || ID == 4)
+    {
+        Az0 = -1 * (ID - 3) * 90;
+        Ax0 = 0;
+        Ay0 = 0;
+        px = Px;
+        py = Pz;
+        pz = -1 * (ID - 3) * Py;
+        swap = Iny;
+        Iny = Inz;
+        Inz = swap;
+    }
+    double thetaC = TMath::ACos(1 / np);
+    double theta = TMath::ACos(pz); //angle between momentum direction of mu and z axis;
+
+    double Ax, Ay, Az;
+    Az = Az0;
+    double dx, dy, dz;
+    dz = Az0 - Inz;
+    double Rdxdy;
+    Rdxdy = dz * TMath::Tan(theta - thetaC);
+    dx = Rdxdy / sqrt(px * px + py * py) * px;
+    dy = Rdxdy / sqrt(px * px + py * py) * py;
+    Ax = Inx + dx;
+    Ay = Iny + dy;
+    return sqrt(Ax * Ax + Ay * Ay + Az * Az);
+
+    //return -1;
+}
+
+// why the result is only correct in the case of ID==3
+double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
+{
+    //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << px << "\t" << py << "\t" << pz << endl;
+    double A1x, A1y, A1z;
+    double px, py, pz;
+    if (ID == 1 || ID == 3)
+    {
+        A1z = -1 * (ID - 2) * 90;
+        A1x = 0;
+        A1y = 0;
+        px = Px;
+        py = Py;
+        pz = Pz;
+    }
+    if (ID == 2 || ID == 4)
+    {
+        A1z = -1 * (ID - 3) * 90;
+        A1x = 0;
+        A1y = 0;
+        px = Px;
+        py = Pz;
+        pz = Py;
+    }
+
+    double TOP;
+    double v = 298 / np; //velocity of photon,Unit:mm/ns
+
+    double dx, dy;
+    double dz = A1z - Inz;
+    //double Amaxx, Amaxy;
+    double theta = TMath::ACos(-1 * pz); //angle between momentum direction of mu and z axis;
+    double thetaC = TMath::ACos(1 / np);
+
+    double Ax, Ay, Az;
+
+    double Rdxdy = dz * TMath::Tan(theta - thetaC);
+    //cout << "dz= " << dz << endl;
+    //cout << "theta= " << theta << endl;
+    //cout << "thetaC= " << thetaC << endl;
+    //cout << "Rdxdy = " << Rdxdy << endl;
+    if (Rdxdy > 600)
+    {
+        cout << "No  solution! Rdxdy > 600 " << endl;
+        return -1;
+    }
+    else if (TMath::Abs(theta - 0.5 * TMath::Pi()) < 0.1)
+    {
+        Az = A1z;
+        double Rdxdy = dz * TMath::Tan(theta - thetaC);
+        dx = Rdxdy / sqrt(px * px + py * py) * px;
+        dy = Rdxdy / sqrt(px * px + py * py) * py;
+        Ax = Inx + dx;
+        Ay = Iny + dy;
+        //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
+        if (remainder(Ax, 10) * remainder(Ax, 10) + Ay * Ay < 5 * 5)
+        {
+
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+        }
+        else
+        {
+            cout << "No  solution! No hit within PMT sensitive area" << endl;
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+            //return -1;
+        }
+    }
+    else
+    {
+
+        double Ox, Oy, Oz;
+        Oz = A1z;
+        //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
+        Ox = (A1z - Inz) / pz * px + Inx;
+        //cout<<Ox<<endl;
+        Oy = (A1z - Inz) / pz * py + Iny;
+
+        double Rxy = sqrt(Ox * Ox + Oy * Oy); //r of out point of mu in xy-plane
+        double a = (dz) / TMath::Cos(theta - thetaC) * TMath::Sin(thetaC);
+        double b = a / TMath::Cos(theta);
+        //Aminx = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
+        //Aminy = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
+        //Amaxx = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
+        //Amaxy = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
+        double Oxprim = remainder(Ox, 10);
+        double n = int(Ox / 10); //the number of reflection
+        //cout << "A1z: " << A1z<< endl;
+        //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << px << "\t" << py << "\t" << pz << endl;
+        //cout << "Rxy = " <<Rxy << endl;
+        //cout << "Ox,Oy,Oz = " << Ox << "\t" << Oy << "\t" << Oz << endl;
+        if ((-Ox) * (-Ox) / a / a + (-Oy) * (-Oy) / b / b <= 1)
+        {
+            cout << "The solution exists!" << endl;
+            Ax = 0 + int(Ox / 10) * 10;
+            Ay = 0 + int(Oy / 10) * 10;
+            //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+        }
+        else
+        {
+
+            if (remainder(Ox, 10) * remainder(Ox, 10) + Oy * Oy < (5 + b) * (5 + b))
+            {
+                cout << "No  solution! No hit within PMT sensitive area" << endl;
+                return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
+                //return -1;
+            }
+            else
+            {
+
+                if (Oxprim < 0)
+                    Ax = -1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
+                if (Oxprim > 0)
+                    Ax = +1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
+                Ay = Oxprim / Oxprim * Oy;
+                if ((Ax - Oxprim) * (Ax - Oxprim) / a / a + (Ay - Oy) * (Ay - Oy) / b / b <= 1)
+                {
+                    cout << "The solution exists!" << endl;
+                    Ax = Ax + 10 * n;
+                    //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
+                    return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+                }
+                else
+                {
+                    cout << "Uncertainty situation" << endl;
+                    return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
+                    //return -1;
+                }
+            }
+        }
+
+        /*
+        if (remainder(Ox, 10) * remainder(Ox, 10) + Oy * Oy > (5 + b) * (5 + b))
+        {
+            cout << "Ox,Oy,Oz = " << Ox << "\t" << Oy << "\t" << Oz << endl;
+            if (Rxy - b < 0)
+            {
+                Ax = 0 + int(Ox / 10) * 10;
+                Ay = 0 + int(Oy / 10) * 10;
+            }
+            if (Rxy - b > 0)
+            {
+                Ax = (Rxy - b) / Rxy * Ox;
+                Ay = (Rxy - b) / Rxy * Oy;
+            }
+            return TOP = (Ax * Ax + Ay * Ay + Az * Az) / v;
+        }
+        else
+        {
+            cout << "No  solution! " << endl;
+            return -1;
+        }
+        */
+    }
+}
 
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 //char path[1000] = "/Users/liziwei/learning/CRTest/build";
 char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
-void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
+void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -242,9 +456,9 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     char buff[1024];
 
     const int PMTN = 4; //the number of PMT copyvolume
-    const int DetN = 2;
+    const int DetN = 1;
     const int T = PMTN * DetN; //the number of PMT copyvolume
-    const int TrackerN = 5;    //the number of Trackers
+    const int TrackerN = 4;    //the number of Trackers
 
     //Double_t parR[500]={};
     //Double_t parL[500]={};
@@ -263,43 +477,54 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     Double_t thrd = -30;   //Umax = -28.94mV
     double Rate = 0;
 
-    double possigma = 0e-3; //50 um
+    double possigma = 200e-3; //50 um
 
     bool flag = 0;
     int index = 0;
     double keypoint = 0;
-    double xT0[T] = {0}; //time stamp of waveform
+    double T0_1stpe[T] = {0}; // hit time of first pe
+    double xT0[T] = {0};      //time stamp of waveform
+    double TOP[T] = {0};      // TOP of photon
     int CHID[T] = {0};
     int NPE[T] = {0};
-    double U[T] = {0};   //Amplitude of waveform
-    double InX[T] = {0}; //incident position
-    double InY[T] = {0};
-    double InZ[T] = {0};
-    double InPX[T] = {0}; //incident direction
-    double InPY[T] = {0};
-    double InPZ[T] = {0};
+    double U[T] = {0}; //Amplitude of waveform
 
-    double Intheta[T] = {0}; //incident direction
-    double Inphi[T] = {0};
-    double InE[T] = {0};
+    int DetID[DetN] = {0};    //incident time
+    double DetT0[DetN] = {0}; //incident time
+    double InX[DetN] = {0};   //incident position
+    double InY[DetN] = {0};
+    double InZ[DetN] = {0};
+
+    double InE[DetN] = {0};
+
+    double InPX; //incident direction
+    double InPY;
+    double InPZ;
+
+    double Intheta; //incident direction
+    double Inphi;
 
     double TrackerX[TrackerN] = {0}; //Tracker impact pos
     double TrackerY[TrackerN] = {0}; //Tracker impact pos
     double TrackerZ[TrackerN] = {0}; //Tracker impact pos
-    double Caltheta[T] = {0};        //incident direction
-    double Calphi[T] = {0};
-    double CalX[T] = {0};
-    double CalY[T] = {0};
-    double CalZ[T] = {0};
+    double Caltheta;                 //incident direction
+    double Calphi;
+    double CalX[DetN] = {0};
+    double CalY[DetN] = {0};
+    double CalZ[DetN] = {0};
 
-    double T0_1stpe[T] = {0}; // hit time of first pe
     const int certain = 2;
 
+    vector<vector<double>> vecTOP(T);
     vector<vector<double>> par(T);
     vector<vector<double>> tts(T);
 
     vector<double> *hitT = new vector<double>;
+    vector<double> *TOPT = new vector<double>;
     vector<int> *ID = new vector<int>;
+
+    vector<double> *DethitT = new vector<double>;
+
     vector<double> *IncidX = new vector<double>; //the position of incident event
     vector<double> *IncidY = new vector<double>;
     vector<double> *IncidZ = new vector<double>;
@@ -311,7 +536,8 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     vector<int> *IncidID = new vector<int>;
 
     //count = new vector<int>;
-    int N = 0, hitN = 0, pN;
+    int N = 0, hitN = 0, pN = 0;
+    int effN = 0; // effective Events;
     double temp = 0.;
     Double_t x[range] = {};
     Double_t y[T][range] = {};
@@ -323,8 +549,10 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     TTree *t1 = (TTree *)f1->Get("Run");
 
     t1->SetBranchAddress("PmtS.t", &hitT);
+    t1->SetBranchAddress("PmtS.TOP", &TOPT);
     t1->SetBranchAddress("PmtS.id", &ID);
 
+    t1->SetBranchAddress("mu.t", &DethitT);
     t1->SetBranchAddress("mu.x", &IncidX);
     t1->SetBranchAddress("mu.y", &IncidY);
     t1->SetBranchAddress("mu.z", &IncidZ);
@@ -351,30 +579,45 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     t2->Branch("xT0", &xT0, buff);
     sprintf(buff, "T0_1stpe[%d]/D", T); //ns
     t2->Branch("T0_1stpe", &T0_1stpe, buff);
-    sprintf(buff, "InX[%d]/D", T);
+    sprintf(buff, "TOP[%d]/D", T); //ns
+    t2->Branch("TOP", &TOP, buff);
+
+    sprintf(buff, "DetID[%d]/I", DetN); // DetectorID
+    t2->Branch("DetID", &DetID, buff);
+    sprintf(buff, "DetT0[%d]/D", DetN); // ns
+    t2->Branch("DetT0", &DetT0, buff);
+
+    sprintf(buff, "InX[%d]/D", DetN);
     t2->Branch("InX", &InX, buff); //mm
-    sprintf(buff, "InY[%d]/D", T);
+    sprintf(buff, "InY[%d]/D", DetN);
     t2->Branch("InY", &InY, buff); //mm
-    sprintf(buff, "InZ[%d]/D", T);
+    sprintf(buff, "InZ[%d]/D", DetN);
     t2->Branch("InZ", &InZ, buff); //mm
-    sprintf(buff, "InE[%d]/D", T);
+    sprintf(buff, "InE[%d]/D", DetN);
     t2->Branch("InE", &InE, buff); //mm
 
-    sprintf(buff, "Intheta[%d]/D", T);
+    sprintf(buff, "InPX[%d]/D", 1);
+    t2->Branch("InPX", &InPX, buff); //mm
+    sprintf(buff, "InPY[%d]/D", 1);
+    t2->Branch("InPY", &InPY, buff); //mm
+    sprintf(buff, "InPZ[%d]/D", 1);
+    t2->Branch("InPZ", &InPZ, buff); //mm
+
+    sprintf(buff, "Intheta[%d]/D", 1);
     t2->Branch("Intheta", &Intheta, buff); //mm
-    sprintf(buff, "Inphi[%d]/D", T);
+    sprintf(buff, "Inphi[%d]/D", 1);
     t2->Branch("Inphi", &Inphi, buff); //mm
 
-    sprintf(buff, "CalX[%d]/D", T);
+    sprintf(buff, "CalX[%d]/D", DetN);
     t2->Branch("CalX", &CalX, buff); //mm
-    sprintf(buff, "CalY[%d]/D", T);
+    sprintf(buff, "CalY[%d]/D", DetN);
     t2->Branch("CalY", &CalY, buff); //mm
-    sprintf(buff, "CalZ[%d]/D", T);
+    sprintf(buff, "CalZ[%d]/D", DetN);
     t2->Branch("CalZ", &CalZ, buff); //mm
 
-    sprintf(buff, "Caltheta[%d]/D", T);
+    sprintf(buff, "Caltheta[%d]/D", 1);
     t2->Branch("Caltheta", &Caltheta, buff); //mm
-    sprintf(buff, "Calphi[%d]/D", T);
+    sprintf(buff, "Calphi[%d]/D", 1);
     t2->Branch("Calphi", &Calphi, buff); //mm
     /*
     sprintf(buff, "InPX[%d]/D", T);
@@ -414,15 +657,17 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
 
     //count->clear();
     //for(int i = certain; i < certain+1; i++){
-    //for (int i = 0; i < 1; i++)
     //N=1;
-    for (int i = 0; i < N; i++)
+    for (int iEvent = 0; iEvent < N; iEvent++)
+    //for (int iEvent = 0; iEvent < 10; iEvent++)
     {
-        //cout << "The Entry No: " << i << endl;
+        cout << "The Entry No: " << iEvent << endl;
 
         //-----------initial----------------------//
         hitT->clear();
+        TOPT->clear();
         ID->clear();
+        DethitT->clear();
         IncidX->clear();
         IncidY->clear();
         IncidZ->clear();
@@ -431,114 +676,128 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
         IncidPZ->clear();
         IncidE->clear();
         IncidID->clear();
-
+        vector<vector<double>>(T).swap(vecTOP);
         vector<vector<double>>(T).swap(par);
         vector<vector<double>>(T).swap(tts);
 
         //for(int i = certain; i < certain+1; i++){
         //par[i]=r.Gaus(2.4e-9,0.5e-9);
         //par[i]=4e-9;
-        t1->GetEntry(i);
-        hitN = hitT->size();
-        //cout<<"counter = "<< hitN <<endl;
-        //myFun = new TF1("myFun",outputfunc,RL,RR,temp);
-
-        //Record the impact position and direction of muon
-        pN = IncidX->size();
-        int Trackercounter = 0;
-        //cout<<"counter = "<< pN <<endl;
-        if (pN == TrackerN + 2)
+        t1->GetEntry(iEvent);
+        if (!IncidX->empty() && !hitT->empty())
         {
-            int Detcounter = 0;
-            for (int i = 0; i < pN; i++)
+            if (IncidX->size() == TrackerN + DetN)
             {
-                //cout<<"===> Progress check <==="<<endl;
-                if (IncidID->at(i) >= 100)
-                {
+                effN++;
 
-                    for (int j = 0; j < PMTN; j++)
+                hitN = hitT->size();
+                pN = IncidX->size();
+                //cout << "hitN = " << hitN << endl;
+                //cout << "pN = " << pN << endl;
+                //myFun = new TF1("myFun",outputfunc,RL,RR,temp);
+
+                //Record the impact position and direction of muon
+                int Trackercounter = 0;
+                int Detcounter = 0;
+                //cout<<"counter = "<< pN <<endl;
+
+                for (int i = 0; i < pN; i++)
+                {
+                    if (IncidID->at(i) >= 100)
                     {
 
-                        InE[j + Detcounter * 4] = (*IncidE)[i];
-                        InX[j + Detcounter * 4] = (*IncidX)[i];
-                        InY[j + Detcounter * 4] = (*IncidY)[i];
-                        InZ[j + Detcounter * 4] = (*IncidZ)[i];
-                        InPX[j + Detcounter * 4] = (*IncidPX)[i];
-                        InPY[j + Detcounter * 4] = (*IncidPY)[i];
-                        InPZ[j + Detcounter * 4] = (*IncidPZ)[i];
-                        Intheta[j + Detcounter * 4] = TMath::ACos(-1 * InPX[j + Detcounter * 4]);
+                        DetT0[Detcounter] = (*DethitT)[i];
+                        DetID[Detcounter] = IncidID->at(i);
+                        InE[Detcounter] = (*IncidE)[i];
+                        InX[Detcounter] = (*IncidX)[i];
+                        InY[Detcounter] = (*IncidY)[i];
+                        InZ[Detcounter] = (*IncidZ)[i];
+                        if (IncidID->at(i) == 100)
+                        {
 
-                        Inphi[j + Detcounter * 4] = TMath::ACos(InPZ[j + Detcounter * 4] / TMath::Sqrt(InPY[j + Detcounter * 4] * InPY[j + Detcounter * 4] + InPZ[j + Detcounter * 4] * InPZ[j + Detcounter * 4]));
-                        if (InPY[j + Detcounter * 4] < 0)
-                            Inphi[j + Detcounter * 4] = -1 * Inphi[j + Detcounter * 4];
-                        //Inphi[j + Detcounter * 4] = TMath::ATan(InPY[j + Detcounter * 4] / InPZ[j + Detcounter * 4]);
-                        //cout<< "SIMU Y ,Z " <<InY[j]<<", "<<InZ[j]<<endl;
-                        //cout<<"theta SIMU = "<< Intheta[j]<<endl;
-                        //cout<<"Phi SIMU = "<< Inphi[j]<<endl;
+                            InPX = (*IncidPX)[i];
+                            InPY = (*IncidPY)[i];
+                            InPZ = (*IncidPZ)[i];
+                            Intheta = TMath::ACos(-1 * InPX);
+
+                            Inphi = TMath::ACos(InPZ / TMath::Sqrt(InPY * InPY + InPZ * InPZ));
+                            if (InPY < 0)
+                                Inphi = -1 * Inphi;
+                        }
+                        //Inphi[Detcounter] = TMath::ATan(InPY[Detcounter] / InPZ[Detcounter]);
+                        //cout << "SIMU Y ,Z " << InY[Detcounter] << ", " << InZ[Detcounter] << endl;
+                        //cout << "theta SIMU = " << Intheta << endl;
+                        //cout << "Phi SIMU = " << Inphi << endl;
+
+                        Detcounter++;
                     }
-                    Detcounter++;
-                }
-                else
-                {
-                    TrackerX[Trackercounter] = IncidX->at(i);
-                    TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
-                    TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
-                    Trackercounter++;
-                }
-            }
-
-            for (int iT = 0; iT < T; iT++)
-            {
-                CalX[iT] = InX[iT];
-                GetTrackerAngle(TrackerN, TrackerX, TrackerY, TrackerZ, &Caltheta[iT], &Calphi[iT], CalX[iT], &CalY[iT], &CalZ[iT]);
-                //return;
-                CHID[iT] = iT;
-                for (int k = 0; k < hitN; k++)
-                {
-                    //cout<< T[][k] <<endl;
-                    temp = (*hitT)[k] * 1e-9;
-                    if ((*ID)[k] == iT)
+                    else
                     {
-                        //r.SetSeed(time(NULL)*processN+k);
-                        par[iT].push_back(temp);
-                        tts[iT].push_back(r.Gaus(0, ttssigma));
-                        if (i == N - 1)
-                            h[iT]->Fill(temp * 1e9);
+                        TrackerX[Trackercounter] = IncidX->at(i);
+                        TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
+                        TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
+                        Trackercounter++;
                     }
                 }
-                NPE[iT] = par[iT].size();
-                //parR[k]=8.3e-9;
-                //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
-                //cout<<"par"<<k<<" = "<<par[k]<<endl;
-                sort(par[iT].begin(), par[iT].end());
-                //cout<<">>> progress check <<<"<<endl;
-                if (!par[iT].empty())
-                    T0_1stpe[iT] = par[iT].at(0) * 1e9;
-                //myFun->SetParameter(k,par[k]);
-            }
-
-            //cout<<"hello"<<endl;
-            //cout<<"parL.size() = "<<parL.size()<<endl;
-            //cout<<"parR.size() = "<<parR.size()<<endl;
-            for (int iT = 0; iT < T; iT++)
-            {
-                // Initial these variable
-                memset(x, 0, sizeof(x));
-                memset(y[iT], 0, sizeof(y[iT]));
-
-                for (int j = 0; j < range; j++)
+                for (int i = 0; i < Detcounter; i++)
                 {
-                    x[j] = (RR - RL) / range * j + RL;
-                    //cout<<"process check======>"<<endl;
-                    y[iT][j] = outputfunc(x[j], par[iT], tts[iT]);
-                    x[j] = ((RR - RL) / range * j + RL) * 1e9;
 
-                    //if(yR[j]<thrd&&flagR) {xT0_R=x[j];flagR = false;}
-                    //if(yL[j]<thrd&&flagL) {xT0_L=x[j];flagL = false;}
-                    //cout<<"[+] x"<<j<<":y"<<j<<"=\t"<<x[j]<<"\t"<<yR[j]<<"\t"<<yL[j]<<endl;
+                    CalX[i] = InX[i];
+                    GetTrackerAngle(TrackerN, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
+                }
+                for (int iT = 0; iT < T; iT++)
+                {
+                    //return;
+                    CHID[iT] = iT;
+                    for (int k = 0; k < hitN; k++)
+                    {
+                        //cout<< T[][k] <<endl;
+                        temp = (*hitT)[k] * 1e-9;
+                        if ((*ID)[k] == iT)
+                        {
+                            //r.SetSeed(time(NULL)*processN+k);
+                            vecTOP[iT].push_back((*TOPT)[k]);
+                            par[iT].push_back(temp);
+                            tts[iT].push_back(r.Gaus(0, ttssigma));
+                            if (iEvent == N - 1)
+                                h[iT]->Fill(temp * 1e9);
+                        }
+                    }
+                    NPE[iT] = par[iT].size();
+                    if (!vecTOP[iT].empty())
+                        TOP[iT] = TMath::MinElement(NPE[iT], &vecTOP[iT][0]);
+                    //parR[k]=8.3e-9;
+                    //cout<<" [+] par "<<k<<"\t"<<parR.at(k)<<endl;
+                    //cout<<"par"<<k<<" = "<<par[k]<<endl;
+                    sort(par[iT].begin(), par[iT].end());
+                    //cout<<">>> progress check <<<"<<endl;
+                    if (!par[iT].empty())
+                        T0_1stpe[iT] = par[iT].at(0) * 1e9;
+                    //myFun->SetParameter(k,par[k]);
                 }
 
-                /*================================ 
+                //cout<<"hello"<<endl;
+                //cout<<"parL.size() = "<<parL.size()<<endl;
+                //cout<<"parR.size() = "<<parR.size()<<endl;
+                for (int iT = 0; iT < T; iT++)
+                {
+                    // Initial these variable
+                    memset(x, 0, sizeof(x));
+                    memset(y[iT], 0, sizeof(y[iT]));
+
+                    for (int j = 0; j < range; j++)
+                    {
+                        x[j] = (RR - RL) / range * j + RL;
+                        //cout<<"process check======>"<<endl;
+                        y[iT][j] = outputfunc(x[j], par[iT], tts[iT]);
+                        x[j] = ((RR - RL) / range * j + RL) * 1e9;
+
+                        //if(yR[j]<thrd&&flagR) {xT0_R=x[j];flagR = false;}
+                        //if(yL[j]<thrd&&flagL) {xT0_L=x[j];flagL = false;}
+                        //cout<<"[+] x"<<j<<":y"<<j<<"=\t"<<x[j]<<"\t"<<yR[j]<<"\t"<<yL[j]<<endl;
+                    }
+
+                    /*================================ 
              *=======ZOOM OUT the leading egde;
              *=================================
             zoomRR = x[TMath::LocMin(range, y[iT])] + 1e-9;
@@ -555,8 +814,8 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
              *=======ZOOM OUT the leading egde;
              *=================================*/
 
-                U[iT] = TMath::MinElement(range, y[iT]);
-                /*
+                    U[iT] = TMath::MinElement(range, y[iT]);
+                    /*
                cout<<"[+] PMT_Right Messages :"<<endl;
             //Float_t U0 = TMath::MinElement(range,yR);
             //Float_t t0 = g->GetY(U0);
@@ -568,62 +827,68 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
             cout<<"		[-]U0 = "<<UL<<"mV"<<endl;	
             */
 
-                /*=================================
+                    /*=================================
              *=======Discriminate the signal===
              *=================================*/
-                //Initial these variables
-                flag = 1;
-                xT0[iT] = 0;
-                index = 0;
-                keypoint = 0;
-                if (strcmp(ParType, "FIX") == 0) //if the discriminate way is fix threshold discrim
-                {
-                    keypoint = fac;
-                }
-                else
-                {
-                    keypoint = fac * U[iT];
-                }
-
-                for (int q = 0; q < range; q++)
-                {
-                    if (y[iT][q] < keypoint && flag)
-                    //if(yR[q]<Rate*UR && flagR && yR[q]<thrd)
+                    //Initial these variables
+                    flag = 1;
+                    xT0[iT] = 0;
+                    index = 0;
+                    keypoint = 0;
+                    if (strcmp(ParType, "FIX") == 0) //if the discriminate way is fix threshold discrim
                     {
-                        index = q;
-                        //xT0_R=xR[q];
-                        flag = 0;
-                        //cout<<"		[+] selected xR = "<<xT0_R<<"\t"<<yR[q]<<endl;
+                        keypoint = fac;
                     }
-                    //cout<<" q value"<<q<<endl;
+                    else
+                    {
+                        keypoint = fac * U[iT];
+                    }
+
+                    for (int q = 0; q < range; q++)
+                    {
+                        if (y[iT][q] < keypoint && flag)
+                        //if(yR[q]<Rate*UR && flagR && yR[q]<thrd)
+                        {
+                            index = q;
+                            //xT0_R=xR[q];
+                            flag = 0;
+                            //cout<<"		[+] selected xR = "<<xT0_R<<"\t"<<yR[q]<<endl;
+                        }
+                        //cout<<" q value"<<q<<endl;
+                    }
+                    //cout<<"find the time stamp (ns) = "<<xR[indexR]<<",and the corrresponding amp = "<<yR[indexR]<<endl;
+                    //cout<<"index="<<indexR<<endl;
+                    xT0[iT] = x[index];
+
+                    /*=====================================================
+             * =======Fit the signal and find the timestamp========
+             * ==================================================*/
+                    g[iT] = new TGraph(range, x, y[iT]);
+                    TF1 *fit = pol3fit(g[iT], x[index] - 60e-3, x[index] + 80e-3);
+                    xT0[iT] = fit->GetX(keypoint);
+                    /*=====================================================
+             * =======Fit the signal and find the timestamp========
+             * ==================================================*/
+
+                    //return;
+                    //xT0_L = Discriminate(xL,yL,indexL);
+
+                    hSig[iT]->Fill(xT0[iT]);
+                    //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xR[indexR]<<"\t"<<xL[indexL]<<"\t"<<(xR[indexR]+xL[indexL])/2<<endl;
+                    //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xT0_R<<"\t"<<xT0_L<<"\t"<<xT0<<endl;
+
+                    //cout<<"loop k = "<<k<<endl;
                 }
-                //cout<<"find the time stamp (ns) = "<<xR[indexR]<<",and the corrresponding amp = "<<yR[indexR]<<endl;
-                //cout<<"index="<<indexR<<endl;
-                xT0[iT] = x[index];
-
-                /*=====================================================
-             * =======Fit the signal and find the timestamp========
-             * ==================================================*/
-                g[iT] = new TGraph(range, x, y[iT]);
-                TF1 *fit = pol3fit(g[iT], x[index] - 60e-3, x[index] + 80e-3);
-                xT0[iT] = fit->GetX(keypoint);
-                /*=====================================================
-             * =======Fit the signal and find the timestamp========
-             * ==================================================*/
-
-                //return;
-                //xT0_L = Discriminate(xL,yL,indexL);
-
-                hSig[iT]->Fill(xT0[iT]);
-                //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xR[indexR]<<"\t"<<xL[indexL]<<"\t"<<(xR[indexR]+xL[indexL])/2<<endl;
-                //cout<<"[-] Event No. Filled  xR:xL:x0 = "<<i<<"\t"<<xT0_R<<"\t"<<xT0_L<<"\t"<<xT0<<endl;
-
-                //cout<<"loop k = "<<k<<endl;
+                t2->Fill();
             }
         }
-        t2->Fill();
     }
     f1->Close();
+    if (effN < 1)
+    {
+        cout << " No effective Event, Check Your data please !" << endl;
+        return;
+    }
     TCanvas *c = new TCanvas("c", "", 1600, 600);
 
     //c->cd();
@@ -636,6 +901,7 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     float ymin = 0;
     float ymax = 0;
     //ymax = gPad->GetUymax();
+
     ymin = TMath::MinElement(T, U) * 1.2;
     ymax = -0.2 * ymin;
     DrawMyPad(gPad, "Time (ns)", "Amp (mV)", RL * 1e9, RR * 1e9, ymin, ymax);
@@ -735,6 +1001,8 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
 
     //c->Delete();
     vector<double>().swap(*hitT);
+    vector<double>().swap(*TOPT);
+    vector<double>().swap(*DethitT);
     vector<int>().swap(*ID);
     vector<double>().swap(*IncidX);
     vector<double>().swap(*IncidY);
@@ -742,14 +1010,21 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     vector<double>().swap(*IncidPX);
     vector<double>().swap(*IncidPY);
     vector<double>().swap(*IncidPZ);
+    vector<double>().swap(*IncidE);
+    vector<int>().swap(*IncidID);
+
     delete hitT;
+    delete TOPT;
+    delete DethitT;
     delete ID;
+    delete IncidID;
     delete IncidX;
     delete IncidY;
     delete IncidZ;
     delete IncidPX;
     delete IncidPY;
     delete IncidPZ;
+    delete IncidE;
 
     /*=======================================================*
          * ================Procedure timing end==================*
@@ -759,7 +1034,7 @@ void CalculateTR(const char *rootname = "x2y2z1_model2blackwrap", double fac = 0
     cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
 }
 
-void GetTimeRes(const char *rootname = "x2y2z1data")
+void GetTimeRes(const char *rootname = "CRY2data")
 {
     //void MygStyle();
     //MygStyle();
@@ -775,24 +1050,27 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     //***************************************************//
     //--------------Configuration-----------------------//
     //***************************************************//
-    double tL = -1.;
-    double tR = 1.;
+    double tL = -2.;
+    double tR = 2.;
+    double AL = 0;
+    double AR = 300;
 
     double uL = -1e3;
     double uR = 0;
 
-    int rbt = 2;
+    int rbA = 10;
+    int rbt = 4;
     int rbu = 1;
 
     // the range set After Correct
     //double L2 = -100e-12;
     //double R2 = 100e-12;
-    int bint = (tR - tL) / 5e-3;
+    int bint = (tR - tL) / 0.5e-3;
     int binu = (uR - uL) / 30;
     const int PMTN = 4; //the number of PMT copyvolume
     const int DetN = 2;
     const int T = PMTN * DetN; //the number of PMT copyvolume
-    const int iter = 5;        //the number of iteration
+
     //---------------------------------------------------//
     //***************************************************//
 
@@ -813,53 +1091,62 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     TTree *t = (TTree *)f->Get("data");
     cout << "Read rootfile: " << buff << endl;
 
-    double xT0[T] = {0}; //time stamp of waveform
+    double T0_1stpe[T] = {0}; // hit time of first pe
+    double xT0[T] = {0};      //time stamp of waveform
+    double TOP[T] = {0};      // TOP of photon
     int CHID[T] = {0};
     int NPE[T] = {0};
     double U[T] = {0}; //Amplitude of waveform
-    double InE[T] = {0};
-    double InX[T] = {0}; //incident position
-    double InY[T] = {0};
-    double InZ[T] = {0};
-    double Intheta[T] = {0};
-    double Inphi[T] = {0};
 
-    double CalX[T] = {0}; //incident position
-    double CalY[T] = {0};
-    double CalZ[T] = {0};
-    double Caltheta[T] = {0};
-    double Calphi[T] = {0};
+    int DetID[DetN] = {0};    //incident time
+    double DetT0[DetN] = {0}; //incident time
+    double InX[DetN] = {0};   //incident position
+    double InY[DetN] = {0};
+    double InZ[DetN] = {0};
 
-    //double InPX[T] = {0}; //incident direction
-    //double InPY[T] = {0};
-    //double InPZ[T] = {0};
+    double InE[DetN] = {0};
 
-    double T0_1stpe[T] = {0}; // hit time of first pe
+    double InPX; //incident direction
+    double InPY;
+    double InPZ;
 
-    double Utemp = 0, Ttemp = 0;
-    double T0_cor = 0;
-    float TT[1000000] = {0.};
+    double Intheta; //incident direction
+    double Inphi;
+
+    double Caltheta; //incident direction
+    double Calphi;
+    double CalX[DetN] = {0};
+    double CalY[DetN] = {0};
+    double CalZ[DetN] = {0};
 
     t->SetBranchAddress("CHID", CHID);
     t->SetBranchAddress("NPE", NPE);
     t->SetBranchAddress("U", U); //-mV
     t->SetBranchAddress("xT0", xT0);
     t->SetBranchAddress("T0_1stpe", T0_1stpe);
+    t->SetBranchAddress("TOP", TOP);
 
-    t->SetBranchAddress("InE", InE); //mm
-    t->SetBranchAddress("InX", InX); //mm
-    t->SetBranchAddress("InY", InY); //mm
-    t->SetBranchAddress("InZ", InZ); //mm
-    t->SetBranchAddress("Intheta", Intheta);
-    t->SetBranchAddress("Inphi", Inphi);
+    t->SetBranchAddress("DetID", DetID);
+    t->SetBranchAddress("DetT0", DetT0);
+
+    t->SetBranchAddress("InE", InE);    //mm
+    t->SetBranchAddress("InX", InX);    //mm
+    t->SetBranchAddress("InY", InY);    //mm
+    t->SetBranchAddress("InZ", InZ);    //mm
+    t->SetBranchAddress("InPX", &InPX); //momentum
+    t->SetBranchAddress("InPY", &InPY); //momentum
+    t->SetBranchAddress("InPZ", &InPZ); //momentum
+    t->SetBranchAddress("Intheta", &Intheta);
+    t->SetBranchAddress("Inphi", &Inphi);
 
     t->SetBranchAddress("CalX", CalX); //mm
     t->SetBranchAddress("CalY", CalY); //mm
     t->SetBranchAddress("CalZ", CalZ); //mm
-    t->SetBranchAddress("Caltheta", Caltheta);
-    t->SetBranchAddress("Calphi", Calphi);
+    t->SetBranchAddress("Caltheta", &Caltheta);
+    t->SetBranchAddress("Calphi", &Calphi);
 
     TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
+    TH1D *htcor = new TH1D("htcor", ";Time (ns);Counts", bint, tL, tR);
     TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
     TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
     TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
@@ -871,24 +1158,43 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
     TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
 
+    TH1D *hA = new TH1D("hA", ";reTrack (mm);Counts", 3e3, AL, AR);
+
+    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
+
     TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
     TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
     TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
 
-    double DetTime[2] = {0};
-    double FlyTime = 0;
     int N = t->GetEntries();
     double Timestamp = 0;
+    double Timestampcor = 0;
     double TimeSum = 0;
     double PMTtime = 0;
+    double PMTtimecor = 0;
+    double reTOP = 0;
+    double reTrack = 0;
+    double reTrackSum = 0;
+    double meanreTrack = 0;
+    double CalPx,CalPy,CalPz;
+    vector<double> TT;
+    vector<double> AA;
+    TT.reserve(20e4);
+    AA.reserve(20e4);
+    //for (int i = 0; i < N; i++)
     for (int i = 0; i < N; i++)
     {
         t->GetEntry(i);
-        hdtheta->Fill(Caltheta[0] - Intheta[0]);
-        hdphi->Fill(Calphi[0] - Inphi[0]);
-        htheta->Fill(Caltheta[0]);
-        hphi->Fill(Calphi[0]);
+        hdtheta->Fill(Caltheta - Intheta);
+        hdphi->Fill(Calphi - Inphi);
+        htheta->Fill(Caltheta);
+        hphi->Fill(Calphi);
         hpos->Fill(InY[0], InZ[0]);
+        CalPx = -1*TMath::Cos(Caltheta);
+        CalPz = TMath::Sin(Caltheta)*TMath::Cos(Calphi);
+        CalPy = TMath::Sin(Caltheta)*TMath::Sin(Calphi);
+        //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
+        //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
 
         for (int s = 0; s < T; s++)
         {
@@ -896,9 +1202,14 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
             hNPE->Fill(CHID[s], NPE[s]);
         }
         Timestamp = 0;
+        Timestampcor = 0;
         PMTtime = 0;
+        PMTtimecor = 0;
+        reTrack = 0;
+        reTrackSum = 0;
         //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
         int PMTcounter = 0;
+        /*
         for (int k = 0; k < PMTN; k++)
         {
             if (U[PMTN + k] < 0 && xT0[PMTN + k] != 0 && U[k] < 0 && xT0[k] != 0)
@@ -907,6 +1218,25 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
                 PMTcounter++;
             }
         }
+        */
+        for (int k = 0; k < PMTN; k++)
+        {
+            //int k = 3;
+            if (U[k] < 0 && xT0[k] > 0)
+            {
+                //reTOP = RebuildTOP(1.5, InX[0], InY[0], InZ[0], InPX, InPY, InPZ, k + 1);
+                reTrack = RebuildTrack(1.5, CalX[0], CalY[0], CalZ[0], CalPx, CalPy, CalPz, k + 1);
+                reTrackSum += reTrack;
+                //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
+
+                PMTtime += xT0[k] - DetT0[0];
+                PMTtimecor += xT0[k] - DetT0[0] -reTrack/ 298 * 1.5;
+                //PMTtime = xT0[0] - DetT0[0];
+
+                PMTcounter++;
+            }
+        }
+        //if (PMTcounter >= 1)    return;
         /*
         for (int j = 0; j < DetN; j++)
         {
@@ -935,20 +1265,28 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
             }
         }
         */
-        FlyTime = (InX[0] - InX[PMTN]) / cos(Caltheta[0]) / 1.e3 / 3.e8 * 1.e9;
-        Timestamp = PMTtime / PMTcounter - FlyTime;
+        //FlyTime = (InX[0] - InX[1]) / cos(Caltheta) / 1.e3 / 3.e8 * 1.e9;
+        //Timestamp = PMTtime / PMTcounter - FlyTime;
+        Timestamp = PMTtime / PMTcounter;
+        Timestampcor = PMTtimecor / PMTcounter;
+        meanreTrack = reTrackSum / PMTcounter;
         hNPMT->Fill(PMTcounter);
-        h2dPMT->Fill(PMTcounter,Timestamp);
+        h2dPMT->Fill(PMTcounter, Timestamp);
 
         //cout<<"FlyTime"<<FlyTime<<endl;
-        if (PMTcounter >= 1)
+        if (PMTcounter >= 4)
         {
+            TT.push_back(Timestamp);
+            //AA.push_back(reTrack);
+            AA.push_back(meanreTrack);
 
             //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
             //cout << "timestamp: " << Timestamp << endl;
-            ht->Fill(Timestamp);
-            htheta_cut->Fill(Caltheta[0]);
-            hphi_cut->Fill(Calphi[0]);
+            //cout << "Timestamp: " << Timestamp << endl;
+            //ht->Fill(Timestamp);
+            htcor->Fill(Timestampcor);
+            htheta_cut->Fill(Caltheta);
+            hphi_cut->Fill(Calphi);
             hpos_cut->Fill(InY[0], InZ[0]);
         }
         /*
@@ -972,18 +1310,135 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     TLatex *la;
 
     char pngprefix[100];
-    sprintf(pngprefix, "%s/ALLPMT", path);
+    sprintf(pngprefix, "%s/%s", path,rootname);
     //
     // ---------draw Time Res --------//
     //
     c = cdC(CNum++);
     DrawMyHist(ht, "", "", 1, 2);
     //ht->Rebin(2);
-    ht->Draw();
-    fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    htcor->Draw();
+    //return;
+    fit = gausfit(htcor, 200e-3, 3, 3, rbt, tL, tR);
+    //fitT = gausfit(ht, 0.1, 3, 3, rbt*2, tL, tR);
+    if (!fit)
+    {
+        cout << "the htfit hist is NULL " << endl;
+        return;
+    }
     sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sTimeRes.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+    //
+    // ---------draw track vs TR --------//
+    //
+    c = cdC(CNum++);
+    const int iter = 5; //the number of iteration
+
+    //ht->Reset();
+    TH1F *htfit;
+    TH1F *hAfit;
+    TF1 *fitT;
+    TF1 *fitA;
+    TF1 *fitAT = new TF1("fitAT", "0", AL, AR);
+    double Treserve[200000];
+    double TAcor = 0;
+    double Amean = 0;
+    double Asigma = 0;
+    double Tmean = 0;
+    double Tsigma = 0;
+    for (int s = 0; s < iter; s++)
+    {
+        if (s != 0)
+        {
+            if (Amean - 3 * Asigma <= 0)
+
+                fitAT = profilefit(hAT, rbA /2, rbt * 4, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+            else
+                fitAT = profilefit(hAT, rbA / 2, rbt * 4, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+            if (!fitAT)
+            {
+                cout << " the profilefit is failed! " << endl;
+                return;
+            }
+            ht->Reset();
+            hAT->Reset();
+        }
+        for (int i = 0; i < TT.size(); i++)
+        {
+            if (s == 0)
+            {
+                cout << "AA & TT: " << AA[i] << "\t" << TT[i] << endl;
+                hA->Fill(AA[i]);
+                Treserve[i] = TT[i];
+                //tL = 23.5;
+                //tR = 25;
+                tL = -2;
+                tR = 2;
+                //tL = 43.5;
+                //tR = 46;
+            }
+            else
+            {
+
+                TAcor = fitAT->Eval(AA[i]);
+                Treserve[i] = Treserve[i] - TAcor;
+                tL = -1;
+                tR = 1;
+                
+            }
+            ht->Fill(Treserve[i]);
+            hAT->Fill(AA[i], Treserve[i]);
+        }
+        c->cd();
+        if (s == 0)
+        {
+            fitA = gausfit(hA, 10, 3, 3, rbA, AL, AR);
+            //return;
+            if (!fitA)
+            {
+                cout << "the hAfit hist is NULL " << endl;
+                return;
+            }
+            DrawMyHist(hA, "", "", 1, 3);
+            //fitA = (TF1 *)hAfit->GetFunction("fitU");
+            Amean = fitA->GetParameter(1);
+            Asigma = fitA->GetParameter(2);
+            cout << "Amean=" << Amean << ",\tAsigma=" << Asigma << endl;
+            sprintf(buff, "%s_reTrack.png", pngprefix);
+            c->SaveAs(buff);
+        }
+        c->Clear();
+        fitT = gausfit(ht, 0.1, 3, 3, rbt * 2, tL, tR);
+        if (!fitT)
+        {
+            cout << "the htfit hist is NULL " << endl;
+            return;
+        }
+        DrawMyHist(ht, "", "", 1, 3);
+        //fitT = (TF1 *)htfit->GetFunction("fitU");
+        Tmean = fitT->GetParameter(1);
+        Tsigma = fitT->GetParameter(2);
+        
+        ht->SetNdivisions(505);
+        sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
+        TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
+        l->Draw();
+        cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
+        sprintf(buff, "%s_TR_cor%d.png", pngprefix, s);
+        c->SaveAs(buff);
+    }
+    c = cdC(CNum++);
+    DrawMy2dHist(hAT, "", "", 1, 2);
+    //ht->Rebin(2);
+    hAT->Draw("colz");
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%shAT.png", pngprefix);
     c->SaveAs(buff);
     //return;
 
@@ -994,6 +1449,7 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     DrawMyHist(hNPMT, "", "", 1, 2);
     //ht->Rebin(2);
     hNPMT->Draw();
+    hNPMT->GetXaxis()->SetNdivisions(505);
     //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
@@ -1008,13 +1464,13 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     DrawMy2dHist(h2dPMT, "", "", 1, 2);
     //ht->Rebin(2);
     h2dPMT->Draw("colz");
+    h2dPMT->GetXaxis()->SetNdivisions(505);
     //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%s2dPMT.png", pngprefix);
     c->SaveAs(buff);
     //return;
-
 
     //
     // ---------draw delta theta --------//
@@ -1038,7 +1494,7 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     //ht->Rebin(2);
     hdphi->GetXaxis()->SetNdivisions(505);
     hdphi->Draw();
-    fit = gausfit(hdphi, 1e-3, 3, 3, 1, -0.1, 0.1);
+    fit = gausfit(hdphi, 10e-3, 3, 3, 2, -0.2, 0.2);
     sprintf(buff, "#sigma_{#phi}=%.0fmrad", fit->GetParameter(2) * 1e3);
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sdeltaphi.png", pngprefix);
@@ -1074,7 +1530,7 @@ void GetTimeRes(const char *rootname = "x2y2z1data")
     c = cdC(CNum++);
     DrawMyHist(hphi, "", "", 1, 2);
     hphi->Draw();
-    hphi->GetYaxis()->SetRangeUser(0, 15e3);
+    //hphi->GetYaxis()->SetRangeUser(0, 15e3);
     DrawMyHist(hphi_cut, "", "", 2, 2);
     //hphi_cut->Draw("");
     hphi_cut->Draw("SAME");

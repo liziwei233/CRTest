@@ -19,7 +19,7 @@
 #include "TLegend.h"
 #include "TVirtualPad.h"
 
-//using namespace std;
+using namespace std;
 
 char buff[1024];
 char line[180];
@@ -711,13 +711,14 @@ TF1 *fpeaksfit(TH1 *ha, int npeaks, double sigma, gausPAR *gPar, const char *nam
 
 TF1 *gausfit(TH1 *h, double sigma, double facleft, double facright, int rbU, double UL, double UR)
 {
+    cout <<"Your initial Range: "<< UL << "\t" << UR << endl;
     double mean = 0;
     //double sigma = 0;
     TH1 *hU = (TH1 *)h->Clone();
     hU->Draw();
     hU->Rebin(rbU);
     hU->GetXaxis()->SetRangeUser(UL, UR);
-    mean = hU->GetBinCenter(h->GetMaximumBin());
+    mean = hU->GetBinCenter(hU->GetMaximumBin());
     //sigma = hU->GetRMS();
     TF1 *fitU = new TF1("fitU", "gaus", mean - facleft * sigma, mean + facright * sigma);
     hU->GetXaxis()->SetRangeUser(mean - facleft * sigma, mean + facright * sigma);
@@ -901,8 +902,18 @@ TF1 *profilefit(TH2 *Rt, double rbU, double rbt, double tL, double tR, double UL
     TF1 *fitQt = new TF1("fitQt", "pol5", UL, UR);
 
     fitQt->SetNpx(1000000);
-    Qpfx->Fit(fitQt, "R");
-
+    TFitResultPtr failed = Qpfx->Fit(fitQt, "R");
+    if(failed) {
+        fitQt = new TF1("fitQt", "pol4", UL, UR);
+        fitQt->SetNpx(1000000);
+        failed = Qpfx->Fit(fitQt, "R");
+        if(failed) {
+            fitQt = new TF1("fitQt", "pol3", UL, UR);
+            fitQt->SetNpx(1000000);
+            failed = Qpfx->Fit(fitQt, "R");
+            if(failed) fitQt=NULL;
+        }
+    }
     sprintf(buff, "%s_pfx.png", name);
     cpfx->SaveAs(buff);
     sprintf(buff, "%s_ATrelationship.png", name);

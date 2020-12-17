@@ -65,10 +65,13 @@
           <volumeref ref="Detector" />
       </physvol>
 
+<!--
+
       <physvol copynumber="1">
           <volumeref ref="Detector" />
           <position unit="mm" x="-70"/>
       </physvol>
+-->
 
   </volume>
 

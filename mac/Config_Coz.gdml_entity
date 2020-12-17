@@ -75,10 +75,10 @@
 <matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />
 
 <variable name="iTracker" value="0" />
-<constant name="TrackerN" value="5" />
+<constant name="TrackerN" value="4" />
 <variable name="gap" value="50" />
 
-<matrix name="TrackerPosX" coldim="1" values="200 135 70 -150 -215" />
+<matrix name="TrackerPosX" coldim="1" values="135 70 -150 -215" />
 
 <variable name="iPMT" value="0" />
 <constant name="PMTN" value="4" />
