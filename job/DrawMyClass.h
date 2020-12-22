@@ -900,7 +900,6 @@ TF1 *profilefit(TH2 *Rt, double rbU, double rbt, double tL, double tR, double UL
 
     //TF1 *fitQt = new TF1("fitQt", "[0]+[1]/TMath::Sqrt(abs(x))+[2]/abs(x)+[3]/abs(x)/TMath::Sqrt(abs(x))+[4]/abs(x)/abs(x)", UL, UR);
     TF1 *fitQt = new TF1("fitQt", "pol5", UL, UR);
-
     fitQt->SetNpx(1000000);
     TFitResultPtr failed = Qpfx->Fit(fitQt, "R");
     if(failed) {

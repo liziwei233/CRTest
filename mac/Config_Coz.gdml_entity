@@ -44,6 +44,8 @@
 <variable name="TrackerX" value="15" />
 <variable name="TrackerY" value="150" />
 <variable name="TrackerZ" value="150" />
+<!--<variable name="TrackerY" value="180" />-->
+<!--<variable name="TrackerZ" value="180" />-->
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>
@@ -59,9 +61,9 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="detectorX*2+500" />
-<variable name="worldY" value="detectorY+20" />
-<variable name="worldZ" value="detectorZ+20" />
+<variable name="worldX" value="500" />
+<variable name="worldY" value="detectorY*4" />
+<variable name="worldZ" value="detectorZ*4" />
 <!--
 <variable name="worldX" value="detectorX+20" />
 <variable name="worldY" value="detectorY+20" />
@@ -79,6 +81,7 @@
 <variable name="gap" value="50" />
 
 <matrix name="TrackerPosX" coldim="1" values="135 70 -150 -215" />
+<!--<matrix name="TrackerPosX" coldim="1" values="70 -70" />-->
 
 <variable name="iPMT" value="0" />
 <constant name="PMTN" value="4" />

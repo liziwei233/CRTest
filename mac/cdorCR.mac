@@ -8,8 +8,8 @@
 /CRTest/generator/set CRY
 #/CRTest/generator/set Pdu
 #/CRTest/generator/set beam
-#/gun/position  250 0 0 mm
+/gun/position  100 0 0 mm
 #/gun/direction -1 0 0    #0 deg
-/run/beamOn 200000
+/run/beamOn 3000000
 #/run/beamOn 1000
 

@@ -418,7 +418,7 @@ double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, doub
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 //char path[1000] = "/Users/liziwei/learning/CRTest/build";
 char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
-void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
+void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
 
@@ -477,7 +477,7 @@ void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *Pa
     Double_t thrd = -30;   //Umax = -28.94mV
     double Rate = 0;
 
-    double possigma = 200e-3; //50 um
+    double possigma = 1000e-3; //50 um
 
     bool flag = 0;
     int index = 0;
@@ -661,7 +661,7 @@ void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *Pa
     for (int iEvent = 0; iEvent < N; iEvent++)
     //for (int iEvent = 0; iEvent < 10; iEvent++)
     {
-        cout << "The Entry No: " << iEvent << endl;
+        if(iEvent%10000==0) cout << "The Entry No: " << iEvent << endl;
 
         //-----------initial----------------------//
         hitT->clear();
@@ -686,6 +686,14 @@ void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *Pa
         t1->GetEntry(iEvent);
         if (!IncidX->empty() && !hitT->empty())
         {
+            int Trackers = 0;
+            /*
+            // Pick up which layer fires 
+            for(int iLayer=0;iLayer<IncidX->size();iLayer++){
+                if(IncidID->at(iLayer)==0||IncidID->at(iLayer)==1) Trackers++;
+            }
+            if (Trackers>=1)
+            */
             if (IncidX->size() == TrackerN + DetN)
             {
                 effN++;
@@ -887,6 +895,7 @@ void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *Pa
     if (effN < 1)
     {
         cout << " No effective Event, Check Your data please !" << endl;
+        
         return;
     }
     TCanvas *c = new TCanvas("c", "", 1600, 600);
@@ -1034,7 +1043,7 @@ void CalculateTR(const char *rootname = "CRY2", double fac = 0.2, const char *Pa
     cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
 }
 
-void GetTimeRes(const char *rootname = "CRY2data")
+void GetTimeRes(const char *rootname = "CRY3data")
 {
     //void MygStyle();
     //MygStyle();
@@ -1068,7 +1077,7 @@ void GetTimeRes(const char *rootname = "CRY2data")
     int bint = (tR - tL) / 0.5e-3;
     int binu = (uR - uL) / 30;
     const int PMTN = 4; //the number of PMT copyvolume
-    const int DetN = 2;
+    const int DetN = 1;
     const int T = PMTN * DetN; //the number of PMT copyvolume
 
     //---------------------------------------------------//
@@ -1274,9 +1283,9 @@ void GetTimeRes(const char *rootname = "CRY2data")
         h2dPMT->Fill(PMTcounter, Timestamp);
 
         //cout<<"FlyTime"<<FlyTime<<endl;
-        if (PMTcounter >= 4)
+        if (PMTcounter > 0)
         {
-            TT.push_back(Timestamp);
+            TT.push_back(Timestampcor);
             //AA.push_back(reTrack);
             AA.push_back(meanreTrack);
 
@@ -1284,7 +1293,7 @@ void GetTimeRes(const char *rootname = "CRY2data")
             //cout << "timestamp: " << Timestamp << endl;
             //cout << "Timestamp: " << Timestamp << endl;
             //ht->Fill(Timestamp);
-            htcor->Fill(Timestampcor);
+            htcor->Fill(Timestamp);
             htheta_cut->Fill(Caltheta);
             hphi_cut->Fill(Calphi);
             hpos_cut->Fill(InY[0], InZ[0]);
@@ -1319,7 +1328,8 @@ void GetTimeRes(const char *rootname = "CRY2data")
     //ht->Rebin(2);
     htcor->Draw();
     //return;
-    fit = gausfit(htcor, 200e-3, 3, 3, rbt, tL, tR);
+    //fit = gausfit(htcor, 200e-3, 3, 3, rbt*8, tL, tR);
+    fit = gausfit(htcor, 200e-3, 3, 3, rbt*2, tL, tR);
     //fitT = gausfit(ht, 0.1, 3, 3, rbt*2, tL, tR);
     if (!fit)
     {
@@ -1356,9 +1366,11 @@ void GetTimeRes(const char *rootname = "CRY2data")
         {
             if (Amean - 3 * Asigma <= 0)
 
-                fitAT = profilefit(hAT, rbA /2, rbt * 4, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+                //fitAT = profilefit(hAT, rbA *2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA , rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
             else
-                fitAT = profilefit(hAT, rbA / 2, rbt * 4, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+                //fitAT = profilefit(hAT, rbA * 2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA , rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
             if (!fitAT)
             {
                 cout << " the profilefit is failed! " << endl;
@@ -1412,7 +1424,8 @@ void GetTimeRes(const char *rootname = "CRY2data")
             c->SaveAs(buff);
         }
         c->Clear();
-        fitT = gausfit(ht, 0.1, 3, 3, rbt * 2, tL, tR);
+        //fitT = gausfit(ht, 0.1, 3, 3, rbt * 8, tL, tR);
+        fitT = gausfit(ht, 0.1, 3, 3, rbt * 4, tL, tR);
         if (!fitT)
         {
             cout << "the htfit hist is NULL " << endl;
@@ -1445,11 +1458,20 @@ void GetTimeRes(const char *rootname = "CRY2data")
     //
     // ---------draw Number of fired PMT--------//
     //
+    double Eff[5];
     c = cdC(CNum++);
     DrawMyHist(hNPMT, "", "", 1, 2);
     //ht->Rebin(2);
     hNPMT->Draw();
     hNPMT->GetXaxis()->SetNdivisions(505);
+    for (int i = 0; i < 5; i++)
+        {
+
+            Eff[i] = hNPMT->GetBinContent(hNPMT->FindBin(i)) / hNPMT->Integral();
+            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, Eff[i] * 100);
+            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+            la->Draw("same");
+        }
     //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
