@@ -5,6 +5,7 @@
 #include <TH1.h>
 #include <TStyle.h>
 #include <TRandom.h>
+#include <time.h>
 #include "DrawMyClass.h"
 TRandom3 r;
 TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
@@ -458,7 +459,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
     const int PMTN = 4; //the number of PMT copyvolume
     const int DetN = 1;
     const int T = PMTN * DetN; //the number of PMT copyvolume
-    const int TrackerN = 4;    //the number of Trackers
+    const int TrackerN = 2;    //the number of Trackers
 
     //Double_t parR[500]={};
     //Double_t parL[500]={};
@@ -477,7 +478,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
     Double_t thrd = -30;   //Umax = -28.94mV
     double Rate = 0;
 
-    double possigma = 1000e-3; //50 um
+    double possigma = 3000e-3; //50 um
 
     bool flag = 0;
     int index = 0;
@@ -687,14 +688,14 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
         if (!IncidX->empty() && !hitT->empty())
         {
             int Trackers = 0;
-            /*
+            
             // Pick up which layer fires 
             for(int iLayer=0;iLayer<IncidX->size();iLayer++){
-                if(IncidID->at(iLayer)==0||IncidID->at(iLayer)==1) Trackers++;
+                if(IncidID->at(iLayer)==0||IncidID->at(iLayer)==3) Trackers++;
             }
-            if (Trackers>=1)
-            */
-            if (IncidX->size() == TrackerN + DetN)
+            if (Trackers>=2)
+            
+            //if (IncidX->size() == TrackerN + DetN)
             {
                 effN++;
 
@@ -739,7 +740,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
 
                         Detcounter++;
                     }
-                    else
+                    else if(IncidID->at(i)==1||IncidID->at(i)==2)
                     {
                         TrackerX[Trackercounter] = IncidX->at(i);
                         TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
@@ -751,7 +752,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
                 {
 
                     CalX[i] = InX[i];
-                    GetTrackerAngle(TrackerN, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
+                    GetTrackerAngle(Trackercounter, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
                 }
                 for (int iT = 0; iT < T; iT++)
                 {
@@ -1161,8 +1162,12 @@ void GetTimeRes(const char *rootname = "CRY3data")
     TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
     TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
     TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
+    TH1D *hPMTID = new TH1D("hPMTID", ";PMTID;Counts", 4, 0, 4);
 
     TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
+    TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
+    TH1D *hdz = new TH1D("hdy", ";#Delta#Z (mm);Counts", 2000, -10, 10);
+    
 
     TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
     TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
@@ -1176,6 +1181,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
 
     int N = t->GetEntries();
+    cout<<"Total trigger events is: "<< N<<endl;
     double Timestamp = 0;
     double Timestampcor = 0;
     double TimeSum = 0;
@@ -1199,6 +1205,8 @@ void GetTimeRes(const char *rootname = "CRY3data")
         htheta->Fill(Caltheta);
         hphi->Fill(Calphi);
         hpos->Fill(InY[0], InZ[0]);
+        hdy->Fill(InY[0]-CalY[0]);
+        hdz->Fill(InZ[0]-CalZ[0]);
         CalPx = -1*TMath::Cos(Caltheta);
         CalPz = TMath::Sin(Caltheta)*TMath::Cos(Calphi);
         CalPy = TMath::Sin(Caltheta)*TMath::Sin(Calphi);
@@ -1243,6 +1251,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
                 //PMTtime = xT0[0] - DetT0[0];
 
                 PMTcounter++;
+                hPMTID->Fill(CHID[k]);
             }
         }
         //if (PMTcounter >= 1)    return;
@@ -1283,7 +1292,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
         h2dPMT->Fill(PMTcounter, Timestamp);
 
         //cout<<"FlyTime"<<FlyTime<<endl;
-        if (PMTcounter > 0)
+        if (PMTcounter ==4)
         {
             TT.push_back(Timestampcor);
             //AA.push_back(reTrack);
@@ -1320,6 +1329,32 @@ void GetTimeRes(const char *rootname = "CRY3data")
 
     char pngprefix[100];
     sprintf(pngprefix, "%s/%s", path,rootname);
+
+     //
+    // ---------draw efficiency of PMT--------//
+    //
+    double PMTEff[4];
+    c = cdC(CNum++);
+    DrawMyHist(hPMTID, "", "", 1, 2);
+    //ht->Rebin(2);
+    hPMTID->Draw();
+    hPMTID->GetXaxis()->SetNdivisions(505);
+    for (int i = 0; i < 4; i++)
+        {
+
+            PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
+            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
+            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+            la->Draw("same");
+        }
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sPMTID.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+
     //
     // ---------draw Time Res --------//
     //
@@ -1502,7 +1537,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     //ht->Rebin(2);
     hdtheta->GetXaxis()->SetNdivisions(505);
     hdtheta->Draw();
-    fit = gausfit(hdtheta, 1e-3, 3, 3, 1, -0.1, 0.1);
+    fit = gausfit(hdtheta, 30e-3, 3, 3, 1, -0.1, 0.1);
     sprintf(buff, "#sigma_{#theta}=%.0fmrad", fit->GetParameter(2) * 1e3);
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sdeltatheta.png", pngprefix);
@@ -1516,7 +1551,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     //ht->Rebin(2);
     hdphi->GetXaxis()->SetNdivisions(505);
     hdphi->Draw();
-    fit = gausfit(hdphi, 10e-3, 3, 3, 2, -0.2, 0.2);
+    fit = gausfit(hdphi, 100e-3, 3, 3, 2, -0.2, 0.2);
     sprintf(buff, "#sigma_{#phi}=%.0fmrad", fit->GetParameter(2) * 1e3);
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sdeltaphi.png", pngprefix);
@@ -1577,6 +1612,34 @@ void GetTimeRes(const char *rootname = "CRY3data")
     sprintf(buff, "E=%.2f", hpos_cut->Integral() / hpos->Integral());
     la = DrawMyLatex(buff, 0.2, 0.85);
     sprintf(buff, "%shitpos.png", pngprefix);
+    c->SaveAs(buff);
+
+    //
+    // ---------draw delta y --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdy, "", "", 1, 2);
+    hdy->Rebin(20);
+    hdy->GetXaxis()->SetNdivisions(505);
+    hdy->Draw();
+    fit = gausfit(hdy, 3, 3, 3, 1,-10, 10);
+    sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2) );
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltay.png", pngprefix);
+    c->SaveAs(buff);
+
+     //
+    // ---------draw delta z --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdz, "", "", 1, 2);
+    hdz->Rebin(20);
+    hdz->GetXaxis()->SetNdivisions(505);
+    hdz->Draw();
+    fit = gausfit(hdz, 3, 3, 3, 1, 10, 10);
+    sprintf(buff, "#sigma_{z}=%.0fmm", fit->GetParameter(2) );
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltaz.png", pngprefix);
     c->SaveAs(buff);
 }
 

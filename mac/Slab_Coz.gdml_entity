@@ -6,6 +6,11 @@
 <!-- Structure : Detector<-medium-lightguide
     <- PMT -->
 
+<volume name="FTOF">
+  <materialref ref="SiO2" />
+  <solidref ref="FTOFS" />
+</volume>
+
 <volume name="medium">
   <materialref ref="SiO2" />
   <!--

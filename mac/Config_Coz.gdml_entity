@@ -27,6 +27,7 @@
 <variable name="moduleZ" value="pmtZ+windowZ+SOZ"/>
 
 
+
 <variable name="trdZ" value="5"/>
 <variable name="trdW" value="10"/>
 <variable name="lgZ" value="5"/>
@@ -41,11 +42,14 @@
 <variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
 
 <!-- Tracker Configuration -->
-<variable name="TrackerX" value="15" />
+<variable name="TrackerX" value="15"  />
 <variable name="TrackerY" value="150" />
 <variable name="TrackerZ" value="150" />
-<!--<variable name="TrackerY" value="180" />-->
-<!--<variable name="TrackerZ" value="180" />-->
+
+<!-- Trigger Configuration -->
+<variable name="TriggerX" value="20"  />
+<variable name="TriggerY" value="200" />
+<variable name="TriggerZ" value="200" />
 
 <!-- PMT Configuration,R is radius
 <variable name="pmtZ" value="0.1"/>
@@ -61,7 +65,7 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="500" />
+<variable name="worldX" value="500+detectorX*10" />
 <variable name="worldY" value="detectorY*4" />
 <variable name="worldZ" value="detectorZ*4" />
 <!--
@@ -80,8 +84,8 @@
 <constant name="TrackerN" value="4" />
 <variable name="gap" value="50" />
 
-<matrix name="TrackerPosX" coldim="1" values="135 70 -150 -215" />
-<!--<matrix name="TrackerPosX" coldim="1" values="70 -70" />-->
+<!--<matrix name="TrackerPosX" coldim="1" values="135 70 -150 -215" />-->
+<matrix name="TrackerPosX" coldim="1" values="-305 -55 55 115" />
 
 <variable name="iPMT" value="0" />
 <constant name="PMTN" value="4" />

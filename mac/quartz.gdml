@@ -47,6 +47,13 @@
   <solidref ref="TrackerS" />
 </volume>
 
+<volume name="Trigger">
+  <materialref ref="SiO2" />
+  <solidref ref="TriggerS" />
+</volume>
+
+
+
   <volume name="World">
     <materialref ref="AIR" />
     <solidref ref="worldS" />
@@ -63,6 +70,20 @@
 
       <physvol copynumber="0">
           <volumeref ref="Detector" />
+      </physvol>
+      
+      <physvol copynumber="0">
+          <volumeref ref="FTOF" />
+          <position unit="mm" x="-100"/>
+      </physvol>
+      
+      <physvol copynumber="0">
+          <volumeref ref="Trigger" />
+          <position unit="mm" x="200"/>
+      </physvol>
+      <physvol copynumber="1">
+          <volumeref ref="Trigger" />
+          <position unit="mm" x="-400"/>
       </physvol>
 
 <!--

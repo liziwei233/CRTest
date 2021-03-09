@@ -9,6 +9,9 @@
 <!-- Tracker -->
 <box lunit="mm" name="TrackerS" x="TrackerX" y="TrackerY" z="TrackerZ" />
 
+<!-- Trigger -->
+<box lunit="mm" name="TriggerS" x="TriggerX" y="TriggerY" z="TriggerZ" />
+
 <!-- Detector -->
 <box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
 
@@ -44,8 +47,8 @@
   <section zOrder="2" zPosition="5" xOffset="0" yOffset="0" scalingFactor="1" />
 </xtru>
 
-
-
+<!-- FTOF  -->
+<trd name="FTOFS" x1="mediumX" x2="mediumX" y1="295" y2="533" z="454" lunit="mm"/>
  <!-- lightguide -->
 <!--<box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> -->
 
