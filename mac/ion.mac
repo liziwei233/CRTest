@@ -5,12 +5,12 @@
 /run/verbose 0
 /run/initialize
 
-
-/gun/ion 92 238 72
+/gun/particle ion
+/gun/ion 92 238 1
 #/gun/particle e-
 #/gun/energy 2 MeV
-/gun/energy 500 MeV
-/gun/position  0 0 0. cm
+/gun/energy 100 MeV
+/gun/position  0 1.5 0. cm
 #/gun/position  0 0 124.80 cm
 /gun/direction 0 1 0    #90deg
 #/gun/direction 0 0 1    #0 deg

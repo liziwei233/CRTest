@@ -40,7 +40,8 @@ Generator::~Generator()
 
 void Generator::GeneratePrimaries(G4Event *anEvent)
 {
-     G4ParticleDefinition* particle = fParticleGun->GetParticleDefinition();
+    /*
+    G4ParticleDefinition* particle = fParticleGun->GetParticleDefinition();
   if (particle == G4ParticleTable::GetParticleTable()->FindParticle("mu-")) {
     //fluorine 
     G4int Z = 92, A = 238;
@@ -52,7 +53,7 @@ void Generator::GeneratePrimaries(G4Event *anEvent)
     fParticleGun->SetParticleDefinition(ion);
     fParticleGun->SetParticleCharge(ionCharge);
   }
-
+*/
     G4ThreeVector position = GetWorldBoundary();
     position.setX(0. );
     //position.setY(0.75 *cm);

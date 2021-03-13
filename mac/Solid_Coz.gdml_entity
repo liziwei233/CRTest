@@ -27,7 +27,7 @@
 
 
  <!-- rectangular quartz -->
-<box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="mediumY" z="mediumZ" /> 
+<box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="1" z="mediumZ" /> 
 
  <!-- lightguide -->
 <box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> 
