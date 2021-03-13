@@ -59,16 +59,31 @@
 #include <vector>
 
 GdmlConstruction::GdmlConstruction(G4GDMLParser *gdml)
-	: SysConstruction(), fWorldPV(NULL), fGdml(gdml), fStepLimit(NULL),
-	  fPmtL(NULL), fPmtR(NULL), fRadianer(NULL), fPDetector(NULL), fQuartz(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(gdml), fStepLimit(NULL)
 {
 	Init();
 }
 
 GdmlConstruction::GdmlConstruction(G4String gdmlFileName)
-	: SysConstruction(), fWorldPV(NULL), fGdml(NULL), fStepLimit(NULL),
-	  fPmtL(NULL), fPmtR(NULL), fRadianer(NULL), fPDetector(NULL), fQuartz(NULL)
+	: SysConstruction(), fWorldPV(NULL), fGdml(NULL), fStepLimit(NULL)
 {
+	fTrigger = NULL;
+	fTracker = NULL;
+	fFTOF_medium = NULL;
+	fR10754_window = NULL;
+	fR10754_Sioil = NULL;
+	fR10754_anode = NULL;
+	fR10754_sensor = NULL;
+	fFTOF_detector = NULL;
+	fT0_medium = NULL;
+	fT0_Alwrap = NULL;
+	fR3809_anode = NULL;
+	fR3809_window = NULL;
+	fT0_Sioil = NULL;
+	fT0_lightguide = NULL;
+	fR3809_sensor = NULL;
+	fT0_detector = NULL;
+
 	fGdml = new G4GDMLParser;
 	fGdml->Read(gdmlFileName, false);
 
@@ -98,16 +113,30 @@ void GdmlConstruction::Init()
 	if (!fWorld)
 		fWorld = fWorldPV->GetLogicalVolume();
 	//fTarget = lvStore->GetVolume("Target", false);
-	fDetector = lvStore->GetVolume("Detector", false);
-	fRadianer = lvStore->GetVolume("medium", false);
-	fPDetector = lvStore->GetVolume("PMT", false);
 
-	fPmtL = lvStore->GetVolume("PMT_left", false);
-	fPmtR = lvStore->GetVolume("PMT_right", false);
+	fDetector = lvStore->GetVolume("Detector", false);
+
+	fTrigger = lvStore->GetVolume("Trigger", false);
+	fTracker = lvStore->GetVolume("Tracker", false);
+	fFTOF_medium = lvStore->GetVolume("FTOF_medium", false);
+	fR10754_window = lvStore->GetVolume("R10754_window", false);
+	fR10754_Sioil = lvStore->GetVolume("R10754_Sioil", false);
+	fR10754_anode = lvStore->GetVolume("R10754_anode", false);
+	fR10754_sensor = lvStore->GetVolume("R10754_sensor", false);
+	fFTOF_detector = lvStore->GetVolume("FTOF_detector", false);
+	fT0_medium = lvStore->GetVolume("T0_medium", false);
+	fT0_Alwrap = lvStore->GetVolume("T0_Alwrap", false);
+	fR3809_anode = lvStore->GetVolume("R3809_anode", false);
+	fR3809_window = lvStore->GetVolume("R3809_window", false);
+	fT0_Sioil = lvStore->GetVolume("T0_Sioil", false);
+	fT0_lightguide = lvStore->GetVolume("T0_lightguide", false);
+	fR3809_sensor = lvStore->GetVolume("R3809_sensor", false);
+	fT0_detector = lvStore->GetVolume("T0_detector", false);
 
 	fStepLimit = new G4UserLimits();
 	fStepLimit->SetUserMaxTime(20 * ns);
-	fRadianer->SetUserLimits(fStepLimit);
+	fFTOF_medium->SetUserLimits(fStepLimit);
+	fT0_medium->SetUserLimits(fStepLimit);
 
 	/*
   G4PhysicalVolumeStore* pvStore = G4PhysicalVolumeStore::GetInstance();
@@ -143,18 +172,28 @@ void GdmlConstruction::Init()
 G4VPhysicalVolume *GdmlConstruction::Construct()
 {
 	fWorld->SetVisAttributes(G4VisAttributes::Invisible);
+	fFTOF_detector->SetVisAttributes(G4VisAttributes::Invisible);
+	fT0_detector->SetVisAttributes(G4VisAttributes::Invisible);
+	fT0_Alwrap->SetVisAttributes(G4VisAttributes::Invisible);
 
-	G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 0.3)); //white
+	G4VisAttributes *visAttributes;
+	visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0, 0.3)); 					//white
+	fTrigger->SetVisAttributes(visAttributes);
+
 	visAttributes = new G4VisAttributes(G4Colour(0.0, 1.0, 0.0, 0.5));					//green
-	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.3));					//megenta
+	fTracker->SetVisAttributes(visAttributes);
 
-	fDetector->SetVisAttributes(visAttributes);
+	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 1.0, 0.3));					//megenta
+	fFTOF_medium->SetVisAttributes(visAttributes);
+
 	visAttributes = new G4VisAttributes(G4Colour(0.0, 0.0, 1.0, 1.0)); //blue
 																	   //visAttributes->SetVisibility(false);
 
-	fRadianer->SetVisAttributes(visAttributes);
+	fT0_medium->SetVisAttributes(visAttributes);
 	visAttributes = new G4VisAttributes(G4Colour(1.0, 0.0, 0.0, 1.0)); //red
-	fPDetector->SetVisAttributes(visAttributes);
+	fR3809_sensor->SetVisAttributes(visAttributes);
+	fR10754_sensor->SetVisAttributes(visAttributes);
+
 	/*
 	G4bool checkOverlaps = true;
 
@@ -339,19 +378,33 @@ void GdmlConstruction::ConstructSDandField()
 	//fPDetector->SetSensitiveDetector(hodoscope1);
 
 	//Analysis::Instance()->RegisterSD(pmtSD);
-	if (fPDetector)
+	
+	if (fR3809_anode)
 	{
 		// Create, Set & Register PmtSD
-		G4String sdName = "PmtSD";
-		PmtSD *pmtSD = new PmtSD(sdName);
-		SDManager->AddNewDetector(pmtSD);
-		fPDetector->SetSensitiveDetector(pmtSD);
+		G4String sdName = "R3809_anode";
+		PmtSD *R3809pmtSD = new PmtSD(sdName);
+		SDManager->AddNewDetector(R3809pmtSD);
+		fR3809_anode->SetSensitiveDetector(R3809pmtSD);
 
-		Analysis::Instance()->RegisterSD(pmtSD);
-		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
+		Analysis::Instance()->RegisterSD(R3809pmtSD);
+		G4cout << "[-] INFO - "<<sdName<<" has been registed succesfully!" << G4endl;
+	}
+	
+	if (fR10754_anode)
+	{
+		// Create, Set & Register PmtSD
+		G4String sdName = "R10754_anode";
+		PmtSD *fR10754pmtSD = new PmtSD(sdName);
+		SDManager->AddNewDetector(fR10754pmtSD);
+		fR10754_anode->SetSensitiveDetector(fR10754pmtSD);
+
+		Analysis::Instance()->RegisterSD(fR10754pmtSD);
+		G4cout << "[-] INFO - "<<sdName<<" has been registed succesfully!" << G4endl;
 	}
 
-	if (fRadianer)
+
+	if (fT0_medium)
 	{
 		G4String sdName = "CryPostionSD";
 		CryPositionSD *crySD = new CryPositionSD(sdName);
@@ -361,6 +414,7 @@ void GdmlConstruction::ConstructSDandField()
 		//Analysis::Instance()->RegisterSD(crySD);
 		G4cout << "[-] INFO - crySD has been registed succesfully!" << G4endl;
 	}
+	/*
 	if (fPmtL)
 	{
 		// Create, Set & Register PmtSD
@@ -383,7 +437,7 @@ void GdmlConstruction::ConstructSDandField()
 		Analysis::Instance()->RegisterSD(pmtRSD);
 		G4cout << "[-] INFO - pmtRSD has been registed succesfully!" << G4endl;
 	}
-
+*/
 	return;
 }
 

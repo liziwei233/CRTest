@@ -2,7 +2,7 @@
 # Build Path
 ################
 .build/
-
+build_backup/
 ######################
 ## Visual Studio Code
 ######################

@@ -89,7 +89,17 @@
   <property name="RESOLUTIONSCALE" ref="BC420_RESOLUTIONSCALE"/>
 </material>
 
-
+<material formula=" " name="Trigger_PS" >
+  <D value="1.032" />
+  <composite n="517" ref="Hydrogen" />
+  <composite n="469" ref="Carbon" />
+  <property name="RINDEX" ref="Trigger_PS_RINDEX"/>
+  <property name="SCINTILLATIONYIELD" ref="Trigger_PS_SCINTILLATIONYIELD"/>
+  <property name="FASTCOMPONENT" ref="Trigger_PS_FASTCOMPONENT"/>
+  <property name="FASTTIMECONSTANT" ref="Trigger_PS_FASTTIMECONSTANT"/>
+  <property name="ABSLENGTH" ref="Trigger_PS_ABSLENGTH"/>
+  <property name="RESOLUTIONSCALE" ref="Trigger_PS_RESOLUTIONSCALE"/>
+</material>
 
 <!--SiPM window -->
 <material formula=" " name="Resin" >

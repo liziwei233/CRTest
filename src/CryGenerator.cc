@@ -93,7 +93,7 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
             fParticleTable->FindParticle(particle->PDGid()));
         fParticleGun->SetParticleEnergy(particle->ke()*MeV);
         
-        G4ThreeVector position = GetWorldBoundary();
+        //G4ThreeVector position = GetWorldBoundary();
 
 /*
 //
@@ -120,13 +120,13 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
 
 //
 //** put generator vetex on side plane   x axis -> - x axis
- 
+        G4ThreeVector position(750.001,400.001,400.001);
         position.setX(position.x());
-        position.setY(0);
-        position.setZ(0);
+        //position.setY(0);
+        //position.setZ(0);
 
-        //position.setY(position.y()*(1-2*G4UniformRand()));
-        //position.setZ(position.z()*(1-2*G4UniformRand()));
+        position.setY(position.y()*(1-2*G4UniformRand()));
+        position.setZ(position.z()*(1-2*G4UniformRand()));
         fParticleGun->SetParticlePosition(position);
         fParticleGun->SetParticleMomentumDirection(
             G4ThreeVector(particle->w(),particle->v(),particle->u()));

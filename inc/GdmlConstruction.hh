@@ -43,14 +43,23 @@ private:
 private:
     G4VPhysicalVolume* fWorldPV;
 	
-	G4LogicalVolume* fPDetector;
-	G4LogicalVolume* fQuartz;
-
-	G4LogicalVolume* fRadianer;
-	G4LogicalVolume* fPmtL;
-	G4LogicalVolume* fPmtR;
-	G4LogicalVolume* fLightguide;
-    G4VPhysicalVolume* flgPV;
+	G4LogicalVolume* fTrigger;
+	G4LogicalVolume* fTracker;
+	G4LogicalVolume* fFTOF_medium;
+	G4LogicalVolume* fR10754_window;
+	G4LogicalVolume* fR10754_Sioil;
+	G4LogicalVolume* fR10754_anode;
+	G4LogicalVolume* fR10754_sensor;
+	G4LogicalVolume* fFTOF_detector;
+	G4LogicalVolume* fT0_medium;
+	G4LogicalVolume* fT0_Alwrap;
+	G4LogicalVolume* fR3809_anode;
+	G4LogicalVolume* fR3809_window;
+	G4LogicalVolume* fT0_Sioil;
+	G4LogicalVolume* fT0_lightguide;
+	G4LogicalVolume* fR3809_sensor;
+	G4LogicalVolume* fT0_detector;
+	
 	G4GDMLParser* fGdml;
 	G4UserLimits* fStepLimit;  
 };
