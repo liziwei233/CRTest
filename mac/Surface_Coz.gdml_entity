@@ -6,12 +6,15 @@
 <opticalsurface name="Tyvek_surf" model="unified" finish="ground" type="dielectric_metal" value="6.0*deg"/>
 
 <opticalsurface name="Al_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
-<opticalsurface name="Black_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
+<opticalsurface name="FTOF_Black_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
+<opticalsurface name="T0_Black_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
 
-<opticalsurface name="quartz_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
+<opticalsurface name="T0_quartz_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
+<opticalsurface name="FTOF_quartz_surf" model="unified" finish="polished" type="dielectric_dielectric" value="0.0"/>
 
 <opticalsurface name="scint_surf" model="unified" finish="polished" type="dielectric_metal" value="0"/>
-<opticalsurface name="photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<opticalsurface name="R10754_photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<opticalsurface name="R3809_photocath" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
 
 <opticalsurface name="lg_surf" model="unified" finish="ground" type="dielectric_dielectric" value="0.0*degree"/>
 <opticalsurface name="det_surf" model="unified" finish="polished" type="dielectric_metal" value="0.01"/>

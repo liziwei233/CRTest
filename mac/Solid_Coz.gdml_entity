@@ -3,7 +3,7 @@
 <!-- This file should be referenced in <solids></solids>-->
 <!-- Dependencies : Config.gdml_entity-->
 
-
+<!-- World -->
 <box lunit="mm" name="worldS" x="worldX" y="worldY" z="worldZ" />
 
 <!-- Tracker -->
@@ -12,58 +12,82 @@
 <!-- Trigger -->
 <box lunit="mm" name="TriggerS" x="TriggerX" y="TriggerY" z="TriggerZ" />
 
-<!-- Detector -->
-<box lunit="mm" name="detectorS" x="detectorX" y="detectorY" z="detectorZ" />
+<!-- TODO -->
+<!-- T0Detector -->
+
+<box name="T0_detectorS" aunit="radian" lunit="mm" x="T0_detectorX" y="T0_detectorY" z="T0_detectorZ"/>
+
+ <!--T0Detector *shield -->
+<box name="T0_shield_inS" aunit="radian" lunit="mm" x="T0_shieldX-2*T0_shieldT" y="T0_shieldY-2*T0_shieldT" z="T0_shieldZ-2*T0_shieldT"/>
+<box name="T0_shield_exS" aunit="radian" lunit="mm" x="T0_shieldX" y="T0_shieldY" z="T0_shieldZ"/>
+<subtraction name="T0_shieldS" > 
+  <first ref="T0_shield_exS" /> 
+  <second ref="T0_shield_inS"/> 
+</subtraction>
 
 
- <!-- PMT -->
- <tube name="moduleS" rmin="0" rmax="pmtR" z="pmtZ+windowZ+SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
-<tube name="pmtS" rmin="0" rmax="pmtR" z="pmtZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
-<tube name="windowS" rmin="0" rmax="pmtR" z="windowZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+ <!--T0Detector *Al wrap -->
+ <box aunit="radian" lunit="mm" name="T0_AlwrapS" x="T0_AlwrapX" y="T0_AlwrapY" z="T0_AlwrapZ" /> 
 
-<!--<box aunit="radian"  lunit="mm" name="pmtS" x="SiPMX" y="SiPMY" z="pmtZ" />
-<box aunit="radian"  lunit="mm" name="windowS" x="SiPMX" y="SiPMY" z="windowZ" />
+ <!-- T0Detector *rectangular quartz -->
+<box aunit="radian" lunit="mm" name="T0_mediumS" x="T0_mediumX" y="T0_mediumY" z="T0_mediumZ" /> 
+
+
+<!-- T0Detector *Xtru quartz
+  <xtru name = "theXtru" lunit= "mm" > 
+    <twoDimVertex x="-1*mediumtru" y="-1*mediumY/2" /> 
+    <twoDimVertex x="mediumtru" y="-1*mediumY/2" /> 
+    <twoDimVertex x="1*mediumY/2" y="-1*mediumtru" /> 
+    <twoDimVertex x="1*mediumY/2" y="mediumtru" /> 
+    <twoDimVertex x="mediumtru" y="mediumY/2" /> 
+    <twoDimVertex x="-1*mediumtru" y="mediumY/2" /> 
+    <twoDimVertex x="-1*mediumY/2" y="mediumtru" /> 
+    <twoDimVertex x="-1*mediumY/2" y="-1*mediumtru" /> 
+    
+    <section zOrder="1" zPosition="-5" xOffset="0" yOffset="0" scalingFactor="1" /> 
+    <section zOrder="2" zPosition="5" xOffset="0" yOffset="0" scalingFactor="1" />
+  </xtru>
+-->
+  
+  
+  
+  <!-- T0Detector *R3809 sensor -->
+  <tube name="R3809_sensorS" rmin="0" rmax="R3809_sensorR" z="R3809_sensorZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+  <tube name="R3809_anodeS" rmin="0" rmax="R3809_sensorR" z="R3809_anodeZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+  <tube name="R3809_windowS" rmin="0" rmax="R3809_sensorR" z="R3809_windowZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+
+ <!--  T0Detector *lightguide -->
+ <!-- lightguide *box -->
+<!--<box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> -->
+<!-- lightguide *trapezoid+tube
+  <trd name = "trd" x1="10" x2="10" y1="trdW" y2="10" z="trdZ" lunit= "mm"/>
+  <tube name = "tube" rmin="0" rmax="pmtR" z="5" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+  <union name="lgS_trd" > 
+    <first ref="trd" /> 
+    <second ref="tube"/> 
+    <positionref ref="unionPos" /> 
+  </union>
 -->
 
+<!-- lightguide *tube-->
+<tube name = "T0_lightguideS" rmin="0" rmax="R3809_sensorR" z="T0_lightguideZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 
- <!-- Al wrap -->
- <box aunit="radian" lunit="mm" name="AlwrapS" x="AlwrapX" y="AlwrapY" z="AlwrapZ" /> 
-
- <!-- rectangular quartz -->
-<box aunit="radian" lunit="mm" name="mediumS" x="mediumX" y="mediumY" z="mediumZ" /> 
-
-
-<xtru name = "theXtru" lunit= "mm" > 
-<twoDimVertex x="-1*mediumtru" y="-1*mediumY/2" /> 
-<twoDimVertex x="mediumtru" y="-1*mediumY/2" /> 
-<twoDimVertex x="1*mediumY/2" y="-1*mediumtru" /> 
-<twoDimVertex x="1*mediumY/2" y="mediumtru" /> 
-<twoDimVertex x="mediumtru" y="mediumY/2" /> 
-<twoDimVertex x="-1*mediumtru" y="mediumY/2" /> 
-<twoDimVertex x="-1*mediumY/2" y="mediumtru" /> 
-<twoDimVertex x="-1*mediumY/2" y="-1*mediumtru" /> 
-
-  <section zOrder="1" zPosition="-5" xOffset="0" yOffset="0" scalingFactor="1" /> 
-  <section zOrder="2" zPosition="5" xOffset="0" yOffset="0" scalingFactor="1" />
-</xtru>
-
-<!-- FTOF  -->
-<trd name="FTOFS" x1="mediumX" x2="mediumX" y1="295" y2="533" z="454" lunit="mm"/>
- <!-- lightguide -->
-<!--<box aunit="radian" lunit="mm" name="lgS" x="mediumX" y="mediumY" z="lgZ" /> -->
-
-<trd name = "trd" x1="10" x2="10" y1="trdW" y2="10" z="trdZ" lunit= "mm"/>
-<tube name = "tube" rmin="0" rmax="pmtR" z="5" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+<!--  T0Detector *optical glue --> 
+<tube name="T0_SioilS" rmin="0" rmax="R3809_sensorR" z="SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 
 
-<union name="lgS_trd" > 
-<first ref="trd" /> 
-<second ref="tube"/> 
-<positionref ref="unionPos" /> 
- </union>
+<!-- FTOF detector-->
+<box name="FTOF_shield_inS" aunit="radian" lunit="mm" x="FTOF_shieldX-2*FTOF_shieldT" y="FTOF_shieldY-2*FTOF_shieldT" z="FTOF_shieldZ-2*FTOF_shieldT"/>
+<box name="FTOF_shield_exS" aunit="radian" lunit="mm" x="FTOF_shieldX" y="FTOF_shieldY" z="FTOF_shieldZ"/>
+<subtraction name="FTOF_shieldS" > 
+  <first ref="FTOF_shield_exS" /> 
+  <second ref="FTOF_shield_inS"/> 
+</subtraction>
 
-<tube name = "lgS_tube" rmin="0" rmax="pmtR" z="lgZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
 
-<!-- optical glue -->
-<!--<box aunit="radian" lunit="mm" name="SiOilS" x="SiPMX" y="SiPMY" z="SOZ" />--> 
-<tube name="SiOilS" rmin="0" rmax="pmtR" z="SOZ" lunit= "mm" startphi="0" deltaphi="360" aunit= "deg" />
+<trd name="FTOF_detectorS" x1="FTOF_detectorX" x2="FTOF_detectorX" y1="FTOF_detectorY1" y2="FTOF_detectorY2" z="FTOF_detectorZ" lunit="mm"/>
+<trd name="FTOF_mediumS" x1="FTOF_mediumX" x2="FTOF_mediumX" y1="FTOF_mediumY1" y2="FTOF_mediumY2" z="FTOF_mediumZ" lunit="mm"/>
+<box name="R10754_sensorS" aunit="radian" lunit="mm" x="R10754_sensor_T" y="R10754_sensor_L" z="R10754_sensor_L"/>
+<box name="R10754_anodeS" aunit="radian" lunit="mm" x="R10754_anode_T" y="R10754_anode_L" z="R10754_anode_L"/>
+<box name="R10754_windowS" aunit="radian" lunit="mm" x="R10754_window_T" y="R10754_sensor_L" z="R10754_sensor_L"/>
+<box name="R10754_SioilS" aunit="radian" lunit="mm" x="SOZ" y="R10754_sensor_L" z="R10754_sensor_L"/>

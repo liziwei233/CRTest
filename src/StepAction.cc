@@ -67,9 +67,28 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
             }
         }
 
-        if (thePostPV->GetName() == "medium_PV" )
+        if (thePostPV->GetName() == "T0_medium_PV" )
         {
             copynumber = CalculateCopyNo(thePostPoint)+100;
+            if(!MuonRecorder::Instance()->flag[copynumber]){
+            MuonRecorder::Instance()->flag[copynumber] = 1;
+            MuonRecorder::Instance()->Record(theTrack);
+            MuonRecorder::Instance()->fDetID->push_back(copynumber);
+            }
+        }
+
+        if (thePostPV->GetName() == "FTOF_medium_PV" )
+        {
+            copynumber = CalculateCopyNo(thePostPoint)+200;
+            if(!MuonRecorder::Instance()->flag[copynumber]){
+            MuonRecorder::Instance()->flag[copynumber] = 1;
+            MuonRecorder::Instance()->Record(theTrack);
+            MuonRecorder::Instance()->fDetID->push_back(copynumber);
+            }
+        }
+        if (thePostPV->GetName() == "Trigger_PV" )
+        {
+            copynumber = CalculateCopyNo(thePostPoint)+300;
             if(!MuonRecorder::Instance()->flag[copynumber]){
             MuonRecorder::Instance()->flag[copynumber] = 1;
             MuonRecorder::Instance()->Record(theTrack);

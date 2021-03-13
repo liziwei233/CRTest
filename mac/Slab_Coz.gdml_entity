@@ -6,339 +6,238 @@
 <!-- Structure : Detector<-medium-lightguide
     <- PMT -->
 
-<volume name="FTOF">
+<!-- FTOF Logical volume -->
+<!-- **medium** -->
+<volume name="FTOF_shield">
+  <materialref ref="G4_Al" />
+  <solidref ref="FTOF_shieldS" />
+</volume>
+<volume name="FTOF_medium">
   <materialref ref="SiO2" />
-  <solidref ref="FTOFS" />
+  <solidref ref="FTOF_mediumS" />
 </volume>
 
-<volume name="medium">
+<!-- **R10754** -->
+<volume name="R10754_window">
+  <materialref ref="SiO2" />
+  <solidref ref="R10754_windowS" />
+</volume>
+<volume name="R10754_Sioil">
+  <materialref ref="EJ500" />
+  <solidref ref="R10754_SioilS" />
+</volume>
+<volume name="R10754_anode">
+  <materialref ref="G4_Si" />
+  <solidref ref="R10754_anodeS" />
+</volume>
+
+<volume name="R10754_sensor">
+  <materialref ref="AIR" />
+  <solidref ref="R10754_sensorS" />
+  
+  <loop for="ianode" to="anodeN-1" step="1">
+      <physvol copynumber="ianode">
+        <volumeref ref="R10754_anode" />
+        <position unit="mm" x="-R10754_sensor_T/2+SOZ+R10754_window_T+R10754_anode_T/2" />
+        <position unit="mm"
+        y="-R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*anodey[ianode+1]" />
+        <position unit="mm"
+        z="-R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*anodez[ianode+1]" />
+      </physvol>
+      
+  </loop>
+  
+  <physvol>
+    <volumeref ref="R10754_window" />
+    <position unit="mm" x="-R10754_sensor_T/2+SOZ+R10754_window_T/2" />
+    <position unit="mm" y="0" />
+    <position unit="mm" z="0" />
+  </physvol>
+  <physvol>
+    <volumeref ref="R10754_Sioil" />
+    <position unit="mm" x="-R10754_sensor_T/2+SOZ/2" />
+  </physvol>
+  
+</volume>
+
+<!-- **detecotr** -->
+<volume name="FTOF_detector">
+  <materialref ref="AIR" />
+  <solidref ref="FTOF_detectorS" />
+  
+  <physvol>
+    <volumeref ref="FTOF_medium" />
+    <position unit="mm" x="FTOF_detectorX/2-R10754_sensor_T-FTOF_mediumX/2" />
+  </physvol>
+
+  <loop for="iR10754_sensor" to="R10754_sensorN-1" step="1">
+    
+
+    <physvol copynumber="iR10754_sensor">
+      <volumeref ref="R10754_sensor" />
+      
+
+      <position unit="mm" x="FTOF_detectorX/2-R10754_sensor_T/2" />
+      <position unit="mm" y="-(R10754_sensorN-1)/2*(R10754_sensor_L+R10754_interval_L)+(R10754_sensor_L+R10754_interval_L)*iR10754_sensor" />
+      <position unit="mm" z="FTOF_mediumZ/2-R10754_sensor_L/2" />
+    </physvol>
+
+    
+  </loop>
+
+
+</volume>
+
+<!-- For T0 Detector Logical volume-->
+<volume name="T0_shield">
+  <materialref ref="G4_Al" />
+  <solidref ref="T0_shieldS" />
+</volume>
+
+<volume name="T0_medium">
   <materialref ref="SiO2" />
   <!--
   <materialref ref="AIR" />
   -->
-  <solidref ref="mediumS" />
+  <solidref ref="T0_mediumS" />
   <!--
   <solidref ref="theXtru" />
   -->
 </volume>
 
-<volume name="Alwrap">
+<volume name="T0_Alwrap">
   <materialref ref="G4_Al" />
-  <solidref ref="AlwrapS" />
+  <solidref ref="T0_AlwrapS" />
 </volume>
 
-<volume name="PMT">
+<volume name="R3809_anode">
   <materialref ref="G4_Si" />
-  <solidref ref="pmtS" />
+  <solidref ref="R3809_anodeS" />
 </volume>
-<volume name="Window">
+<volume name="R3809_window">
   <materialref ref="SiO2" />
-  <solidref ref="windowS" />
+  <solidref ref="R3809_windowS" />
 </volume>
-<volume name="SO">
+<volume name="T0_Sioil">
   <materialref ref="EJ500" />
-  <solidref ref="SiOilS" />
+  <solidref ref="T0_SioilS" />
 </volume>
 
-<volume name="lightguide">
+<volume name="T0_lightguide">
   <materialref ref="SiO2" />
-  <solidref ref="lgS_tube" />
+  <solidref ref="T0_lightguideS" />
   <!--<solidref ref="lgS_trd" />-->
 
 </volume>
 
-
-
-
-
-<!--
-<volume name="PMT_left">
-  <materialref ref="G4_Si" />
-  <solidref ref="pmtS" />
-</volume>
-
-
-<volume name="PMT_right">
-  <materialref ref="G4_Si" />
-  <solidref ref="pmtS" />
-</volume>
-
-<volume name="Window_left">
-  <materialref ref="SiO2" />
-  <solidref ref="windowS" />  
-</volume>
-
-
-
-<volume name="Window_right">
-  <materialref ref="SiO2" />
-  <solidref ref="windowS" />   
-</volume>
-
-<volume name="lightguide_left">
-  <materialref ref="SiO2" />
-  <solidref ref="lgS" />
-</volume>
-
-<volume name="lightguide_right">
-  <materialref ref="SiO2" />
-  <solidref ref="lgS" />
-</volume>
-
-<volume name="SO_left">
-  <materialref ref="EJ500" />
-  <solidref ref="SiOilS" />
-</volume>
-
-<volume name="SO_right">
-  <materialref ref="EJ500" />
-  <solidref ref="SiOilS" />
-</volume>
--->
-
-<volume name="Module">
+<volume name="R3809_sensor">
   <materialref ref="AIR" />
-  <solidref ref="moduleS" />
+  <solidref ref="R3809_sensorS" />
+
+  <physvol>
+    <volumeref ref="R3809_anode" />
+    <position unit="mm" x="0" />
+    <position unit="mm" y="0" />
+    <position unit="mm" z="SOZ/2.+R3809_windowZ/2." />
+  </physvol>
+
+  <physvol>
+    <volumeref ref="R3809_window" />
+    <position unit="mm" x="0" />
+    <position unit="mm" y="0" />
+    <position unit="mm" z="-R3809_anodeZ/2.+SOZ/2." />
+  </physvol>
+  <physvol>
+    <volumeref ref="T0_Sioil" />
+    <position unit="mm" z="-R3809_anodeZ/2.-R3809_windowZ/2." />
+  </physvol>
+
+</volume>
+
+<volume name="T0_detector">
+  <materialref ref="AIR" />
+  <solidref ref="T0_detectorS" />
   
-  <physvol>
-      <volumeref ref="PMT" />
-      <position unit="mm" x="0" />
-            <position unit="mm" y="0" />
-      <position unit="mm" z="SOZ/2.+windowZ/2."/>
+  <physvol copynumber="1">
+    <volumeref ref="T0_Alwrap" />
+    <position unit="mm" x="-T0_mediumX/2-T0_AlwrapX/2." />
   </physvol>
 
-  <physvol >
-       <volumeref ref="Window" />
-            <position unit="mm" x="0"/>
-      <position unit="mm" y="0"/>
-      <position unit="mm" z="-pmtZ/2.+SOZ/2."/>
-  </physvol>
   <physvol>
-    <volumeref ref="SO" />
-    <position unit="mm" z="-pmtZ/2.-windowZ/2." />
+    <volumeref ref="T0_medium" />
+    <position unit="mm" x="0" />
   </physvol>
 
-</volume>
-
-<volume name="Detector">
-  <materialref ref="AIR" />
-  <solidref ref="detectorS" />
-  <physvol>
-    <volumeref ref="medium" />
-    <!--
-    <rotation unit="deg" y="90" />
-    -->
-  </physvol>
 
   <physvol copynumber="0">
-    <volumeref ref="Alwrap" />
-    <position unit="mm" x="-AlwrapX/2.-mediumX/2."/>
+    <volumeref ref="T0_Alwrap" />
+    <position unit="mm" x="T0_mediumX/2+T0_AlwrapX/2." />
   </physvol>
 
-  <physvol copynumber="1">
-    <volumeref ref="Alwrap" />
-    <position unit="mm" x="AlwrapX/2.+mediumX/2."/>
-  </physvol>
+  <loop for="iR3809_sensor" to="R3809_sensorN-1" step="1">
 
+    <physvol copynumber="iR3809_sensor">
+      <volumeref ref="T0_lightguide" />
+      <rotation unit="deg" x="iR3809_sensor*90" />
+
+      <position unit="mm" x="0" />
+      <position unit="mm" y="Model1PMTPosY[iR3809_sensor+1]*(T0_mediumZ/2.+T0_lightguideZ/2.)" />
+      <position unit="mm" z="Model1PMTPosZ[iR3809_sensor+1]*(T0_mediumZ/2.+T0_lightguideZ/2.)" />
+    </physvol>
+
+    <physvol copynumber="iR3809_sensor">
+      <volumeref ref="R3809_sensor" />
+      <rotation unit="deg" x="iR3809_sensor*90" />
+
+      <position unit="mm" x="0" />
+      <position unit="mm" y="Model1PMTPosY[iR3809_sensor+1]*(T0_mediumZ/2.+T0_lightguideZ+R3809_sensorZ/2.)" />
+      <position unit="mm" z="Model1PMTPosZ[iR3809_sensor+1]*(T0_mediumZ/2.+T0_lightguideZ+R3809_sensorZ/2.)" />
+    </physvol>
+
+  </loop>
+
+
+</volume>
+
+<!--
+
+  <volume name="Detector1">
+    <materialref ref="AIR" />
+    <solidref ref="detectorS" />
+    <physvol>
+      <volumeref ref="medium" />
+    </physvol>
+ 
 <loop for="iPMT" to="PMTN-1" step="1">
   
-      
-
-  <!--PMTs are placed in model3
-      <physvol copynumber="iPMT">
-       <volumeref ref="Module" />
-      <rotation unit="deg" y="90" />
-
-	    <position unit="mm" x="-mediumX/2.-moduleZ/2."/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumY/4)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/4)"/>
-      </physvol>
--->
-
-  <!-- PMTs are placed in model2
-      <physvol copynumber="iPMT">
-       <volumeref ref="lightguide" />
-      <rotation unit="deg" x="45+iPMT*90" />
-
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+trdZ/2.)/sqrt(2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+trdZ/2.)/sqrt(2.)"/>
-      </physvol>
-      <physvol copynumber="iPMT">
-       <volumeref ref="Module" />
-      <rotation unit="deg" x="45+iPMT*90" />
-
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+lgZ+moduleZ/2.)/sqrt(2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+lgZ+moduleZ/2.)/sqrt(2.)"/>
-      </physvol>
--->
-
-  <!-- PMTs are placed in model1 
-  -->
-
   <physvol copynumber="iPMT">
-       <volumeref ref="lightguide" />
-      <rotation unit="deg" x="iPMT*90" />
-
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="Model1PMTPosY[iPMT+1]*(mediumZ/2.+trdZ/2.)"/>
-      <position unit="mm" z="Model1PMTPosZ[iPMT+1]*(mediumZ/2.+trdZ/2.)"/>
-      </physvol>
-
-      <physvol copynumber="iPMT">
-       <volumeref ref="Module" />
-      <rotation unit="deg" x="iPMT*90" />
-
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="Model1PMTPosY[iPMT+1]*(mediumZ/2.+lgZ+moduleZ/2.)"/>
-      <position unit="mm" z="Model1PMTPosZ[iPMT+1]*(mediumZ/2.+lgZ+moduleZ/2.)"/>
-      </physvol>
-
-<!--
-      <physvol copynumber="iPMT">
-       <volumeref ref="Window" />
-      <rotation unit="deg" x="45+iPMT*90" />
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ+windowZ/2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ+windowZ/2.)"/>
-      </physvol>
-
-      <physvol copynumber="iPMT">
-      <volumeref ref="PMT" />
-      <rotation unit="deg" x="45+iPMT*90" />
-      <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ+windowZ+pmtZ/2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ+windowZ+pmtZ/2.)"/>
-      </physvol>
-
-      <physvol copynumber="iPMT">
-      <volumeref ref="SO" />
-      <rotation unit="deg" x="45+iPMT*90" />
-      <position unit="mm" x="0" />
-	    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumposZ/2.+SOZ/2.)" />
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumposZ/2.+SOZ/2.)" />
-      </physvol>
--->
-  </loop>
-
-
-</volume>
-
-
-<volume name="Detector1">
-  <materialref ref="AIR" />
-  <solidref ref="detectorS" />
-  <physvol>
-    <volumeref ref="medium" />
-  </physvol>
-<!--
-  <physvol>
-    <volumeref ref="lightguide_left" />
-    <position unit="mm" z="160.+19." />
-  </physvol>
-  <physvol>
-    <volumeref ref="lightguide_right" />
-    <position unit="mm" z="-160.-19." />
-  </physvol>
--->
-
-<!--
-  <physvol>
-    <volumeref ref="PMT_left" />
-    <position unit="mm" z="mediumZ/2.+SOZ+pmtZ+pmtZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="PMT_right" />
-    <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ-pmtZ/2." />
-  </physvol>
-  
-  
-    <physvol >
-       <volumeref ref="Window_left" />
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="0"/>
-      <position unit="mm" z="mediumZ/2.+SOZ+windowZ/2."/>
-      </physvol>
-
-      <physvol >
-      <volumeref ref="Window_right" />
-      <position unit="mm" x="0" />
-	    <position unit="mm" y="0" />
-      <position unit="mm" z="-mediumZ/2.-SOZ-windowZ/2." />
-      </physvol>
-
-      <physvol>
-      <volumeref ref="PMT_left" />
-      <position unit="mm" x="0" />
-	    <position unit="mm" y="0" />
-      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2.+windowZ"/>
-      </physvol>
-
-      <physvol>
-      <volumeref ref="PMT_right" />
-      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2.-windowZ"/>
-      </physvol>
-  
--->
-
-  <!--
-  <loop for="iSiPM" to="SiPMN-1" step="1">
-  
-      <physvol copynumber="0">
-       <volumeref ref="Window_left" />
-	    <position unit="mm" x="SiPMPosX[iSiPM+1]"/>
-      <position unit="mm" y="SiPMPosY[iSiPM+1]"/>
-      <position unit="mm" z="mediumZ/2.+SOZ+pmtZ/2."/>
-      </physvol>
-
-      <physvol copynumber="0">
-      <volumeref ref="Window_right" />
-      <position unit="mm" x="SiPMPosX[iSiPM+1]" />
-	    <position unit="mm" y="SiPMPosY[iSiPM+1]" />
-      <position unit="mm" z="-mediumZ/2.-SOZ-pmtZ/2." />
-      </physvol>
-
-  </loop>
-  <physvol>
-    <volumeref ref="SO_left" />
-    <position unit="mm" z="mediumZ/2.+SOZ/2." />
-  </physvol>
-  <physvol>
-    <volumeref ref="SO_right" />
-    <position unit="mm" z="-mediumZ/2.-SOZ/2." />
-  </physvol>
-  -->
+    <volumeref ref="Window" />
     
-  <loop for="iPMT" to="PMTN-1" step="1">
+    <rotation unit="deg" x="0+iPMT*90" />
+    
+    <position unit="mm" x="0" />
+    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)" />
+    <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)" />
+  </physvol>
   
-      <physvol copynumber="iPMT">
-       <volumeref ref="Window" />
-       <!--<rotationref ref="rot"/>-->
-      <rotation unit="deg" x="0+iPMT*90" />
-
-	    <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ/2.)"/>
-      </physvol>
-
-      <physvol copynumber="iPMT">
-      <volumeref ref="PMT" />
-      <rotation unit="deg" x="0+iPMT*90" />
-      <position unit="mm" x="0"/>
-      <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)"/>
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)"/>
-      </physvol>
-
-      <physvol copynumber="iPMT">
-      <volumeref ref="SO" />
-      <rotation unit="deg" x="0+iPMT*90" />
-      <position unit="mm" x="0" />
-	    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
-      <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
-      </physvol>
-
-  </loop>
+  <physvol copynumber="iPMT">
+    <volumeref ref="PMT" />
+    <rotation unit="deg" x="0+iPMT*90" />
+    <position unit="mm" x="0" />
+    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)" />
+    <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ+windowZ+pmtZ/2.)" />
+  </physvol>
+  
+  <physvol copynumber="iPMT">
+    <volumeref ref="SO" />
+    <rotation unit="deg" x="0+iPMT*90" />
+    <position unit="mm" x="0" />
+    <position unit="mm" y="PMTPosY[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
+    <position unit="mm" z="PMTPosZ[iPMT+1]*(mediumZ/2.+SOZ/2.)" />
+  </physvol>
+  
+</loop>
 
 
 </volume>
+-->

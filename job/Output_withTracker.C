@@ -43,7 +43,15 @@ Double_t response(Double_t x, Double_t par[7])
 
     return val;
 }
-
+bool SearchforID(int id, vector<int> &vector)
+{
+    for (int i = 0; i < vector.size(); i++)
+    {
+        if (vector.at(i) == id)
+            return true;
+    }
+    return false;
+}
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
 {
     if (par.empty())
@@ -419,6 +427,306 @@ double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, doub
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 //char path[1000] = "/Users/liziwei/learning/CRTest/build";
 char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
+void CalculateEff(const char *rootname = "CRY3")
+{
+    clock_t start, finish;
+    double totaltime;
+    start = clock();
+
+    char name[1024];
+    char buff[1024];
+
+    const int T0N = 1; //the number of T0
+    const int R3809_sensorN = 4;
+    const int R3809_sensor_ch_N = 1;
+    const int T0_sensorN = T0N * R3809_sensorN * R3809_sensor_ch_N; //the number of channels of T0
+    const int FTOFN = 1;                                            //the number of FTOF
+    const int R10754_sensorN = 8;
+    const int R10754_sensor_ch_N = 16;
+    const int FTOF_sensorN = FTOFN * R10754_sensorN * R10754_sensor_ch_N; //the number of channels of FTOF
+    const int TrackerN = 4;                                               //the number of Trackers
+    const int TriggerN = 2;                                               //the number of Triggers
+    TH1I *hTrackereff = new TH1I("hTrackereff", "", TrackerN + 1, 0, TrackerN + 1);
+    TH1I *hMMeff = new TH1I("hMMeff", "", TrackerN, 0, TrackerN);
+    TH1I *hlackMMeff = new TH1I("hlackMMeff", "", TrackerN, 0, TrackerN);
+    TH1I *hT0eff = new TH1I("hT0eff", "", T0_sensorN + 1, 0, T0_sensorN + 1);
+    TH1I *hT0CHeff = new TH1I("hT0CHeff", "", T0_sensorN, 0, T0_sensorN);
+    TH1I *hFTOFeff = new TH1I("hFTOFeff", "", FTOF_sensorN + 1, 0, FTOF_sensorN + 1);
+    TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOF_sensorN, 0, FTOF_sensorN);
+
+    sprintf(name, "%s/%s", path, rootname);
+    sprintf(buff, "%s.root", name);
+
+    vector<int> *T0chID = new vector<int>;
+    vector<int> *FTOFchID = new vector<int>;
+    vector<double> *mu_hittime = new vector<double>;
+    vector<double> *mu_hitx = new vector<double>; //the position of incident event
+    vector<double> *mu_hity = new vector<double>;
+    vector<double> *mu_hitz = new vector<double>;
+    vector<int> *mu_hitID = new vector<int>;
+    vector<double> *mu_px = new vector<double>; //the direction of incident event
+    vector<double> *mu_py = new vector<double>;
+    vector<double> *mu_pz = new vector<double>;
+    vector<double> *mu_energy = new vector<double>;
+    TFile *f1 = new TFile(buff, "READ");
+    TTree *t1 = (TTree *)f1->Get("Run");
+
+    t1->SetBranchAddress("R107.id", &FTOFchID);
+    t1->SetBranchAddress("R380.id", &T0chID);
+
+    t1->SetBranchAddress("mu.t", &mu_hittime);
+    t1->SetBranchAddress("mu.x", &mu_hitx);
+    t1->SetBranchAddress("mu.y", &mu_hity);
+    t1->SetBranchAddress("mu.z", &mu_hitz);
+    t1->SetBranchAddress("mu.DetID", &mu_hitID);
+
+    t1->SetBranchAddress("mu.px", &mu_px);
+    t1->SetBranchAddress("mu.py", &mu_py);
+    t1->SetBranchAddress("mu.pz", &mu_pz);
+    t1->SetBranchAddress("mu.E", &mu_energy);
+
+    int triggercounter = 0;
+    int trackercounter = 0;
+    int T0counter = 0;
+    int FTOFcounter = 0;
+
+    vector<int> triggervec;
+    vector<int> trackervec;
+    vector<int> T0vec;
+    vector<int> FTOFvec;
+    int N = t1->GetEntries();
+    cout << "Entries = " << N << endl;
+    for (int iEvent = 0; iEvent < N; iEvent++)
+    //for (int iEvent = 0; iEvent < 10; iEvent++)
+    {
+        if (iEvent % 10000 == 0)
+            cout << "The Entry No: " << iEvent << endl;
+
+        //-----------initial----------------------//
+        T0chID->clear();
+        FTOFchID->clear();
+        mu_hittime->clear();
+        mu_hitx->clear();
+        mu_hity->clear();
+        mu_hitz->clear();
+        mu_hitID->clear();
+        mu_px->clear();
+        mu_py->clear();
+        mu_pz->clear();
+        mu_energy->clear();
+
+        triggervec.clear();
+        trackervec.clear();
+        T0vec.clear();
+        FTOFvec.clear();
+
+        t1->GetEntry(iEvent);
+        // create vector to store id
+
+        for (int ihitdet = 0; ihitdet < mu_hitID->size(); ihitdet++)
+        {
+            int theID = mu_hitID->at(ihitdet);
+            if (theID == 300 || theID == 301)
+                triggervec.push_back(theID);
+            if (theID >= 0 && theID < TrackerN)
+                trackervec.push_back(theID);
+            if (theID == 100)
+            {
+                for (int iT0hit = 0; iT0hit < T0chID->size(); iT0hit++)
+                {
+                    int theT0chID = T0chID->at(iT0hit);
+                    if (T0vec.empty())
+                        T0vec.push_back(theT0chID);
+                    else if (!SearchforID(theT0chID, T0vec))
+                        T0vec.push_back(theT0chID);
+                }
+            }
+            if (theID == 200)
+            {
+                for (int iFTOFhit = 0; iFTOFhit < FTOFchID->size(); iFTOFhit++)
+                {
+                    int theFTOFchID = FTOFchID->at(iFTOFhit);
+                    if (FTOFvec.empty())
+                        FTOFvec.push_back(theFTOFchID);
+                    else if (!SearchforID(theFTOFchID, FTOFvec))
+                        FTOFvec.push_back(theFTOFchID);
+                }
+            }
+        }
+        if (triggervec.size() > 1)
+        {
+
+            triggercounter++;
+            if (trackervec.size() > 0)
+            {
+
+                trackercounter++;
+                hTrackereff->Fill(trackervec.size());
+                for (int j = 0; j < trackervec.size(); j++)
+                {
+                    hMMeff->Fill(trackervec.at(j));
+                }
+                if (trackervec.size() == 3)
+                    for (int j = 0; j < TrackerN; j++)
+                    {
+
+                        if (!SearchforID(j, trackervec))
+                            hlackMMeff->Fill(j);
+                    }
+            }
+            if (T0vec.size() > 0)
+            {
+
+                T0counter++;
+                hT0eff->Fill(T0vec.size());
+                for (int j = 0; j < T0vec.size(); j++)
+                {
+                    hT0CHeff->Fill(T0vec.at(j));
+                }
+            }
+            if (FTOFvec.size() > 0)
+            {
+
+                FTOFcounter++;
+                hFTOFeff->Fill(FTOFvec.size());
+                for (int j = 0; j < FTOFvec.size(); j++)
+                {
+                    hFTOFCHeff->Fill(FTOFvec.at(j));
+                }
+            }
+        }
+    }
+
+    cout << "Trigger coincidence: " << triggercounter << endl
+         << "tracker counter: " << trackercounter << endl
+         << "T0 counter: " << T0counter << endl
+         << "FTOF counter: " << T0counter << endl;
+    TLatex *la;
+    TCanvas *c;
+    int ccounter=0;
+
+    
+//** draw tracker eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hTrackereff, "Numbers of MM", "Counts",2, 3);
+    hTrackereff->Draw();
+    double Trackereff[TrackerN];   
+    for (int i = 0; i < TrackerN; i++)
+    {
+
+        Trackereff[i] = hTrackereff->GetBinContent(i + 2) / trackercounter;
+        sprintf(buff, "Numbers of MM=%d,Eff=%.1f%%", i + 1, Trackereff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sTrackereff.png",path,rootname);
+    c->SaveAs(buff);
+
+//** draw MM eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hMMeff, "ID of MM", "Counts",2, 3);
+    hMMeff->Draw();
+    double MMeff[TrackerN];   
+    for (int i = 0; i < TrackerN; i++)
+    {
+
+        MMeff[i] = hMMeff->GetBinContent(i + 1) / trackercounter;
+        sprintf(buff, "ID of MM=%d,Eff=%.1f%%", i + 1, MMeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sMMeff.png",path,rootname);
+    c->SaveAs(buff);
+
+//** draw MM true eff
+//*
+    int allfires=allfires = hTrackereff->GetBinContent(TrackerN + 1);
+    c = cdC(ccounter++);
+    DrawMyHist(hlackMMeff, "ID of MM", "Counts",2, 3);
+    hlackMMeff->Draw();
+    double MMtrueeff[TrackerN];   
+    for (int i = 0; i < TrackerN; i++)
+    {
+
+        MMtrueeff[i] = allfires/(allfires+hlackMMeff->GetBinContent(i + 1));
+        sprintf(buff, "ID of MM=%d,true Eff=%.1f%%", i + 1, MMtrueeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+     sprintf(buff,"%s/%sMMtrueeff.png",path,rootname);
+    c->SaveAs(buff);
+
+//** draw T0 eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hT0eff, "Numbers of firedch", "Counts",2, 3);
+    hT0eff->Draw();
+    double T0eff[T0_sensorN];   
+    for (int i = 0; i < T0_sensorN; i++)
+    {
+
+        T0eff[i] = hT0eff->GetBinContent(i + 2) / T0counter;
+        sprintf(buff, "Numbers of firedch=%d,Eff=%.1f%%", i + 1, T0eff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sT0eff.png",path,rootname);
+    c->SaveAs(buff);
+
+//** draw T0ch eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hT0CHeff, "ID of T0", "Counts",2, 3);
+    hT0CHeff->Draw();
+    double T0CHeff[T0_sensorN];   
+    for (int i = 0; i < T0_sensorN; i++)
+    {
+
+        T0CHeff[i] = hT0CHeff->GetBinContent(i + 1) / T0counter;
+        sprintf(buff, "ID of T0=%d,Eff=%.1f%%", i + 1, T0CHeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sT0CHeff.png",path,rootname);
+    c->SaveAs(buff);
+
+    //** draw FTOF eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hFTOFeff, "Numbers of firedch", "Counts",2, 3);
+    hFTOFeff->Draw();
+    double FTOFeff[FTOF_sensorN];   
+    for (int i = 0; i < FTOF_sensorN; i++)
+    {
+
+        FTOFeff[i] = hFTOFeff->GetBinContent(i + 2) / FTOFcounter;
+        sprintf(buff, "Numbers of firedch=%d,Eff=%.1f%%", i + 1, FTOFeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sFTOFeff.png",path,rootname);
+    c->SaveAs(buff);
+
+//** draw FTOFch eff
+//*
+    c = cdC(ccounter++);
+    DrawMyHist(hFTOFCHeff, "ID of FTOF", "Counts",2, 3);
+    hFTOFCHeff->Draw();
+    double FTOFCHeff[FTOF_sensorN];   
+    for (int i = 0; i < FTOF_sensorN; i++)
+    {
+
+        FTOFCHeff[i] = hFTOFCHeff->GetBinContent(i + 1) / FTOFcounter;
+        sprintf(buff, "ID of FTOF=%d,Eff=%.1f%%", i + 1, FTOFCHeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.3 + 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    sprintf(buff,"%s/%sFTOFCHeff.png",path,rootname);
+    c->SaveAs(buff);
+
+}
 void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
@@ -662,7 +970,8 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
     for (int iEvent = 0; iEvent < N; iEvent++)
     //for (int iEvent = 0; iEvent < 10; iEvent++)
     {
-        if(iEvent%10000==0) cout << "The Entry No: " << iEvent << endl;
+        if (iEvent % 10000 == 0)
+            cout << "The Entry No: " << iEvent << endl;
 
         //-----------initial----------------------//
         hitT->clear();
@@ -688,13 +997,15 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
         if (!IncidX->empty() && !hitT->empty())
         {
             int Trackers = 0;
-            
-            // Pick up which layer fires 
-            for(int iLayer=0;iLayer<IncidX->size();iLayer++){
-                if(IncidID->at(iLayer)==0||IncidID->at(iLayer)==3) Trackers++;
+
+            // Pick up which layer fires
+            for (int iLayer = 0; iLayer < IncidX->size(); iLayer++)
+            {
+                if (IncidID->at(iLayer) == 0 || IncidID->at(iLayer) == 3)
+                    Trackers++;
             }
-            if (Trackers>=2)
-            
+            if (Trackers >= 2)
+
             //if (IncidX->size() == TrackerN + DetN)
             {
                 effN++;
@@ -740,7 +1051,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
 
                         Detcounter++;
                     }
-                    else if(IncidID->at(i)==1||IncidID->at(i)==2)
+                    else if (IncidID->at(i) == 1 || IncidID->at(i) == 2)
                     {
                         TrackerX[Trackercounter] = IncidX->at(i);
                         TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
@@ -896,7 +1207,7 @@ void CalculateTR(const char *rootname = "CRY3", double fac = 0.2, const char *Pa
     if (effN < 1)
     {
         cout << " No effective Event, Check Your data please !" << endl;
-        
+
         return;
     }
     TCanvas *c = new TCanvas("c", "", 1600, 600);
@@ -1167,7 +1478,6 @@ void GetTimeRes(const char *rootname = "CRY3data")
     TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
     TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
     TH1D *hdz = new TH1D("hdy", ";#Delta#Z (mm);Counts", 2000, -10, 10);
-    
 
     TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
     TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
@@ -1181,7 +1491,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
 
     int N = t->GetEntries();
-    cout<<"Total trigger events is: "<< N<<endl;
+    cout << "Total trigger events is: " << N << endl;
     double Timestamp = 0;
     double Timestampcor = 0;
     double TimeSum = 0;
@@ -1191,7 +1501,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     double reTrack = 0;
     double reTrackSum = 0;
     double meanreTrack = 0;
-    double CalPx,CalPy,CalPz;
+    double CalPx, CalPy, CalPz;
     vector<double> TT;
     vector<double> AA;
     TT.reserve(20e4);
@@ -1205,11 +1515,11 @@ void GetTimeRes(const char *rootname = "CRY3data")
         htheta->Fill(Caltheta);
         hphi->Fill(Calphi);
         hpos->Fill(InY[0], InZ[0]);
-        hdy->Fill(InY[0]-CalY[0]);
-        hdz->Fill(InZ[0]-CalZ[0]);
-        CalPx = -1*TMath::Cos(Caltheta);
-        CalPz = TMath::Sin(Caltheta)*TMath::Cos(Calphi);
-        CalPy = TMath::Sin(Caltheta)*TMath::Sin(Calphi);
+        hdy->Fill(InY[0] - CalY[0]);
+        hdz->Fill(InZ[0] - CalZ[0]);
+        CalPx = -1 * TMath::Cos(Caltheta);
+        CalPz = TMath::Sin(Caltheta) * TMath::Cos(Calphi);
+        CalPy = TMath::Sin(Caltheta) * TMath::Sin(Calphi);
         //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
         //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
 
@@ -1247,7 +1557,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
                 //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
 
                 PMTtime += xT0[k] - DetT0[0];
-                PMTtimecor += xT0[k] - DetT0[0] -reTrack/ 298 * 1.5;
+                PMTtimecor += xT0[k] - DetT0[0] - reTrack / 298 * 1.5;
                 //PMTtime = xT0[0] - DetT0[0];
 
                 PMTcounter++;
@@ -1292,7 +1602,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
         h2dPMT->Fill(PMTcounter, Timestamp);
 
         //cout<<"FlyTime"<<FlyTime<<endl;
-        if (PMTcounter ==4)
+        if (PMTcounter == 4)
         {
             TT.push_back(Timestampcor);
             //AA.push_back(reTrack);
@@ -1328,9 +1638,9 @@ void GetTimeRes(const char *rootname = "CRY3data")
     TLatex *la;
 
     char pngprefix[100];
-    sprintf(pngprefix, "%s/%s", path,rootname);
+    sprintf(pngprefix, "%s/%s", path, rootname);
 
-     //
+    //
     // ---------draw efficiency of PMT--------//
     //
     double PMTEff[4];
@@ -1340,20 +1650,19 @@ void GetTimeRes(const char *rootname = "CRY3data")
     hPMTID->Draw();
     hPMTID->GetXaxis()->SetNdivisions(505);
     for (int i = 0; i < 4; i++)
-        {
+    {
 
-            PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
-            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
-            la->Draw("same");
-        }
+        PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
+        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+        la->Draw("same");
+    }
     //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sPMTID.png", pngprefix);
     c->SaveAs(buff);
     //return;
-
 
     //
     // ---------draw Time Res --------//
@@ -1364,7 +1673,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     htcor->Draw();
     //return;
     //fit = gausfit(htcor, 200e-3, 3, 3, rbt*8, tL, tR);
-    fit = gausfit(htcor, 200e-3, 3, 3, rbt*2, tL, tR);
+    fit = gausfit(htcor, 200e-3, 3, 3, rbt * 2, tL, tR);
     //fitT = gausfit(ht, 0.1, 3, 3, rbt*2, tL, tR);
     if (!fit)
     {
@@ -1402,10 +1711,10 @@ void GetTimeRes(const char *rootname = "CRY3data")
             if (Amean - 3 * Asigma <= 0)
 
                 //fitAT = profilefit(hAT, rbA *2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
-                fitAT = profilefit(hAT, rbA , rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
             else
                 //fitAT = profilefit(hAT, rbA * 2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
-                fitAT = profilefit(hAT, rbA , rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
             if (!fitAT)
             {
                 cout << " the profilefit is failed! " << endl;
@@ -1435,7 +1744,6 @@ void GetTimeRes(const char *rootname = "CRY3data")
                 Treserve[i] = Treserve[i] - TAcor;
                 tL = -1;
                 tR = 1;
-                
             }
             ht->Fill(Treserve[i]);
             hAT->Fill(AA[i], Treserve[i]);
@@ -1470,7 +1778,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
         //fitT = (TF1 *)htfit->GetFunction("fitU");
         Tmean = fitT->GetParameter(1);
         Tsigma = fitT->GetParameter(2);
-        
+
         ht->SetNdivisions(505);
         sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
         TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
@@ -1500,13 +1808,13 @@ void GetTimeRes(const char *rootname = "CRY3data")
     hNPMT->Draw();
     hNPMT->GetXaxis()->SetNdivisions(505);
     for (int i = 0; i < 5; i++)
-        {
+    {
 
-            Eff[i] = hNPMT->GetBinContent(hNPMT->FindBin(i)) / hNPMT->Integral();
-            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, Eff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
-            la->Draw("same");
-        }
+        Eff[i] = hNPMT->GetBinContent(hNPMT->FindBin(i)) / hNPMT->Integral();
+        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, Eff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+        la->Draw("same");
+    }
     //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
@@ -1622,13 +1930,13 @@ void GetTimeRes(const char *rootname = "CRY3data")
     hdy->Rebin(20);
     hdy->GetXaxis()->SetNdivisions(505);
     hdy->Draw();
-    fit = gausfit(hdy, 3, 3, 3, 1,-10, 10);
-    sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2) );
+    fit = gausfit(hdy, 3, 3, 3, 1, -10, 10);
+    sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2));
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sdeltay.png", pngprefix);
     c->SaveAs(buff);
 
-     //
+    //
     // ---------draw delta z --------//
     //
     c = cdC(CNum++);
@@ -1637,7 +1945,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     hdz->GetXaxis()->SetNdivisions(505);
     hdz->Draw();
     fit = gausfit(hdz, 3, 3, 3, 1, 10, 10);
-    sprintf(buff, "#sigma_{z}=%.0fmm", fit->GetParameter(2) );
+    sprintf(buff, "#sigma_{z}=%.0fmm", fit->GetParameter(2));
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sdeltaz.png", pngprefix);
     c->SaveAs(buff);

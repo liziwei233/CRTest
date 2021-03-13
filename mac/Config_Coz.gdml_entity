@@ -6,74 +6,102 @@
 
 
 <!-- entire size,  not half! -->
-<variable name="mediumX" value="10"/>
-<variable name="mediumY" value="180"/>
-<variable name="mediumZ" value="180"/>
+
+<!-- Public parameter-->
+<variable name="SOZ" value="0.01" />
+
+<!-- FTOF Detector Configuration -->
+<variable name="FTOF_mediumX" value="10" />
+<variable name="FTOF_mediumY1" value="295" />
+<variable name="FTOF_mediumY2" value="533" />
+<variable name="FTOF_mediumZ" value="454" />
+
+<variable name="R10754_sensor_T" value="20" />
+<variable name="R10754_anode_T" value="5" />
+<variable name="R10754_window_T" value="1.5" />
+<variable name="R10754_sensor_L" value="27.6" />
+<variable name="R10754_sensor_edge_L" value="2.5" />
+<variable name="R10754_anode_L" value="5.28" />
+<variable name="R10754_anode_interval_L" value="0.3" />
+<variable name="R10754_interval_L" value="5" />
+
+<variable name="FTOF_shieldX" value="105" />
+<variable name="FTOF_shieldY" value="800" />
+<variable name="FTOF_shieldZ" value="600" />
+<variable name="FTOF_shieldT" value="2" />
+<variable name="FTOF_freespaceT" value="20" />
+
+<variable name="FTOF_detectorX" value="FTOF_mediumX+R10754_sensor_T+0.01" />
+<variable name="FTOF_detectorY1" value="FTOF_mediumY1+0.01" />
+<variable name="FTOF_detectorY2" value="FTOF_mediumY2+0.01" />
+<variable name="FTOF_detectorZ" value="FTOF_mediumZ+0.01" />
+
+
+<!-- T0 Detector Configuration -->
+<variable name="T0_mediumX" value="10" />
+<variable name="T0_mediumY" value="180" />
+<variable name="T0_mediumZ" value="180" />
+<variable name="T0_AlwrapX" value="1" />
+<variable name="T0_AlwrapY" value="T0_mediumY" />
+<variable name="T0_AlwrapZ" value="T0_mediumZ" />
+<variable name="R3809_anodeZ" value="0.1" />
+<variable name="R3809_windowZ" value="1.5" />
+<variable name="R3809_sensorZ" value="R3809_anodeZ+R3809_windowZ+SOZ" />
+<variable name="R3809_sensorR" value="5" />
+<variable name="T0_lightguideZ" value="5" />
+
+<variable name="T0_detectorX" value="T0_mediumX+2*T0_AlwrapX+0.01" />
+<variable name="T0_detectorY" value="T0_mediumY+2*T0_lightguideZ+2*R3809_sensorZ+0.01" />
+<variable name="T0_detectorZ" value="T0_mediumY+2*T0_lightguideZ+2*R3809_sensorZ+0.01" />
+<variable name="T0_shieldX" value="85" />
+<variable name="T0_shieldY" value="280" />
+<variable name="T0_shieldZ" value="280" />
+<variable name="T0_shieldT" value="2" />
+<variable name="T0_freespaceT" value="20" />
 
 
 
-<variable name="AlwrapX" value="1"/>
-<variable name="AlwrapY" value="mediumY"/>
-<variable name="AlwrapZ" value="mediumZ"/>
-
-<variable name="SiPMX" value="23"/>
-<variable name="SiPMY" value="23"/>
-<variable name="interval " value="0.2"/>
-<variable name="pmtR" value="5"/>
-
-<variable name="SOZ" value="0.01"/>
-<variable name="pmtZ" value="0.1"/>
-<variable name="windowZ" value="1.5"/>
-<variable name="moduleZ" value="pmtZ+windowZ+SOZ"/>
-
-
-
-<variable name="trdZ" value="5"/>
-<variable name="trdW" value="10"/>
-<variable name="lgZ" value="5"/>
-
-<variable name="mediumtru" value="mediumY/2-trdW/sqrt(2)"/>
-<variable name="mediumposZ" value="mediumY*sqrt(2)-trdW"/>
-
-
-<!-- Detector Configuration -->
-<variable name="detectorX" value="mediumX+0.01+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
-<variable name="detectorY" value="mediumY+0.01+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
-<variable name="detectorZ" value="mediumZ+0.1+pmtZ*2+windowZ*2+SOZ*2+lgZ*2" />
 
 <!-- Tracker Configuration -->
-<variable name="TrackerX" value="15"  />
+<variable name="TrackerX" value="25" />
 <variable name="TrackerY" value="150" />
 <variable name="TrackerZ" value="150" />
 
 <!-- Trigger Configuration -->
-<variable name="TriggerX" value="20"  />
+<variable name="TriggerX" value="30" />
 <variable name="TriggerY" value="200" />
 <variable name="TriggerZ" value="200" />
 
 <!-- PMT Configuration,R is radius
-<variable name="pmtZ" value="0.1"/>
+    <variable name="pmtZ" value="0.1"/>
 -->
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
-<position name="unionPos" unit="mm" x="0" y="0" z="lgZ/2" />
-<rotation name="rot" unit="deg" x="90" y="" z=""/>
+<position name="unionPos" unit="mm" x="0" y="0" z="T0_lightguideZ/2" />
+<rotation name="rot" unit="deg" x="90" y="" z="" />
 
 <!--<constant name="detectorN" value="4" />
-<matrix name="detectorPosZ" coldim="1" values="-50. -10. 10. 50." />-->
+    <matrix name="detectorPosZ" coldim="1" values="-50. -10. 10. 50." />-->
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="500+detectorX*10" />
-<variable name="worldY" value="detectorY*4" />
-<variable name="worldZ" value="detectorZ*4" />
+<variable name="worldX" value="500+FTOF_shieldX*20" />
+<variable name="worldY" value="FTOF_shieldY*4" />
+<variable name="worldZ" value="FTOF_shieldZ*4" />
 <!--
-<variable name="worldX" value="detectorX+20" />
-<variable name="worldY" value="detectorY+20" />
-<variable name="worldZ" value="detectorZ+20" />
--->
+        <variable name="worldX" value="detectorX+20" />
+        <variable name="worldY" value="detectorY+20" />
+        <variable name="worldZ" value="detectorZ+20" />
+    -->
 
+
+
+<variable name="trdZ" value="5" />
+<variable name="trdW" value="10" />
+
+<variable name="mediumtru" value="T0_mediumY/2-trdW/sqrt(2)" />
+<variable name="mediumposZ" value="T0_mediumY*sqrt(2)-trdW" />
 
 <!-- Others-->
 <variable name="iDetector" value="0" />
@@ -83,21 +111,29 @@
 <variable name="iTracker" value="0" />
 <constant name="TrackerN" value="4" />
 <variable name="gap" value="50" />
-
 <!--<matrix name="TrackerPosX" coldim="1" values="135 70 -150 -215" />-->
 <matrix name="TrackerPosX" coldim="1" values="-305 -55 55 115" />
 
-<variable name="iPMT" value="0" />
-<constant name="PMTN" value="4" />
+<variable name="iR3809_sensor" value="0" />
+<constant name="R3809_sensorN" value="4" />
 <matrix name="PMTPosX" coldim="1" values="0. -14. -28 -42" />
-
 <matrix name="PMTPosY" coldim="1" values="1. 1. -1. -1." />
 <matrix name="PMTPosZ" coldim="1" values="1. -1. -1. 1." />
-
 <matrix name="Model1PMTPosY" coldim="1" values="0. 1. 0. -1." />
 <matrix name="Model1PMTPosZ" coldim="1" values="1. 0. -1. 0." />
 
+<variable name="ianode" value="0" />
+<constant name="anodeN" value="16" />
+<matrix name="anodey" coldim="1" values="0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3" />
+<matrix name="anodez" coldim="1" values="0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3" />
+<variable name="iR10754_sensor" value="0" />
+<constant name="R10754_sensorN" value="8" />
+
+
 <variable name="iSiPM" value="0" />
+<variable name="SiPMX" value="23" />
+<variable name="SiPMY" value="23" />
+<variable name="interval " value="0.2" />
 <constant name="SiPMN" value="16" />
 <matrix name="SiPMPosX" coldim="1" values="-4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 -4.8 -1.6 1.6 4.8 " />
 <matrix name="SiPMPosY" coldim="1" values="-4.8 -4.8 -4.8 -4.8 -1.6 -1.6 -1.6 -1.6 1.6 1.6 1.6 1.6 4.8 4.8 4.8 4.8 " />
