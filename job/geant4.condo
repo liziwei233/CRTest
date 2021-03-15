@@ -11,7 +11,7 @@ EXE = g4exe.sh
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 200
+N_JOBS = 1
 
 OUT_DIR = /home/lizw/work/condor_output
 
@@ -19,7 +19,8 @@ initialdir = /home/lizw/work/CRTest/job
 
 datadir = /home/lizw/work/CRTest/build
 
-RUNname = Pdu1million
+#RUNname = CRYSysVer1_SIMU
+RUNname = patch
 
 Universe = vanilla
 
@@ -34,7 +35,7 @@ Executable = $(EXE)
 Arguments = $(datadir) $(RUNname) quartz.gdml cdorCR.mac $(Process) $(Cluster) 
 #Arguments = $(initialdir)/mac/quartz.gdml macname $(OUT_DIR)/data/quartz/$(RUN)/filename/$(Process) $(Process)
 
-Log = $(OUT_DIR)/log/condor_$(Cluster).log
+Log = $(OUT_DIR)/log/$(Cluster).log
 #Input = inputfile
 Error = $(OUT_DIR)/log/$(Cluster)_$(Process).err
 Output = $(OUT_DIR)/log/$(Cluster)_$(Process).out
