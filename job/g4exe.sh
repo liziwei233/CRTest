@@ -2,17 +2,23 @@
 echo "starting configure condor environment"
 echo " CWD: " $PWD
 echo " ENV: "
-which root
-which geant4-config
-mkdir -p `dirname $3`
-./CRTest $1 $2 $3 $4
-NAME=$3
-cluster=$5
+source /home/lizw/.bashrc
+path=$1
+NAME=${path}/../results/$2
+gdmlname=$3
+macname=$4
+process=$5
+cluster=$6
+rootname=${NAME}/${process}
+mkdir ${NAME}
+echo ${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} ${process} 
+${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} ${process} 
+
 #echo $NAME > $PWD/name.log
 #root -b -q "MultiTiersOutputfun_SiPM.C(\"$NAME\")"
 
-echo $NAME > ../job/name.log
-echo `date` >> $(dirname $3)/cluster.log
-echo -e "$cluster\n\n" >> $(dirname $3)/cluster.log
-#root -b -q "../job/MultiTiersOutputfun_SiPM.C(\"$NAME\",$thrd)"
-#root -b -q "../job/Outputfun_MCP.C(\"$NAME\")"
+#echo $NAME > ../job/name.log
+echo `date` >> ${path}/cluster.log
+echo -e "$cluster\n\n" >> ${path}/cluster.log
+#root -b -q "../job/ME
+#root -b -q "$path/../job/Output.C(\"$NAME\",\"$process\")"

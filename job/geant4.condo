@@ -8,15 +8,19 @@
 
 EXE = g4exe.sh 
 
-OUT_DIR = /data2/R710liziwei/g4/output
-
-RUN = Trigger/CRYoptimum/downside_50_50_10mm
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 1000 
+N_JOBS = 1
 
-initialdir = /data2/R710liziwei/g4/FTOF_server/CRTest/build
+OUT_DIR = /home/lizw/work/condor_output
+
+initialdir = /home/lizw/work/CRTest/job
+
+datadir = /home/lizw/work/CRTest/build
+
+#RUNname = CRYSysVer1_SIMU
+RUNname = patch
 
 Universe = vanilla
 
@@ -28,10 +32,10 @@ Getenv = True
 Executable = $(EXE)
 
 #Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdor.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process)
-Arguments = $(initialdir)/mac/quartz.gdml $(initialdir)/mac/cdorCR.mac $(OUT_DIR)/data/quartz/$(RUN)/$(Process) $(Process) $(Cluster)
+Arguments = $(datadir) $(RUNname) quartz.gdml cdorCR.mac $(Process) $(Cluster) 
 #Arguments = $(initialdir)/mac/quartz.gdml macname $(OUT_DIR)/data/quartz/$(RUN)/filename/$(Process) $(Process)
 
-Log = $(OUT_DIR)/log/condor_$(Cluster).log
+Log = $(OUT_DIR)/log/$(Cluster).log
 #Input = inputfile
 Error = $(OUT_DIR)/log/$(Cluster)_$(Process).err
 Output = $(OUT_DIR)/log/$(Cluster)_$(Process).out

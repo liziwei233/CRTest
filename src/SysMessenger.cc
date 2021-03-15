@@ -78,7 +78,7 @@ void SysMessenger::SetNewValue(G4UIcommand* cmd, G4String val)
             if(val == "beam")
                 runManager->SetUserAction(new Generator);
             else if(val == "CRY")
-                runManager->SetUserAction(new CryGenerator("./mac/setup.file"));
+                runManager->SetUserAction(new CryGenerator("/home/lizw/work/CRTest/mac/setup.file"));
 			else if(val == "Pdu")
 				runManager->SetUserAction(new PduGenerator);
         }            
