@@ -529,7 +529,11 @@ void CalculateEff(const char *rootname = "CRY3")
             if (theID == 300 || theID == 301)
                 triggervec.push_back(theID);
             if (theID >= 0 && theID < TrackerN)
+            {
+
                 trackervec.push_back(theID);
+                    hMMeff->Fill(theID);
+            }
             if (theID == 100)
             {
                 for (int iT0hit = 0; iT0hit < T0chID->size(); iT0hit++)
@@ -562,10 +566,7 @@ void CalculateEff(const char *rootname = "CRY3")
 
                 trackercounter++;
                 hTrackereff->Fill(trackervec.size());
-                for (int j = 0; j < trackervec.size(); j++)
-                {
-                    hMMeff->Fill(trackervec.at(j));
-                }
+                
                 if (trackervec.size() == 3)
                     for (int j = 0; j < TrackerN; j++)
                     {
