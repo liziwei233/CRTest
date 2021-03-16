@@ -31,7 +31,7 @@
 #include "globals.hh"
 #include "G4ios.hh"
 #include<cstdlib>
-
+//#define STCF
 int main (int argc, char** argv){
     // Handle Arguments
 	Argument args;

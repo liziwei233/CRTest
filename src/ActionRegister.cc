@@ -31,7 +31,11 @@ void ActionRegister::Build() const
 {
     //SetUserAction(new GPSgenerator);
     //SetUserAction(new Generator);
+#ifdef STCF
     SetUserAction(new CryGenerator("/home/lizw/work/CRTest/mac/setup.file"));
+#else
+    SetUserAction(new CryGenerator("./mac/setup.file"));
+#endif
     //SetUserAction(new PduGenerator);
     //theRunManager->SetUserAction(new PrimaryGeneratorAction(""));
     SetUserAction(new RunAction);

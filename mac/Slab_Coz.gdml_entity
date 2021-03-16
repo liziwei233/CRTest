@@ -158,21 +158,23 @@
   <materialref ref="AIR" />
   <solidref ref="T0_detectorS" />
   
+  
+  <physvol>
+    <volumeref ref="T0_medium" />
+    <position unit="mm" x="0" />
+  </physvol>
+  
+  <!-- Al foil
   <physvol copynumber="1">
     <volumeref ref="T0_Alwrap" />
     <position unit="mm" x="-T0_mediumX/2-T0_AlwrapX/2." />
   </physvol>
 
-  <physvol>
-    <volumeref ref="T0_medium" />
-    <position unit="mm" x="0" />
-  </physvol>
-
-
   <physvol copynumber="0">
     <volumeref ref="T0_Alwrap" />
     <position unit="mm" x="T0_mediumX/2+T0_AlwrapX/2." />
   </physvol>
+-->
 
   <loop for="iR3809_sensor" to="R3809_sensorN-1" step="1">
 

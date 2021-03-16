@@ -145,8 +145,8 @@
     <D value="0.00129" />
     <fraction n="0.7" ref="Nitrogen" />
     <fraction n="0.3" ref="Oxygen" />
-    <property name="REFLECTIVITY" ref="OpWrapper_Quartz_REFLECTIVITY" />
-    <property name="EFFICIENCY" ref="OpWrapper_Quartz_EFFICIENCY" />
+    <property name="REFLECTIVITY" ref="AIR_REFLECTIVITY" />
+    <property name="EFFICIENCY" ref="Perfect_EFFICIENCY" />
     
     <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
     <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
@@ -163,7 +163,7 @@
 
 
 
-<material name="endWrapper_Quartz">
+<material name="BlackWrapper_Quartz">
     <D value="0.00129" />
     <fraction n="0.7" ref="Nitrogen" />
     <fraction n="0.3" ref="Oxygen" />

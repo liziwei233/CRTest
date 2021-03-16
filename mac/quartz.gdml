@@ -100,52 +100,51 @@
     </volume>
 
 
-  <skinsurface name="T0_mediumskin" surfaceproperty="T0_Black_surf">
+  <skinsurface name="T0_skin_surf" surfaceproperty="T0_skin_surf">
     <volumeref ref="T0_medium" />
   </skinsurface>
   
-  <!--
-
-  <bordersurface name="T0_lgsideborder" surfaceproperty="lg_surf">
+  
+  <bordersurface name="T0_lgskin_surf" surfaceproperty="T0_lgskin_surf">
     <physvolref ref="T0_detector_PV" />
     <physvolref ref="T0_lightguide_PV" />
   </bordersurface>
-  -->
   
-  <bordersurface name="T0_lgborder" surfaceproperty="T0_quartz_surf">
+  
+  <bordersurface name="T02lg_border_surf" surfaceproperty="T02lg_border_surf">
     <physvolref ref="T0_medium_PV" />
     <physvolref ref="T0_lightguide_PV" />
   </bordersurface>
   
-  <bordersurface name="T0_Alwrapborder" surfaceproperty="Al_surf">
-    <physvolref ref="T0_medium_PV" />
-    <physvolref ref="T0_Alwrap_PV" />
-  </bordersurface>
+  <!-- *Al foil *
+    <bordersurface name="T0_Alwrapborder" surfaceproperty="Al_surf">
+      <physvolref ref="T0_medium_PV" />
+      <physvolref ref="T0_Alwrap_PV" />
+    </bordersurface>
+  -->
   
-  <bordersurface name="R3809_border" surfaceproperty="R3809_photocath">
+  <bordersurface name="R3809_photocath_border_surf" surfaceproperty="R3809_photocath_border_surf">
     <physvolref ref="R3809_window_PV" />
     <physvolref ref="R3809_anode_PV" />
   </bordersurface>
   
-
-    <bordersurface name="FTOF_medium_border" surfaceproperty="FTOF_quartz_surf">
-      <physvolref ref="FTOF_medium_PV" />
-      <physvolref ref="R10754_sensor_PV" />
-    </bordersurface>
   
-  
-<!--
-
-  <skinsurface name="FTOF_mediumskin" surfaceproperty="FTOF_Black_surf">
+  <skinsurface name="FTOF_skin_surf" surfaceproperty="FTOF_skin_surf">
     <volumeref ref="FTOF_medium" />
   </skinsurface>
--->
-  
-
-
 
   
-  <bordersurface name="R10754_border" surfaceproperty="R10754_photocath">
+  
+  
+  
+  <bordersurface name="FTOF2window_border_surf" surfaceproperty="FTOF2window_border_surf">
+    <physvolref ref="FTOF_medium_PV" />
+    <physvolref ref="R10754_sensor_PV" />
+  </bordersurface>
+  
+  
+  
+  <bordersurface name="R10754_photocath_border_surf" surfaceproperty="R10754_photocath_border_surf">
     <physvolref ref="R10754_window_PV" />
     <physvolref ref="R10754_anode_PV" />
   </bordersurface>
@@ -158,40 +157,48 @@
 
       
 
-  <auxiliary auxtype="Skin" auxvalue="T0_BlackWrapper">
-    <auxiliary auxtype="SurfaceName" auxvalue="T0_Black_surf" />
+  <auxiliary auxtype="Skin" auxvalue="T0_skin_surf">
+    <auxiliary auxtype="SurfaceName" auxvalue="T0_skin_surf" />
     <auxiliary auxtype="LVname" auxvalue="T0_medium" />
-    <auxiliary auxtype="Material" auxvalue="endWrapper_Quartz" />
+    <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
   </auxiliary>
   
-  <auxiliary auxtype="Border" auxvalue="T0_lgsideborder">
-    <auxiliary auxtype="SurfaceName" auxvalue="lg_surf" />
+  <auxiliary auxtype="Border" auxvalue="T0_lgskin_surf">
+    <auxiliary auxtype="SurfaceName" auxvalue="T0_lgskin_surf" />
     <auxiliary auxtype="PVname" auxvalue="T0_detector_PV" />
     <auxiliary auxtype="PVname" auxvalue="T0_lightguide_PV" />
     <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
   </auxiliary>
   
   
-  <auxiliary auxtype="Border" auxvalue="T0_lgborder">
-    <auxiliary auxtype="SurfaceName" auxvalue="T0_quartz_surf" />
+  <auxiliary auxtype="Border" auxvalue="T02lg_border_surf">
+    <auxiliary auxtype="SurfaceName" auxvalue="T02lg_border_surf" />
     <auxiliary auxtype="PVname" auxvalue="T0_medium_PV" />
     <auxiliary auxtype="PVname" auxvalue="T0_lightguide_PV" />
     <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
   </auxiliary>
   
-  
-  <auxiliary auxtype="Border" auxvalue="T0_Alwrapborder">
-    <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
-    <auxiliary auxtype="PVname" auxvalue="T0_medium_PV" />
+  <!--
+    
+    <auxiliary auxtype="Border" auxvalue="T0_Alwrapborder">
+      <auxiliary auxtype="SurfaceName" auxvalue="Al_surf" />
+      <auxiliary auxtype="PVname" auxvalue="T0_medium_PV" />
     <auxiliary auxtype="PVname" auxvalue="T0_Alwrap_PV" />
     <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
   </auxiliary>
-  
-  <auxiliary auxtype="Border" auxvalue="R3809_Photocathode">
-    <auxiliary auxtype="SurfaceName" auxvalue="R3809_photocath" />
-    <auxiliary auxtype="PVname" auxvalue="R3809_window_PV" />
-    <auxiliary auxtype="PVname" auxvalue="R3809_anode_PV" />
-    <auxiliary auxtype="Material" auxvalue="OpBorder_3805U" />
+-->
+
+<auxiliary auxtype="Skin" auxvalue="FTOF_skin_surf">
+  <auxiliary auxtype="SurfaceName" auxvalue="FTOF_skin_surf" />
+  <auxiliary auxtype="LVname" auxvalue="FTOF_medium" />
+  <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+</auxiliary>
+
+<auxiliary auxtype="Border" auxvalue="R3809_photocath_border_surf">
+  <auxiliary auxtype="SurfaceName" auxvalue="R3809_photocath_border_surf" />
+  <auxiliary auxtype="PVname" auxvalue="R3809_window_PV" />
+  <auxiliary auxtype="PVname" auxvalue="R3809_anode_PV" />
+  <auxiliary auxtype="Material" auxvalue="OpBorder_3805U" />
   </auxiliary>
   
   
@@ -200,15 +207,15 @@
   
   
   
-  <auxiliary auxtype="Border" auxvalue="FTOF_sensorborder">
-    <auxiliary auxtype="SurfaceName" auxvalue="FTOF_quartz_surf" />
+  <auxiliary auxtype="Border" auxvalue="FTOF2window_border_surf">
+    <auxiliary auxtype="SurfaceName" auxvalue="FTOF2window_border_surf" />
     <auxiliary auxtype="PVname" auxvalue="FTOF_medium_PV" />
     <auxiliary auxtype="PVname" auxvalue="R10754_sensor_PV" />
     <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
   </auxiliary>
-
+  
   <!--
-
+    
     <auxiliary auxtype="Skin" auxvalue="FTOFBlackWrapper">
       <auxiliary auxtype="SurfaceName" auxvalue="FTOF_Black_surf" />
       <auxiliary auxtype="LVname" auxvalue="FTOF_medium" />
@@ -218,8 +225,8 @@
   -->
     
     
-    <auxiliary auxtype="Border" auxvalue="R10754_Photocathode">
-      <auxiliary auxtype="SurfaceName" auxvalue="R10754_photocath" />
+    <auxiliary auxtype="Border" auxvalue="R10754_photocath_border_surf">
+      <auxiliary auxtype="SurfaceName" auxvalue="R10754_photocath_border_surf" />
       <auxiliary auxtype="PVname" auxvalue="R10754_window_PV" />
       <auxiliary auxtype="PVname" auxvalue="R10754_anode_PV" />
       <auxiliary auxtype="Material" auxvalue="OpBorder_R10754" />
