@@ -18,6 +18,7 @@
 
 
 <opticalsurface name="R10754_photocath_border_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
+<!--<opticalsurface name="R10754_photocath_border_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>-->
 <opticalsurface name="R3809_photocath_border_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0"/>
 
 <opticalsurface name="scint_surf" model="unified" finish="polished" type="dielectric_metal" value="0"/>

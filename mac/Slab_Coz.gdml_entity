@@ -23,7 +23,8 @@
   <solidref ref="R10754_windowS" />
 </volume>
 <volume name="R10754_Sioil">
-  <materialref ref="EJ500" />
+  <!--<materialref ref="EJ500" />-->
+  <materialref ref="AIR" />
   <solidref ref="R10754_SioilS" />
 </volume>
 <volume name="R10754_anode">

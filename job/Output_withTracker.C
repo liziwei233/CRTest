@@ -450,9 +450,18 @@ void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
         fList.push_back(s.ReplaceAll("\n", ""));
     }
 };
+TString GetFilepath(TString fileName)
+{
+    cout << "The input is:" << fileName << endl;
+    TString prename;
+    prename = fileName.Replace(0, 1000, fileName, fileName.Last('/'));
+    cout << "File path is:" << prename << endl;
+    return prename;
+};
+
 TString GetFilename(TString fileName)
 {
-    cout << "The fileName is:" << fileName << endl;
+    cout << "The inpuut is:" << fileName << endl;
     TString prename;
     prename = fileName.Copy().Remove(0, fileName.Last('/') + 1);
     prename = prename.Remove(prename.Last('.'), prename.Length());
@@ -462,7 +471,7 @@ TString GetFilename(TString fileName)
 //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
 //char path[1000] = "/Users/liziwei/learning/CRTest/build";
 char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
-void CalculateEff(TString filepath = "../build")
+void CalculateEff(TString input = "../build")
 {
     clock_t start, finish;
     double totaltime;
@@ -494,8 +503,19 @@ void CalculateEff(TString filepath = "../build")
     TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOFCHNo.back() + 1 - FTOFCHNo.front(), FTOFCHNo.front(), FTOFCHNo.back() + 1);
     TChain *t1 = new TChain("Run");
     vector<TString> rootlist;
-    GetFileList(filepath, "root", rootlist);
-    TString rootname = GetFilename(rootlist.at(0));
+    TString filepath;
+    TString rootname;
+    if (input.EndsWith(".root"))
+    {
+        rootlist.push_back(input);
+        filepath = GetFilepath(input);
+    }
+    else
+    {
+        GetFileList(filepath, "root", rootlist);
+        filepath = input;
+    }
+    rootname = GetFilename(rootlist.at(0));
     for (int i = 0; i < rootlist.size(); i++)
     {
         t1->Add(rootlist.at(i));
@@ -651,9 +671,9 @@ void CalculateEff(TString filepath = "../build")
     }
 
     cout << "Trigger coincidence: " << triggercounter << endl
-         << "tracker counter: " << trackercounter << endl
-         << "T0 counter: " << T0counter << endl
-         << "FTOF counter: " << FTOFcounter << endl;
+         << "tracker counter: " << trackercounter << ", GE=" << (double)trackercounter / triggercounter << endl
+         << "T0 counter: " << T0counter << ", GE=" << (double)T0counter / triggercounter << endl
+         << "FTOF counter: " << FTOFcounter << ", GE=" << (double)FTOFcounter / triggercounter << endl;
     TLatex *la;
     TCanvas *c;
     int ccounter = 0;

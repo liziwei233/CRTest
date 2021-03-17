@@ -4,6 +4,7 @@
 
   
 <matrix name="AIR_RINDEX" coldim="2" values="2.91*eV 1.00" />
+<matrix name="AIR_TRANSMITTANCE" coldim="2" values="2.91*eV 0.5" />
 
 
 <matrix name="Resin_RINDEX" coldim="2" values="2.7*eV	1.55"/>

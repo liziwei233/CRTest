@@ -145,9 +145,10 @@
     <D value="0.00129" />
     <fraction n="0.7" ref="Nitrogen" />
     <fraction n="0.3" ref="Oxygen" />
+    <property name="RINDEX" ref="AIR_RINDEX"/>
     <property name="REFLECTIVITY" ref="AIR_REFLECTIVITY" />
     <property name="EFFICIENCY" ref="Perfect_EFFICIENCY" />
-    
+    <property name="TRANSMITTANCE" ref="AIR_TRANSMITTANCE" />
     <property name="SPECULARSPIKECONSTANT" ref="OpWrapper_Quartz_SPIKE" />
     <property name="SPECULARLOBECONSTANT" ref="OpWrapper_Quartz_LOBE" />
     <property name="BACKSCATTERCONSTANT" ref="OpWrapper_Quartz_BACKSCATTER"/>
@@ -159,9 +160,6 @@
     <property name="TRANSMITTANCE" ref="OpWrapper_Quartz_TRANSMITTANCE" />
     <property name="RINDEX" ref="OpWrapper_Quartz_RINDEX"/>-->
   </material>
- 
-
-
 
 <material name="BlackWrapper_Quartz">
     <D value="0.00129" />
@@ -182,11 +180,11 @@
   <fraction n="0.7" ref="Nitrogen" />
   <fraction n="0.3" ref="Oxygen" />
   <property name="EFFICIENCY" ref="PMT_R10754_EFFICIENCY" />
-  
   <!--<property name="EFFICIENCY" ref="TOPMCP_EFFICIENCY" />-->
   <property name="REFLECTIVITY" ref="OpBorder_PMT_REFLECTIVITY" />
   <property name="TRANSMITTANCE" ref="OpBorder_PMT_TRANSMITTANCE" />
 </material>
+
 
 
 <material name="OpBorder_3805U">
