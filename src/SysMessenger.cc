@@ -80,11 +80,9 @@ void SysMessenger::SetNewValue(G4UIcommand *cmd, G4String val)
             if (val == "beam")
                 runManager->SetUserAction(new Generator);
             else if (val == "CRY")
-#ifdef STCF
-                runManager->SetUserAction(new CryGenerator("/home/lizw/work/CRTest/mac/setup.file"));
-#else
-                runManager->SetUserAction(new CryGenerator("./mac/setup.file"));
-#endif
+                //runManager->SetUserAction(new CryGenerator("/home/lizw/work/CRTest/mac/setup.file"));
+                runManager->SetUserAction(new CryGenerator(Form("%s/mac/setup.file",getenv("CRdir"))));
+                //runManager->SetUserAction(new CryGenerator("./mac/setup.file"));
             else if (val == "Pdu")
                 runManager->SetUserAction(new PduGenerator);
         }

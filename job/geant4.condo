@@ -11,7 +11,7 @@ EXE = g4exe.sh
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 1
+N_JOBS = 100
 
 OUT_DIR = /home/lizw/work/condor_output
 
@@ -20,7 +20,7 @@ initialdir = /home/lizw/work/CRTest/job
 datadir = /home/lizw/work/CRTest/build
 
 #RUNname = CRYSysVer1_SIMU
-RUNname = patch
+RUNname = withgap
 
 Universe = vanilla
 
