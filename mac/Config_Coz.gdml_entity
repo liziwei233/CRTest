@@ -104,6 +104,9 @@
 <variable name="mediumposZ" value="T0_mediumY*sqrt(2)-trdW" />
 
 <!-- Others-->
+<matrix name="DetPosX" coldim="1" values="582 538 -120 -164 320 26 694 -478" /> 
+<!-- 1-4 of Tracker, 5-T0,6-FTOF,7-8 of Trigger -->
+
 <variable name="iDetector" value="0" />
 <constant name="detectorN" value="4" />
 <matrix name="detectorPosY" coldim="1" values="0. -14. -28 -42" />

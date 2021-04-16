@@ -120,7 +120,8 @@ void CryGenerator::GeneratePrimaries(G4Event* anEvent)
 
 //
 //** put generator vetex on side plane   x axis -> - x axis
-        G4ThreeVector position(680.001,100.001,100.001);
+        //G4ThreeVector position(680.001,200.001,200.001);
+        G4ThreeVector position(709.001,200.001,200.001);
         position.setX(position.x());
         //position.setY(0);
         //position.setZ(0);
