@@ -12,7 +12,7 @@
 #include "G4ios.hh"
 
 #include<cstdlib>
-#define STCF
+
 class Argument {
 public:
 	Argument();

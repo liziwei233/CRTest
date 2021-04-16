@@ -5,10 +5,11 @@
 /run/verbose 0
 /run/initialize
 
+/process/optical/cerenkov/setMaxPhotons 0
 /CRTest/generator/set CRY
 #/CRTest/generator/set Pdu
 #/CRTest/generator/set beam
 #/gun/position  100 0 0 mm
 #/gun/direction -1 0 0    #0 deg
-/run/beamOn 10000
+/run/beamOn 20000
 

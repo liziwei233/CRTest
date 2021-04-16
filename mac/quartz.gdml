@@ -61,40 +61,46 @@
 
       <physvol copynumber="0">
         <volumeref ref="Trigger" />
-        <position unit="mm" x="650+TriggerX/2" />
+        <!--<position unit="mm" x="650+TriggerX/2" />-->
+        <position unit="mm" x="DetPosX[7]" />
       </physvol>
 
       <loop for="iTracker" to="TrackerN-1" step="1">
         <physvol copynumber="iTracker">
           <volumeref ref="Tracker" />
 
-          <position unit="mm" x="445+TrackerX/2+(TrackerX+0.1)*iTracker" />
+          <!--<position unit="mm" x="445+TrackerX/2+(TrackerX+0.1)*iTracker" />-->
+          <position unit="mm" x="DetPosX[1+iTracker]" />
         </physvol>
       </loop>
 
       <physvol copynumber="0">
         <volumeref ref="FTOF_detector" />
-        <position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />
+        <!--<position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[6]" />
       </physvol>
 
       <physvol copynumber="0">
         <volumeref ref="FTOF_shield" />
-        <position unit="mm" x="340+FTOF_shieldX/2" />
+        <!--<position unit="mm" x="340+FTOF_shieldX/2" />-->
+        <position unit="mm" x="DetPosX[6]-FTOF_freespaceT-FTOF_detectorX/2+FTOF_shieldX/2" />
       </physvol>
 
         <physvol copynumber="0">
           <volumeref ref="T0_detector" />
-        <position unit="mm" x="50+T0_freespaceT+T0_detectorX/2" />
+        <!--<position unit="mm" x="50+T0_freespaceT+T0_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[5]" />
         </physvol>
 
         <physvol copynumber="0">
           <volumeref ref="T0_shield" />
-        <position unit="mm" x="50+T0_shieldX/2" />
+        <!--<position unit="mm" x="50+T0_shieldX/2" />-->
+        <position unit="mm" x="DetPosX[5]-T0_freespaceT-T0_detectorX/2+T0_shieldX/2" />
       </physvol>
 
       <physvol copynumber="1">
         <volumeref ref="Trigger" />
-        <position unit="mm" x="20+TriggerX/2" />
+        <position unit="mm" x="DetPosX[8]" />
       </physvol>
 
     </volume>
