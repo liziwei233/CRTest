@@ -11,5 +11,5 @@
 #/CRTest/generator/set beam
 #/gun/position  100 0 0 mm
 #/gun/direction -1 0 0    #0 deg
-/run/beamOn 100
+/run/beamOn 20000
 
