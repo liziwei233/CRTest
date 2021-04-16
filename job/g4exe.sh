@@ -4,7 +4,7 @@ echo " CWD: " $PWD
 echo " ENV: "
 source /home/lizw/.bashrc
 path=$1
-NAME=${path}/../results/$2
+NAME=$2
 gdmlname=$3
 macname=$4
 process=$5
@@ -18,7 +18,7 @@ ${path}/CRTest ${path}/../mac/${gdmlname} ${path}/../mac/${macname} ${rootname} 
 #root -b -q "MultiTiersOutputfun_SiPM.C(\"$NAME\")"
 
 #echo $NAME > ../job/name.log
-echo `date` >> ${path}/cluster.log
-echo -e "$cluster\n\n" >> ${path}/cluster.log
+echo `date` >> ${NAME}/cluster.log
+echo -e "$cluster\n\n" >> ${NAME}/cluster.log
 #root -b -q "../job/ME
 #root -b -q "$path/../job/Output.C(\"$NAME\",\"$process\")"

@@ -431,6 +431,7 @@ double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, doub
 }
 void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
 {
+    cout<<"Your filepath is: "<<filePath<<endl;
     char line[1000];
     fList.clear();
     if (filePath.EndsWith("/"))
@@ -512,14 +513,20 @@ void CalculateEff(TString input = "../build")
     }
     else
     {
-        GetFileList(filepath, "root", rootlist);
+        GetFileList(input, "root", rootlist);
         filepath = input;
     }
     rootname = GetFilename(rootlist.at(0));
+    TFile *fp;
     for (int i = 0; i < rootlist.size(); i++)
     {
+        fp = new TFile(rootlist.at(i),"read");
+        if (!fp->IsZombie()){
+        
         t1->Add(rootlist.at(i));
         cout << "Add rootfile to My chain: " << rootlist.at(i) << endl;
+        }
+        fp->Close();
     }
     //return;
 
