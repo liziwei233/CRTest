@@ -170,10 +170,13 @@ void DrawMyHist(TH1 *datahist, char *xtitle, char *ytitle, Color_t LColor = 1, W
     datahist->GetYaxis()->SetNdivisions(510);
     datahist->GetXaxis()->CenterTitle(1);
     datahist->GetYaxis()->CenterTitle(1);
-
+};
+void HistAutoYRange(TH1 *datahist)
+{
+    int max = datahist->GetMaximum();
+    datahist->GetYaxis()->SetRangeUser(0, max*1.2);
      
 }
-
 void DrawMy2dHist(TH2 *datahist, char *xtitle, char *ytitle, Style_t MStyle = 8, Color_t MColor = 1, Size_t MSize = 1, Color_t TitleColor = 1)
 {
     TPaveStats *stat = (TPaveStats *)datahist->FindObject("stats");
