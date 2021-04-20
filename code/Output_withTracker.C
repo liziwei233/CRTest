@@ -9,24 +9,93 @@
 #include "TChain.h"
 #include <time.h>
 #include "DrawMyClass.h"
-TRandom3 r;
-TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
+#include "TGraphErrors.h"
+#include "TVector3.h"
+
 using namespace std;
 
+TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
+
+//** CRSystem parameters
+TRandom3 r;
+double possigma = 200e-3; //Tracker postion resolution
+
+// ** build data structure
+struct CRTimeData
+{
+    int id; // channel data
+    vector<double> photonE;
+    vector<double> TOP;
+    vector<double> x;
+    vector<double> y;
+    vector<double> z;
+    vector<double> t;
+};
+struct CRPosData
+{
+    int id; // detector id
+    double x;
+    double y;
+    double z;
+    double t;
+    bool operator<(const CRPosData &s2) const
+    { //符号重载
+        return x < s2.x;
+    }
+};
+struct CRMuData
+{
+    double muE;
+    double px;
+    double py;
+    double pz;
+    double theta;
+};
+
+// ** declaration of id of detectors in cosmicray system **
+// **
+
+enum
+{
+    MM0id = 0,
+    MM1id = 1,
+    MM2id = 2,
+    MM3id = 3,
+    T0id = 100,
+    FTOFid = 200,
+    PS0id = 300,
+    PS1id = 301,
+} DetectorID;
+char detName[8][10] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
+
+// **declaration function
+//
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts);
 Double_t response(Double_t x, Double_t par[7]);
 TF1 *pol3fit(TGraph *g, float U_RL, float U_RR);
+vector<double> RebuildCRAngle(vector<vector<CRPosData>> MMReal, double possigma);
 
+// ** declaration of number of channels **
+//
 vector<int> T0CHNo = {0, 1, 2};
-vector<int> FTOFNo = {2,3};
+vector<int> FTOFNo = {2, 3};
 vector<int> FTOFCHNo;
-void InitialFTOFchn(){
-    for(int i =0; i<FTOFNo.size();i++){
-        for(int j =0; j<16; j++)
+const int FTOFChNum = 128;
+vector<pair<int, int>> FTOFMap;
+void InitialFTOFchn()
+{
+    for (int i = 0; i < FTOFNo.size(); i++)
+    {
+        for (int j = 0; j < 16; j++)
         {
-            FTOFCHNo.push_back(FTOFNo[i]*16+j);
+            FTOFCHNo.push_back(FTOFNo[i] * 16 + j);
         }
     }
+}
+void IndexFTOFpos(int chid, int &x, int &y)
+{
+    y = chid % 4;
+    x = chid / 4;
 }
 //vector<int> FTOFCHNo= {FTOFNo * 16 + 0, FTOFNo * 16 + 1, FTOFNo * 16 + 2, FTOFNo * 16 + 3, FTOFNo * 16 + 7, FTOFNo * 16 + 8, FTOFNo * 16 + 11, FTOFNo * 16 + 12, FTOFNo * 16 + 13, FTOFNo * 16 + 14, FTOFNo * 16 + 15};
 
@@ -67,6 +136,17 @@ bool SearchforID(int id, vector<int> &vector)
     }
     return false;
 }
+
+int MapFTOFID(int id, vector<pair<int, int>> &vector)
+{
+    for (int i = 0; i < vector.size(); i++)
+    {
+        if (vector[i].second == id)
+            return vector[i].first;
+    }
+    return -999;
+}
+
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
 {
     if (par.empty())
@@ -135,82 +215,82 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
     //cout<<"n = "<<n<<endl;
 
     return val;
+}
+TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
+{
+
+    g->Draw();
+
+    TF1 *fitU = new TF1("fitU", "pol3", U_RL, U_RR);
+    //fitU->SetParameter(1,g->GetMean());
+    TFitResultPtr p3 = g->Fit(fitU, "QR");
+    //cout<<"p3=\t"<<p3<<endl;
+    if (p3)
+    {
+        TF1 *fit2 = new TF1("fit2", "pol2", U_RL, U_RR);
+        TFitResultPtr p2 = g->Fit(fit2, "QR");
+        //cout<<"p2=\t"<<p2<<endl;
+
+        if (p2)
+        {
+            TF1 *fit1 = new TF1("fit1", "pol1", U_RL, U_RR);
+            TFitResultPtr p1 = g->Fit(fit1, "QR");
+            //	cout<<"p1=\t"<<p1<<endl;
+            return fit1;
+        }
+        return fit2;
     }
-    TF1 *pol3fit(TGraph *g, float U_RL, float U_RR)
+    //U_RL = fitU->GetParameter(1)-5*fitU->GetParameter(2);
+    //U_RR = fitU->GetParameter(1)+5*fitU->GetParameter(2);
+
+    //g->GetXaxis()->SetRangeUser(U_RL,U_RR);
+    //g->Fit(fitU);
+    return fitU;
+}
+
+void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ, double *theta, double *phi, double targetX, double *targetY, double *targetZ)
+{
+    double *p[3];
+    p[0] = TrackerX;
+    p[1] = TrackerY;
+    p[2] = TrackerZ;
+
+    double exp[2] = {0};
+    double delta[3] = {0};
+    TGraphErrors *g;
+
+    TVector3 v1;
+    TVector3 vXaxis(1, 0, 0);
+    for (int i = 0; i < 2; i++)
     {
 
+        g = new TGraphErrors();
+        for (int j = 0; j < N; j++)
+        {
+            //cout<<"x"<<p[0][j]<<",yz"<<i<<","<<p[1+i][j]<<endl;
+            g->SetPoint(j, p[0][j], p[1 + i][j]);
+        }
+        // fit
+        g->Fit("pol1", "q");
         g->Draw();
-
-        TF1 *fitU = new TF1("fitU", "pol3", U_RL, U_RR);
-        //fitU->SetParameter(1,g->GetMean());
-        TFitResultPtr p3 = g->Fit(fitU, "QR");
-        //cout<<"p3=\t"<<p3<<endl;
-        if (p3)
-        {
-            TF1 *fit2 = new TF1("fit2", "pol2", U_RL, U_RR);
-            TFitResultPtr p2 = g->Fit(fit2, "QR");
-            //cout<<"p2=\t"<<p2<<endl;
-
-            if (p2)
-            {
-                TF1 *fit1 = new TF1("fit1", "pol1", U_RL, U_RR);
-                TFitResultPtr p1 = g->Fit(fit1, "QR");
-                //	cout<<"p1=\t"<<p1<<endl;
-                return fit1;
-            }
-            return fit2;
-        }
-        //U_RL = fitU->GetParameter(1)-5*fitU->GetParameter(2);
-        //U_RR = fitU->GetParameter(1)+5*fitU->GetParameter(2);
-
-        //g->GetXaxis()->SetRangeUser(U_RL,U_RR);
-        //g->Fit(fitU);
-        return fitU;
+        exp[i] = g->GetFunction("pol1")->Eval(targetX);
+        //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
+        delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][N - 1]) - g->GetFunction("pol1")->Eval(p[0][0]);
     }
-
-    void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ, double *theta, double *phi, double targetX, double *targetY, double *targetZ)
-    {
-        double *p[3];
-        p[0] = TrackerX;
-        p[1] = TrackerY;
-        p[2] = TrackerZ;
-
-        double exp[2] = {0};
-        double delta[3] = {0};
-        TGraphErrors *g;
-
-        TVector3 v1;
-        TVector3 vXaxis(1, 0, 0);
-        for (int i = 0; i < 2; i++)
-        {
-
-            g = new TGraphErrors();
-            for (int j = 0; j < N; j++)
-            {
-                //cout<<"x"<<p[0][j]<<",yz"<<i<<","<<p[1+i][j]<<endl;
-                g->SetPoint(j, p[0][j], p[1 + i][j]);
-            }
-            // fit
-            g->Fit("pol1", "q");
-            g->Draw();
-            exp[i] = g->GetFunction("pol1")->Eval(targetX);
-            //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
-            delta[1 + i] = g->GetFunction("pol1")->Eval(p[0][N - 1]) - g->GetFunction("pol1")->Eval(p[0][0]);
-        }
-        *targetY = exp[0];
-        *targetZ = exp[1];
-        // x =(1,0,0), line=()
-        delta[0] = p[0][N - 1] - p[0][0];
-        v1.SetX(delta[0]);
-        v1.SetY(delta[1]);
-        v1.SetZ(delta[2]);
-        //*theta = v1.Angle(vXaxis);
-        *theta = TMath::ACos(-1 * v1.x() / v1.Mag());
-        *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
-        if (v1.y() < 0)
-            *phi = -1 * (*phi);
-        //cout<<"theta = "<< *theta<<", phi"<<*phi<<endl;
-        /*
+    *targetY = exp[0];
+    *targetZ = exp[1];
+    // x =(1,0,0), line=()
+    delta[0] = p[0][N - 1] - p[0][0];
+    v1.SetX(delta[0]);
+    v1.SetY(delta[1]);
+    v1.SetZ(delta[2]);
+    //*theta = v1.Angle(vXaxis);
+    *theta = TMath::ACos(-1 * v1.x() / v1.Mag());
+    *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
+    if (v1.y() < 0)
+        *phi = -1 * (*phi);
+    //cout<<"theta = "<< *theta<<", phi"<<*phi<<endl;
+    /*
            cout<<"theta 1 = "<< *theta<<endl;
          *theta = TMath::ACos(delta[0]/TMath::Sqrt(delta[1]*delta[1]+delta[2]*delta[2]+delta[0]*delta[0])); //Unit: rad
          cout<<"theta 2 = "<< *theta<<endl;
@@ -223,15 +303,15 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
          cout<<"z="<<v1.Mag()*sin(*theta)*cos(*phi)<<endl;
          cout<<"y="<<v1.Mag()*sin(*theta)*sin(*phi)<<endl;
          */
-    }
-    double remainder(double A, int r)
-    {
-        int n = int(A) / r;
-        return A - n * r;
-    }
-    double RebuildTrack(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
-    {
-        /*
+}
+double remainder(double A, int r)
+{
+    int n = int(A) / r;
+    return A - n * r;
+}
+double RebuildTrack(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
+{
+    /*
            double Ox, Oy, Oz;
            Oz = A1z;
            Ox = (A1z - Inz) / pz * px + Inx;
@@ -240,181 +320,181 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
         return sqrt(Ox * Ox + Oy * Oy + Oz * Oz);
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
-        //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << Px << "\t" << Py << "\t" << Pz << endl;
-        double Ax0, Ay0, Az0;
-        double px, py, pz;
-        double swap;
-        if (ID == 1 || ID == 3)
-        {
-            Az0 = -1 * (ID - 2) * 90;
-            Ax0 = 0;
-            Ay0 = 0;
-            px = Px;
-            py = Py;
-            pz = -1 * (ID - 2) * Pz;
-        }
-        if (ID == 2 || ID == 4)
-        {
-            Az0 = -1 * (ID - 3) * 90;
-            Ax0 = 0;
-            Ay0 = 0;
-            px = Px;
-            py = Pz;
-            pz = -1 * (ID - 3) * Py;
-            swap = Iny;
-            Iny = Inz;
-            Inz = swap;
-        }
-        double thetaC = TMath::ACos(1 / np);
-        double theta = TMath::ACos(pz); //angle between momentum direction of mu and z axis;
+    //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << Px << "\t" << Py << "\t" << Pz << endl;
+    double Ax0, Ay0, Az0;
+    double px, py, pz;
+    double swap;
+    if (ID == 1 || ID == 3)
+    {
+        Az0 = -1 * (ID - 2) * 90;
+        Ax0 = 0;
+        Ay0 = 0;
+        px = Px;
+        py = Py;
+        pz = -1 * (ID - 2) * Pz;
+    }
+    if (ID == 2 || ID == 4)
+    {
+        Az0 = -1 * (ID - 3) * 90;
+        Ax0 = 0;
+        Ay0 = 0;
+        px = Px;
+        py = Pz;
+        pz = -1 * (ID - 3) * Py;
+        swap = Iny;
+        Iny = Inz;
+        Inz = swap;
+    }
+    double thetaC = TMath::ACos(1 / np);
+    double theta = TMath::ACos(pz); //angle between momentum direction of mu and z axis;
 
-        double Ax, Ay, Az;
-        Az = Az0;
-        double dx, dy, dz;
-        dz = Az0 - Inz;
-        double Rdxdy;
-        Rdxdy = dz * TMath::Tan(theta - thetaC);
+    double Ax, Ay, Az;
+    Az = Az0;
+    double dx, dy, dz;
+    dz = Az0 - Inz;
+    double Rdxdy;
+    Rdxdy = dz * TMath::Tan(theta - thetaC);
+    dx = Rdxdy / sqrt(px * px + py * py) * px;
+    dy = Rdxdy / sqrt(px * px + py * py) * py;
+    Ax = Inx + dx;
+    Ay = Iny + dy;
+    return sqrt(Ax * Ax + Ay * Ay + Az * Az);
+
+    //return -1;
+}
+
+// why the result is only correct in the case of ID==3
+double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
+{
+    //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << px << "\t" << py << "\t" << pz << endl;
+    double A1x, A1y, A1z;
+    double px, py, pz;
+    if (ID == 1 || ID == 3)
+    {
+        A1z = -1 * (ID - 2) * 90;
+        A1x = 0;
+        A1y = 0;
+        px = Px;
+        py = Py;
+        pz = Pz;
+    }
+    if (ID == 2 || ID == 4)
+    {
+        A1z = -1 * (ID - 3) * 90;
+        A1x = 0;
+        A1y = 0;
+        px = Px;
+        py = Pz;
+        pz = Py;
+    }
+
+    double TOP;
+    double v = 298 / np; //velocity of photon,Unit:mm/ns
+
+    double dx, dy;
+    double dz = A1z - Inz;
+    //double Amaxx, Amaxy;
+    double theta = TMath::ACos(-1 * pz); //angle between momentum direction of mu and z axis;
+    double thetaC = TMath::ACos(1 / np);
+
+    double Ax, Ay, Az;
+
+    double Rdxdy = dz * TMath::Tan(theta - thetaC);
+    //cout << "dz= " << dz << endl;
+    //cout << "theta= " << theta << endl;
+    //cout << "thetaC= " << thetaC << endl;
+    //cout << "Rdxdy = " << Rdxdy << endl;
+    if (Rdxdy > 600)
+    {
+        cout << "No  solution! Rdxdy > 600 " << endl;
+        return -1;
+    }
+    else if (TMath::Abs(theta - 0.5 * TMath::Pi()) < 0.1)
+    {
+        Az = A1z;
+        double Rdxdy = dz * TMath::Tan(theta - thetaC);
         dx = Rdxdy / sqrt(px * px + py * py) * px;
         dy = Rdxdy / sqrt(px * px + py * py) * py;
         Ax = Inx + dx;
         Ay = Iny + dy;
-        return sqrt(Ax * Ax + Ay * Ay + Az * Az);
+        //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
+        if (remainder(Ax, 10) * remainder(Ax, 10) + Ay * Ay < 5 * 5)
+        {
 
-        //return -1;
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+        }
+        else
+        {
+            cout << "No  solution! No hit within PMT sensitive area" << endl;
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+            //return -1;
+        }
     }
-
-    // why the result is only correct in the case of ID==3
-    double RebuildTOP(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
+    else
     {
+
+        double Ox, Oy, Oz;
+        Oz = A1z;
+        //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
+        Ox = (A1z - Inz) / pz * px + Inx;
+        //cout<<Ox<<endl;
+        Oy = (A1z - Inz) / pz * py + Iny;
+
+        double Rxy = sqrt(Ox * Ox + Oy * Oy); //r of out point of mu in xy-plane
+        double a = (dz) / TMath::Cos(theta - thetaC) * TMath::Sin(thetaC);
+        double b = a / TMath::Cos(theta);
+        //Aminx = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
+        //Aminy = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
+        //Amaxx = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
+        //Amaxy = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
+        double Oxprim = remainder(Ox, 10);
+        double n = int(Ox / 10); //the number of reflection
+        //cout << "A1z: " << A1z<< endl;
         //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << px << "\t" << py << "\t" << pz << endl;
-        double A1x, A1y, A1z;
-        double px, py, pz;
-        if (ID == 1 || ID == 3)
+        //cout << "Rxy = " <<Rxy << endl;
+        //cout << "Ox,Oy,Oz = " << Ox << "\t" << Oy << "\t" << Oz << endl;
+        if ((-Ox) * (-Ox) / a / a + (-Oy) * (-Oy) / b / b <= 1)
         {
-            A1z = -1 * (ID - 2) * 90;
-            A1x = 0;
-            A1y = 0;
-            px = Px;
-            py = Py;
-            pz = Pz;
-        }
-        if (ID == 2 || ID == 4)
-        {
-            A1z = -1 * (ID - 3) * 90;
-            A1x = 0;
-            A1y = 0;
-            px = Px;
-            py = Pz;
-            pz = Py;
-        }
-
-        double TOP;
-        double v = 298 / np; //velocity of photon,Unit:mm/ns
-
-        double dx, dy;
-        double dz = A1z - Inz;
-        //double Amaxx, Amaxy;
-        double theta = TMath::ACos(-1 * pz); //angle between momentum direction of mu and z axis;
-        double thetaC = TMath::ACos(1 / np);
-
-        double Ax, Ay, Az;
-
-        double Rdxdy = dz * TMath::Tan(theta - thetaC);
-        //cout << "dz= " << dz << endl;
-        //cout << "theta= " << theta << endl;
-        //cout << "thetaC= " << thetaC << endl;
-        //cout << "Rdxdy = " << Rdxdy << endl;
-        if (Rdxdy > 600)
-        {
-            cout << "No  solution! Rdxdy > 600 " << endl;
-            return -1;
-        }
-        else if (TMath::Abs(theta - 0.5 * TMath::Pi()) < 0.1)
-        {
-            Az = A1z;
-            double Rdxdy = dz * TMath::Tan(theta - thetaC);
-            dx = Rdxdy / sqrt(px * px + py * py) * px;
-            dy = Rdxdy / sqrt(px * px + py * py) * py;
-            Ax = Inx + dx;
-            Ay = Iny + dy;
+            cout << "The solution exists!" << endl;
+            Ax = 0 + int(Ox / 10) * 10;
+            Ay = 0 + int(Oy / 10) * 10;
             //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
-            if (remainder(Ax, 10) * remainder(Ax, 10) + Ay * Ay < 5 * 5)
-            {
-
-                return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
-            }
-            else
-            {
-                cout << "No  solution! No hit within PMT sensitive area" << endl;
-                return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
-                //return -1;
-            }
+            return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
         }
         else
         {
 
-            double Ox, Oy, Oz;
-            Oz = A1z;
-            //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
-            Ox = (A1z - Inz) / pz * px + Inx;
-            //cout<<Ox<<endl;
-            Oy = (A1z - Inz) / pz * py + Iny;
-
-            double Rxy = sqrt(Ox * Ox + Oy * Oy); //r of out point of mu in xy-plane
-            double a = (dz) / TMath::Cos(theta - thetaC) * TMath::Sin(thetaC);
-            double b = a / TMath::Cos(theta);
-            //Aminx = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
-            //Aminy = (sqrt(Ox*Ox+Oy*Oy)-b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
-            //Amaxx = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Ox;
-            //Amaxy = (sqrt(Ox*Ox+Oy*Oy)+b)/sqrt(Ox*Ox+Oy*Oy)*Oy;
-            double Oxprim = remainder(Ox, 10);
-            double n = int(Ox / 10); //the number of reflection
-            //cout << "A1z: " << A1z<< endl;
-            //cout << "Input: " << Inx << "\t" << Iny << "\t" << Inz << "\t" << px << "\t" << py << "\t" << pz << endl;
-            //cout << "Rxy = " <<Rxy << endl;
-            //cout << "Ox,Oy,Oz = " << Ox << "\t" << Oy << "\t" << Oz << endl;
-            if ((-Ox) * (-Ox) / a / a + (-Oy) * (-Oy) / b / b <= 1)
+            if (remainder(Ox, 10) * remainder(Ox, 10) + Oy * Oy < (5 + b) * (5 + b))
             {
-                cout << "The solution exists!" << endl;
-                Ax = 0 + int(Ox / 10) * 10;
-                Ay = 0 + int(Oy / 10) * 10;
-                //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
-                return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
+                cout << "No  solution! No hit within PMT sensitive area" << endl;
+                return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
+                //return -1;
             }
             else
             {
 
-                if (remainder(Ox, 10) * remainder(Ox, 10) + Oy * Oy < (5 + b) * (5 + b))
+                if (Oxprim < 0)
+                    Ax = -1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
+                if (Oxprim > 0)
+                    Ax = +1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
+                Ay = Oxprim / Oxprim * Oy;
+                if ((Ax - Oxprim) * (Ax - Oxprim) / a / a + (Ay - Oy) * (Ay - Oy) / b / b <= 1)
                 {
-                    cout << "No  solution! No hit within PMT sensitive area" << endl;
-                    return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
-                    //return -1;
+                    cout << "The solution exists!" << endl;
+                    Ax = Ax + 10 * n;
+                    //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
+                    return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
                 }
                 else
                 {
-
-                    if (Oxprim < 0)
-                        Ax = -1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
-                    if (Oxprim > 0)
-                        Ax = +1 * sqrt(5 * 5 * Oxprim * Oxprim / (Oy * Oy + Oxprim * Oxprim));
-                    Ay = Oxprim / Oxprim * Oy;
-                    if ((Ax - Oxprim) * (Ax - Oxprim) / a / a + (Ay - Oy) * (Ay - Oy) / b / b <= 1)
-                    {
-                        cout << "The solution exists!" << endl;
-                        Ax = Ax + 10 * n;
-                        //cout << "Ax,Ay,Az = " << Ax << "\t" << Ay << "\t" << Az << endl;
-                        return TOP = sqrt(Ax * Ax + Ay * Ay + Az * Az) / v;
-                    }
-                    else
-                    {
-                        cout << "Uncertainty situation" << endl;
-                        return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
-                        //return -1;
-                    }
+                    cout << "Uncertainty situation" << endl;
+                    return TOP = sqrt(Ox * Ox + Oy * Oy + Oz * Oz) / v;
+                    //return -1;
                 }
             }
+        }
 
-            /*
+        /*
                if (remainder(Ox, 10) * remainder(Ox, 10) + Oy * Oy > (5 + b) * (5 + b))
                {
                cout << "Ox,Oy,Oz = " << Ox << "\t" << Oy << "\t" << Oz << endl;
@@ -436,423 +516,871 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
                return -1;
                }
                */
+    }
+}
+void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
+{
+    cout << "Your filepath is: " << filePath << endl;
+    char line[1000];
+    fList.clear();
+    if (filePath.EndsWith("/"))
+        filePath.Remove(filePath.Length() - 1, 1);
+    FILE *fp = gSystem->OpenPipe("ls " + filePath + "/*" + filePattern, "r");
+    if (!fp)
+    {
+        cout << "----> NO data files exists in " << filePath << "!" << endl;
+        return;
+    }
+
+    while (fgets(line, sizeof(line), fp))
+    {
+        TString s(line);
+        if (s.Index(filePattern) == -1)
+            continue;
+        fList.push_back(s.ReplaceAll("\n", ""));
+    }
+};
+TString GetFilepath(TString fileName)
+{
+    cout << "The input is:" << fileName << endl;
+    TString prename;
+    prename = fileName.Replace(0, 1000, fileName, fileName.Last('/'));
+    cout << "File path is:" << prename << endl;
+    return prename;
+};
+
+TString GetFilename(TString fileName)
+{
+    cout << "The inpuut is:" << fileName << endl;
+    TString prename;
+    prename = fileName.Copy().Remove(0, fileName.Last('/') + 1);
+    prename = prename.Remove(prename.Last('.'), prename.Length());
+    cout << "Dat filename is:" << prename << endl;
+    return prename;
+};
+//char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
+//char path[1000] = "/Users/liziwei/learning/CRTest/build";
+
+void ReadFTOFmap(TString filename = "./FTOFdet2G4.csv")
+{
+    FILE *infile;
+    int data[2];
+    pair<int, int> fmap;
+    //sprintf(buff,"%s/CH%d_Data_%s_%s%s.txt",path,i+1,date,root,subtitle);
+    infile = fopen(filename, "r");
+    cout << "====>> Start to read File: " << filename << endl;
+    if (!infile)
+    {
+        cout << ">>> Invalid file!!! <<<" << endl;
+        return;
+    }
+    TString ignore1;
+    TString ignore2;
+    fscanf(infile, "%s %s", &ignore1, &ignore2);
+    while (!feof(infile))
+    {
+        fscanf(infile, "%d %d", &data[0], &data[1]);
+        if (data[1] >= 0 && data[1] < FTOFChNum)
+        {
+            fmap.first = data[0];
+            fmap.second = data[1];
+            FTOFMap.push_back(fmap);
+            cout << "ele ch :" << data[0] << "\t" << data[1] << endl;
         }
     }
-    void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
+}
+
+void SetEffstats(TCanvas *c, TH1 *hFTOFCHeff, int ProvidedTriggers, int RecordedTriggers, int validevens)
+{
+
+    HistAutoYRange(hFTOFCHeff);
+    TPaveStats *ps = (TPaveStats *)hFTOFCHeff->FindObject("stats");
+    ps->SetName("mystats");
+    ps->SetX1NDC(0.65);
+    ps->SetY1NDC(0.75);
+
+    TList *listOfLines = ps->GetListOfLines();
+    TText *tconst = ps->GetLineWith("Std");
+    listOfLines->Remove(tconst);
+    tconst = ps->GetLineWith("Entries");
+    listOfLines->Remove(tconst);
+    tconst = ps->GetLineWith("Mean");
+    listOfLines->Remove(tconst);
+    TLatex *myt;
+
+    sprintf(buff, "Provided Triggers = %d", ProvidedTriggers);
+    myt = SetMyLatex(buff, 0, 0, 42, 0.04);
+    listOfLines->Add(myt);
+    sprintf(buff, "Recorded Triggers = %d", RecordedTriggers);
+    myt = SetMyLatex(buff, 0, 0, 42, 0.04);
+    listOfLines->Add(myt);
+    sprintf(buff, "Events = %d", validevens);
+    myt = SetMyLatex(buff, 0, 0, 42, 0.04);
+    listOfLines->Add(myt);
+    hFTOFCHeff->SetStats(0);
+    c->Modified();
+}
+char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
+void CalculateEff(TString input = "../build")
+{
+
+    clock_t start, finish;
+    double totaltime;
+    start = clock();
+
+    TGaxis::SetMaxDigits(3);
+    char buff[1024];
+
+    const int T0N = 1; //the number of T0
+    const int R3809_sensorN = 4;
+    const int R3809_sensor_ch_N = 1;
+    //const int T0_sensorN = T0N * R3809_sensorN * R3809_sensor_ch_N; //the number of channels of T0
+    const int T0_sensorN = T0CHNo.size(); //the number of channels of T0
+    const int FTOFN = 1;                  //the number of FTOF
+    const int R10754_sensorN = 8;
+    const int R10754_sensor_ch_N = 16;
+    //const int FTOF_sensorN = FTOFN * R10754_sensorN * R10754_sensor_ch_N; //the number of channels of FTOF
+    ReadFTOFmap();
+    const int FTOF_sensorN = FTOFMap.size();
+    const int TrackerN = 4; //the number of Trackers
+    const int TriggerN = 2; //the number of Triggers
+    TH1I *hTrackereff = new TH1I("hTrackereff", "", TrackerN + 1, 0, TrackerN + 1);
+    TH1I *hMMeff = new TH1I("hMMeff", "", TrackerN, 0, TrackerN);
+    TH1I *hlackMMeff = new TH1I("hlackMMeff", "", TrackerN, 0, TrackerN);
+    TH1I *hT0eff = new TH1I("hT0eff", "", T0_sensorN + 1, 0, T0_sensorN + 1);
+    sort(T0CHNo.begin(), T0CHNo.end());
+    TH1I *hT0CHeff = new TH1I("hT0CHeff", "", T0CHNo.back() + 1 - T0CHNo.front(), T0CHNo.front(), T0CHNo.back() + 1);
+    TH1I *hFTOFeff = new TH1I("hFTOFeff", "", FTOF_sensorN + 1, 0, FTOF_sensorN + 1);
+    sort(FTOFMap.begin(), FTOFMap.end());
+
+    TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOFMap.back().first + 1 - FTOFMap.front().first, FTOFMap.front().first, FTOFMap.back().first + 1);
+
+    TH2I *hpos = new TH2I("hpos", "hpos; x ;  y", 8, 0, 8, 4, 0, 4);
+
+    TChain *t1 = new TChain("Run");
+    vector<TString> rootlist;
+    TString filepath;
+    TString rootname;
+    if (input.EndsWith(".root"))
     {
-        cout<<"Your filepath is: "<<filePath<<endl;
-        char line[1000];
-        fList.clear();
-        if (filePath.EndsWith("/"))
-            filePath.Remove(filePath.Length() - 1, 1);
-        FILE *fp = gSystem->OpenPipe("ls " + filePath + "/*" + filePattern, "r");
-        if (!fp)
-        {
-            cout << "----> NO data files exists in " << filePath << "!" << endl;
-            return;
-        }
-
-        while (fgets(line, sizeof(line), fp))
-        {
-            TString s(line);
-            if (s.Index(filePattern) == -1)
-                continue;
-            fList.push_back(s.ReplaceAll("\n", ""));
-        }
-    };
-    TString GetFilepath(TString fileName)
+        rootlist.push_back(input);
+        filepath = GetFilepath(input);
+    }
+    else
     {
-        cout << "The input is:" << fileName << endl;
-        TString prename;
-        prename = fileName.Replace(0, 1000, fileName, fileName.Last('/'));
-        cout << "File path is:" << prename << endl;
-        return prename;
-    };
-
-    TString GetFilename(TString fileName)
+        GetFileList(input, "root", rootlist);
+        filepath = input;
+    }
+    rootname = GetFilename(rootlist.at(0));
+    TFile *fp;
+    for (int i = 0; i < rootlist.size(); i++)
     {
-        cout << "The inpuut is:" << fileName << endl;
-        TString prename;
-        prename = fileName.Copy().Remove(0, fileName.Last('/') + 1);
-        prename = prename.Remove(prename.Last('.'), prename.Length());
-        cout << "Dat filename is:" << prename << endl;
-        return prename;
-    };
-    //char path[1000] = "/Users/liziwei/learning/CRTest/build/angleop";
-    //char path[1000] = "/Users/liziwei/learning/CRTest/build";
-    char path[1000] = "/mnt/c/Subsys/work/CRTest/build";
-    void CalculateEff(TString input = "../build")
+        fp = new TFile(rootlist.at(i), "read");
+        if (!fp->IsZombie())
+        {
+
+            t1->Add(rootlist.at(i));
+            cout << "Add rootfile to My chain: " << rootlist.at(i) << endl;
+        }
+        fp->Close();
+    }
+    //return;
+
+    vector<int> *T0chID = new vector<int>;
+    vector<int> *FTOFchID = new vector<int>;
+    vector<double> *mu_hittime = new vector<double>;
+    vector<double> *mu_hitx = new vector<double>; //the position of incident event
+    vector<double> *mu_hity = new vector<double>;
+    vector<double> *mu_hitz = new vector<double>;
+    vector<int> *mu_hitID = new vector<int>;
+    vector<double> *mu_px = new vector<double>; //the direction of incident event
+    vector<double> *mu_py = new vector<double>;
+    vector<double> *mu_pz = new vector<double>;
+    vector<double> *mu_energy = new vector<double>;
+    //TFile *f1 = new TFile(buff, "READ");
+    //TTree *t1 = (TTree *)f1->Get("Run");
+
+    t1->SetBranchAddress("R107.id", &FTOFchID);
+    t1->SetBranchAddress("R380.id", &T0chID);
+
+    t1->SetBranchAddress("mu.t", &mu_hittime);
+    t1->SetBranchAddress("mu.x", &mu_hitx);
+    t1->SetBranchAddress("mu.y", &mu_hity);
+    t1->SetBranchAddress("mu.z", &mu_hitz);
+    t1->SetBranchAddress("mu.DetID", &mu_hitID);
+
+    t1->SetBranchAddress("mu.px", &mu_px);
+    t1->SetBranchAddress("mu.py", &mu_py);
+    t1->SetBranchAddress("mu.pz", &mu_pz);
+    t1->SetBranchAddress("mu.E", &mu_energy);
+
+    int triggercounter = 0;
+    int trackercounter = 0;
+    int T0counter = 0;
+    int FTOFcounter = 0;
+
+    vector<int> triggervec;
+    vector<int> trackervec;
+    vector<int> T0vec;
+    vector<int> FTOFvec;
+    int N = t1->GetEntries();
+    cout << "Entries = " << N << endl;
+    for (int iEvent = 0; iEvent < N; iEvent++)
+    //for (int iEvent = 0; iEvent < 10; iEvent++)
     {
+        if (iEvent % 10000 == 0)
+            cout << "The Entry No: " << iEvent << endl;
 
-        clock_t start, finish;
-        double totaltime;
-        start = clock();
+        //-----------initial----------------------//
+        T0chID->clear();
+        FTOFchID->clear();
+        mu_hittime->clear();
+        mu_hitx->clear();
+        mu_hity->clear();
+        mu_hitz->clear();
+        mu_hitID->clear();
+        mu_px->clear();
+        mu_py->clear();
+        mu_pz->clear();
+        mu_energy->clear();
 
-        TGaxis::SetMaxDigits(3);
-        char buff[1024];
+        triggervec.clear();
+        trackervec.clear();
+        T0vec.clear();
+        FTOFvec.clear();
 
-        const int T0N = 1; //the number of T0
-        const int R3809_sensorN = 4;
-        const int R3809_sensor_ch_N = 1;
-        //const int T0_sensorN = T0N * R3809_sensorN * R3809_sensor_ch_N; //the number of channels of T0
-        const int T0_sensorN = T0CHNo.size(); //the number of channels of T0
-        const int FTOFN = 1;                  //the number of FTOF
-        const int R10754_sensorN = 8;
-        const int R10754_sensor_ch_N = 16;
-        //const int FTOF_sensorN = FTOFN * R10754_sensorN * R10754_sensor_ch_N; //the number of channels of FTOF
-        InitialFTOFchn();
-        const int FTOF_sensorN = FTOFCHNo.size();
-        const int TrackerN = 4; //the number of Trackers
-        const int TriggerN = 2; //the number of Triggers
-        TH1I *hTrackereff = new TH1I("hTrackereff", "", TrackerN + 1, 0, TrackerN + 1);
-        TH1I *hMMeff = new TH1I("hMMeff", "", TrackerN, 0, TrackerN);
-        TH1I *hlackMMeff = new TH1I("hlackMMeff", "", TrackerN, 0, TrackerN);
-        TH1I *hT0eff = new TH1I("hT0eff", "", T0_sensorN + 1, 0, T0_sensorN + 1);
-        sort(T0CHNo.begin(), T0CHNo.end());
-        TH1I *hT0CHeff = new TH1I("hT0CHeff", "", T0CHNo.back() + 1 - T0CHNo.front(), T0CHNo.front(), T0CHNo.back() + 1);
-        TH1I *hFTOFeff = new TH1I("hFTOFeff", "", FTOF_sensorN + 1, 0, FTOF_sensorN + 1);
-        sort(FTOFCHNo.begin(), FTOFCHNo.end());
+        t1->GetEntry(iEvent);
+        // create vector to store id
 
-        TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOFCHNo.back() + 1 - FTOFCHNo.front(), FTOFCHNo.front(), FTOFCHNo.back() + 1);
-        TChain *t1 = new TChain("Run");
-        vector<TString> rootlist;
-        TString filepath;
-        TString rootname;
-        if (input.EndsWith(".root"))
+        for (int ihitdet = 0; ihitdet < mu_hitID->size(); ihitdet++)
         {
-            rootlist.push_back(input);
-            filepath = GetFilepath(input);
-        }
-        else
-        {
-            GetFileList(input, "root", rootlist);
-            filepath = input;
-        }
-        rootname = GetFilename(rootlist.at(0));
-        TFile *fp;
-        for (int i = 0; i < rootlist.size(); i++)
-        {
-            fp = new TFile(rootlist.at(i),"read");
-            if (!fp->IsZombie()){
-
-                t1->Add(rootlist.at(i));
-                cout << "Add rootfile to My chain: " << rootlist.at(i) << endl;
-            }
-            fp->Close();
-        }
-        //return;
-
-        vector<int> *T0chID = new vector<int>;
-        vector<int> *FTOFchID = new vector<int>;
-        vector<double> *mu_hittime = new vector<double>;
-        vector<double> *mu_hitx = new vector<double>; //the position of incident event
-        vector<double> *mu_hity = new vector<double>;
-        vector<double> *mu_hitz = new vector<double>;
-        vector<int> *mu_hitID = new vector<int>;
-        vector<double> *mu_px = new vector<double>; //the direction of incident event
-        vector<double> *mu_py = new vector<double>;
-        vector<double> *mu_pz = new vector<double>;
-        vector<double> *mu_energy = new vector<double>;
-        //TFile *f1 = new TFile(buff, "READ");
-        //TTree *t1 = (TTree *)f1->Get("Run");
-
-        t1->SetBranchAddress("R107.id", &FTOFchID);
-        t1->SetBranchAddress("R380.id", &T0chID);
-
-        t1->SetBranchAddress("mu.t", &mu_hittime);
-        t1->SetBranchAddress("mu.x", &mu_hitx);
-        t1->SetBranchAddress("mu.y", &mu_hity);
-        t1->SetBranchAddress("mu.z", &mu_hitz);
-        t1->SetBranchAddress("mu.DetID", &mu_hitID);
-
-        t1->SetBranchAddress("mu.px", &mu_px);
-        t1->SetBranchAddress("mu.py", &mu_py);
-        t1->SetBranchAddress("mu.pz", &mu_pz);
-        t1->SetBranchAddress("mu.E", &mu_energy);
-
-        int triggercounter = 0;
-        int trackercounter = 0;
-        int T0counter = 0;
-        int FTOFcounter = 0;
-
-        vector<int> triggervec;
-        vector<int> trackervec;
-        vector<int> T0vec;
-        vector<int> FTOFvec;
-        int N = t1->GetEntries();
-        cout << "Entries = " << N << endl;
-        for (int iEvent = 0; iEvent < N; iEvent++)
-            //for (int iEvent = 0; iEvent < 10; iEvent++)
-        {
-            if (iEvent % 10000 == 0)
-                cout << "The Entry No: " << iEvent << endl;
-
-            //-----------initial----------------------//
-            T0chID->clear();
-            FTOFchID->clear();
-            mu_hittime->clear();
-            mu_hitx->clear();
-            mu_hity->clear();
-            mu_hitz->clear();
-            mu_hitID->clear();
-            mu_px->clear();
-            mu_py->clear();
-            mu_pz->clear();
-            mu_energy->clear();
-
-            triggervec.clear();
-            trackervec.clear();
-            T0vec.clear();
-            FTOFvec.clear();
-
-            t1->GetEntry(iEvent);
-            // create vector to store id
-
-            for (int ihitdet = 0; ihitdet < mu_hitID->size(); ihitdet++)
+            int theID = mu_hitID->at(ihitdet);
+            if (theID == 300 || theID == 301)
+                triggervec.push_back(theID);
+            if (theID >= 0 && theID < TrackerN)
+                trackervec.push_back(theID);
+            if (theID == 100)
             {
-                int theID = mu_hitID->at(ihitdet);
-                if (theID == 300 || theID == 301)
-                    triggervec.push_back(theID);
-                if (theID >= 0 && theID < TrackerN)
-                    trackervec.push_back(theID);
-                if (theID == 100)
+                for (int iT0hit = 0; iT0hit < T0chID->size(); iT0hit++)
                 {
-                    for (int iT0hit = 0; iT0hit < T0chID->size(); iT0hit++)
+                    int theT0chID = T0chID->at(iT0hit);
+                    if (SearchforID(theT0chID, T0CHNo))
                     {
-                        int theT0chID = T0chID->at(iT0hit);
-                        if (SearchforID(theT0chID, T0CHNo))
-                        {
-                            if (T0vec.empty())
-                                T0vec.push_back(theT0chID);
-                            else if (!SearchforID(theT0chID, T0vec))
-                                T0vec.push_back(theT0chID);
-                        }
-                    }
-                }
-                if (theID == 200)
-                {
-                    for (int iFTOFhit = 0; iFTOFhit < FTOFchID->size(); iFTOFhit++)
-                    {
-                        int theFTOFchID = FTOFchID->at(iFTOFhit);
-                        if (SearchforID(theFTOFchID, FTOFCHNo))
-                        {
-
-                            if (FTOFvec.empty())
-                                FTOFvec.push_back(theFTOFchID);
-                            else if (!SearchforID(theFTOFchID, FTOFvec))
-                                FTOFvec.push_back(theFTOFchID);
-                        }
+                        if (T0vec.empty())
+                            T0vec.push_back(theT0chID);
+                        else if (!SearchforID(theT0chID, T0vec))
+                            T0vec.push_back(theT0chID);
                     }
                 }
             }
-            if (triggervec.size() > 1)
+            if (theID == 200)
+            {
+                for (int iFTOFhit = 0; iFTOFhit < FTOFchID->size(); iFTOFhit++)
+                {
+                    int theFTOFchID = MapFTOFID(FTOFchID->at(iFTOFhit), FTOFMap);
+                    if (theFTOFchID != -999)
+                    {
+
+                        if (FTOFvec.empty())
+                            FTOFvec.push_back(theFTOFchID);
+                        // only fill one time
+                        else if (!SearchforID(theFTOFchID, FTOFvec))
+                            FTOFvec.push_back(theFTOFchID);
+                    }
+                }
+            }
+        }
+        if (triggervec.size() > 1)
+        {
+
+            triggercounter++;
+            if (trackervec.size() > 0)
             {
 
-                triggercounter++;
-                if (trackervec.size() > 0)
+                trackercounter++;
+                for (int j = 0; j < trackervec.size(); j++)
                 {
-
-                    trackercounter++;
-                    for (int j = 0; j < trackervec.size(); j++)
-                    {
-                        hMMeff->Fill(trackervec.at(j));
-                    }
-                    if (trackervec.size() == 3)
-                        for (int j = 0; j < TrackerN; j++)
-                        {
-
-                            if (!SearchforID(j, trackervec))
-                                hlackMMeff->Fill(j);
-                        }
+                    hMMeff->Fill(trackervec.at(j));
                 }
-                hTrackereff->Fill(trackervec.size());
-                if (T0vec.size() > 0)
-                {
-
-                    T0counter++;
-                    for (int j = 0; j < T0vec.size(); j++)
+                if (trackervec.size() == 3)
+                    for (int j = 0; j < TrackerN; j++)
                     {
-                        hT0CHeff->Fill(T0vec.at(j));
-                    }
-                }
-                hT0eff->Fill(T0vec.size());
-                if (FTOFvec.size() > 0)
-                {
 
-                    FTOFcounter++;
-                    for (int j = 0; j < FTOFvec.size(); j++)
-                    {
-                        hFTOFCHeff->Fill(FTOFvec.at(j));
+                        if (!SearchforID(j, trackervec))
+                            hlackMMeff->Fill(j);
                     }
-                }
-                hFTOFeff->Fill(FTOFvec.size());
             }
+            hTrackereff->Fill(trackervec.size());
+            if (T0vec.size() > 0)
+            {
+
+                T0counter++;
+                for (int j = 0; j < T0vec.size(); j++)
+                {
+                    hT0CHeff->Fill(T0vec.at(j));
+                }
+            }
+            hT0eff->Fill(T0vec.size());
+            if (FTOFvec.size() > 0)
+            {
+
+                FTOFcounter++;
+                for (int j = 0; j < FTOFvec.size(); j++)
+                {
+                    hFTOFCHeff->Fill(FTOFvec.at(j));
+                    int x = -999;
+                    int y = -999;
+                    IndexFTOFpos(FTOFvec.at(j), x, y);
+                    hpos->Fill(x, y);
+                }
+            }
+            hFTOFeff->Fill(FTOFvec.size());
         }
+    }
 
-        cout << "Trigger coincidence: " << triggercounter << endl
-            << "tracker counter: " << trackercounter << ", GE=" << (double)trackercounter / triggercounter << endl
-            << "T0 counter: " << T0counter << ", GE=" << (double)T0counter / triggercounter << endl
-            << "FTOF counter: " << FTOFcounter << ", GE=" << (double)FTOFcounter / triggercounter << endl;
-        TLatex *la;
-        TCanvas *c;
-        int ccounter = 0;
+    cout << "Trigger coincidence: " << triggercounter << endl
+         << "tracker counter: " << trackercounter << ", GE=" << (double)trackercounter / triggercounter << endl
+         << "T0 counter: " << T0counter << ", GE=" << (double)T0counter / triggercounter << endl
+         << "FTOF counter: " << FTOFcounter << ", GE=" << (double)FTOFcounter / triggercounter << endl;
+    TLatex *la;
+    TCanvas *c;
+    int ccounter = 0;
 
-        //** draw tracker eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hTrackereff, "Num of MM", "Counts", 1, 3);
-        hTrackereff->Draw();
-        HistAutoYRange(hTrackereff);
-        double Trackereff[TrackerN+1];
-            Trackereff[0] = hTrackereff->GetBinContent(1) / triggercounter;
-            sprintf(buff, "No MM response,Ratio=%.1f%%" , Trackereff[0] * 100);
-            la = DrawMyLatex(buff, 0.25, 0.7 , 42, 0.05, 1);
-            la->Draw("same");
-        for (int i = 1; i <= TrackerN; i++)
+    //** draw tracker eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hTrackereff, "Num of MM", "Counts", 1, 3);
+    hTrackereff->Draw();
+    c->Update();
+    SetEffstats(c, hTrackereff, triggercounter, triggercounter, trackercounter);
+
+    double Trackereff[TrackerN + 1];
+    Trackereff[0] = hTrackereff->GetBinContent(1) / triggercounter;
+    sprintf(buff, "No MM response,Ratio=%.1f%%", Trackereff[0] * 100);
+    la = DrawMyLatex(buff, 0.25, 0.7, 42, 0.05, 1);
+    la->Draw("same");
+    for (int i = 1; i <= TrackerN; i++)
+    {
+        Trackereff[i] = hTrackereff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "NMM=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i, Trackereff[i] * 100, Trackereff[i] * 100 * triggercounter / trackercounter);
+        la = DrawMyLatex(buff, 0.25, 0.7 - 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    TString canvasname;
+    canvasname = filepath + "/" + rootname + "Trackereff.png";
+    //sprintf(buff,"%s/%sTrackereff.png",filepath,rootname);
+    c->SaveAs(canvasname);
+
+    //** draw MM eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hMMeff, "ID of MM", "Counts", 1, 3);
+    hMMeff->Draw();
+    c->Update();
+    SetEffstats(c, hMMeff, triggercounter, triggercounter, trackercounter);
+
+    double MMeff[TrackerN];
+    for (int i = 0; i < TrackerN; i++)
+    {
+
+        MMeff[i] = hMMeff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "MMID=%d,Ratio=%.1f%%", i, MMeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05, 2);
+        la->Draw("same");
+    }
+    // sprintf(buff,"%s/%sMMeff.png",filepath,rootname);
+    canvasname = filepath + "/" + rootname + "MMeff.png";
+    c->SaveAs(canvasname);
+
+    //** draw MM true eff
+    //*
+    int allfires = allfires = hTrackereff->GetBinContent(TrackerN + 1);
+    c = cdC(ccounter++);
+    DrawMyHist(hlackMMeff, "ID of MM", "Counts", 1, 3);
+    hlackMMeff->Draw();
+    c->Update();
+    SetEffstats(c, hlackMMeff, triggercounter, triggercounter, trackercounter);
+
+    double MMtrueeff[TrackerN];
+    for (int i = 0; i < TrackerN; i++)
+    {
+
+        MMtrueeff[i] = allfires / (allfires + hlackMMeff->GetBinContent(i + 1));
+        sprintf(buff, "MMID=%d,Eff=%.1f%%", i, MMtrueeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05, 2);
+        la->Draw("same");
+    }
+    //sprintf(buff,"%s/%sMMtrueeff.png",filepath,rootname);
+    canvasname = filepath + "/" + rootname + "MMtrueeff.png";
+    c->SaveAs(canvasname);
+
+    //** draw T0 eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hT0eff, "Num of fired PMT", "Counts", 1, 3);
+    hT0eff->Draw();
+    c->Update();
+    SetEffstats(c, hT0eff, triggercounter, triggercounter, T0counter);
+
+    double T0eff[T0_sensorN + 1];
+    T0eff[0] = hT0eff->GetBinContent(1) / triggercounter;
+    sprintf(buff, "No PMT response, Ratio=%.1f%%", T0eff[0] * 100);
+    la = DrawMyLatex(buff, 0.25, 0.7, 42, 0.05, 1);
+    la->Draw("same");
+    for (int i = 1; i <= T0_sensorN; i++)
+    {
+
+        T0eff[i] = hT0eff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "NPMT=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i, T0eff[i] * 100, T0eff[i] * 100 / T0counter * triggercounter);
+        la = DrawMyLatex(buff, 0.25, 0.7 - 0.07 * i, 42, 0.05);
+        la->Draw("same");
+    }
+    canvasname = filepath + "/" + rootname + "T0eff.png";
+    c->SaveAs(canvasname);
+
+    //** draw T0ch eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hT0CHeff, "PMT ID", "Counts", 1, 3);
+    hT0CHeff->Draw();
+    c->Update();
+    SetEffstats(c, hT0CHeff, triggercounter, triggercounter, T0counter);
+
+    double T0CHeff[T0_sensorN];
+    for (int i = 0; i < T0_sensorN; i++)
+    {
+
+        T0CHeff[i] = hT0CHeff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "PMTID=%d,Eff=%.1f%%", i, T0CHeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05, 2);
+        la->Draw("same");
+    }
+    canvasname = filepath + "/" + rootname + "T0CHeff.png";
+    c->SaveAs(canvasname);
+
+    //** draw FTOF eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hFTOFeff, "Num of fired Channel", "Counts", 1, 3);
+    hFTOFeff->Draw();
+    c->Update();
+    SetEffstats(c, hFTOFeff, triggercounter, triggercounter, FTOFcounter);
+
+    double FTOFeff[FTOF_sensorN + 1];
+    FTOFeff[0] = hFTOFeff->GetBinContent(1) / triggercounter;
+    sprintf(buff, "No ch response,Ratio=%.1f%%", FTOFeff[0] * 100);
+    la = DrawMyLatex(buff, 0.25, 0.7, 42, 0.05, 1);
+    la->Draw("same");
+    for (int i = 1; i <= FTOF_sensorN; i++)
+    {
+        if (i > 8)
         {
-            Trackereff[i] = hTrackereff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "NMM=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i , Trackereff[i] * 100,Trackereff[i] * 100*triggercounter/trackercounter);
-            la = DrawMyLatex(buff, 0.25, 0.7 - 0.07 * i, 42, 0.05);
-            la->Draw("same");
-        }
-        TString canvasname;
-        canvasname = filepath + "/" + rootname + "Trackereff.png";
-        //sprintf(buff,"%s/%sTrackereff.png",filepath,rootname);
-        c->SaveAs(canvasname);
-
-        //** draw MM eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hMMeff, "ID of MM", "Counts", 1, 3);
-        hMMeff->Draw();
-        HistAutoYRange(hMMeff);
-        
-        double MMeff[TrackerN];
-        for (int i = 0; i < TrackerN; i++)
-        {
-
-            MMeff[i] = hMMeff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "MMID=%d,Ratio=%.1f%%", i , MMeff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05,2);
-            la->Draw("same");
-        }
-        // sprintf(buff,"%s/%sMMeff.png",filepath,rootname);
-        canvasname = filepath + "/" + rootname + "MMeff.png";
-        c->SaveAs(canvasname);
-
-        //** draw MM true eff
-        //*
-        int allfires = allfires = hTrackereff->GetBinContent(TrackerN + 1);
-        c = cdC(ccounter++);
-        DrawMyHist(hlackMMeff, "ID of MM", "Counts", 1, 3);
-        hlackMMeff->Draw();
-        HistAutoYRange(hlackMMeff);
-        double MMtrueeff[TrackerN];
-        for (int i = 0; i < TrackerN; i++)
-        {
-
-            MMtrueeff[i] = allfires / (allfires + hlackMMeff->GetBinContent(i + 1));
-            sprintf(buff, "MMID=%d,Eff=%.1f%%", i , MMtrueeff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05,2);
-            la->Draw("same");
-        }
-        //sprintf(buff,"%s/%sMMtrueeff.png",filepath,rootname);
-        canvasname = filepath + "/" + rootname + "MMtrueeff.png";
-        c->SaveAs(canvasname);
-
-        //** draw T0 eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hT0eff, "Num of fired PMT", "Counts", 1, 3);
-        hT0eff->Draw();
-        HistAutoYRange(hT0eff);
-        
-        double T0eff[T0_sensorN+1];
-        T0eff[0] = hT0eff->GetBinContent(1) / triggercounter;
-            sprintf(buff, "No PMT response, Ratio=%.1f%%", T0eff[0] * 100);
-            la = DrawMyLatex(buff, 0.25, 0.7, 42, 0.05,1);
-            la->Draw("same");
-        for (int i = 1; i <= T0_sensorN; i++)
-        {
-
-            T0eff[i] = hT0eff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "NPMT=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i, T0eff[i] * 100, T0eff[i] * 100/T0counter*triggercounter);
-            la = DrawMyLatex(buff, 0.25, 0.7 - 0.07 * i, 42, 0.05);
-            la->Draw("same");
-        }
-        canvasname = filepath + "/" + rootname + "T0eff.png";
-        c->SaveAs(canvasname);
-
-        //** draw T0ch eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hT0CHeff, "PMT ID", "Counts", 1, 3);
-        hT0CHeff->Draw();
-        HistAutoYRange(hT0CHeff);
-        
-        double T0CHeff[T0_sensorN];
-        for (int i = 0; i < T0_sensorN; i++)
-        {
-
-            T0CHeff[i] = hT0CHeff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "PMTID=%d,Eff=%.1f%%", i, T0CHeff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.7 - 0.07 * i, 42, 0.05,2);
-            la->Draw("same");
-        }
-        canvasname = filepath + "/" + rootname + "T0CHeff.png";
-        c->SaveAs(canvasname);
-
-        //** draw FTOF eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hFTOFeff, "Num of fired Channel", "Counts", 1, 3);
-        hFTOFeff->Draw();
-        HistAutoYRange(hFTOFeff);
-
-        double FTOFeff[FTOF_sensorN+1];
-        FTOFeff[0] = hFTOFeff->GetBinContent(1) / triggercounter;
-            sprintf(buff, "No ch response,Ratio=%.1f%%", FTOFeff[0] * 100);
-            la = DrawMyLatex(buff, 0.25, 0.7, 42, 0.05,1);
-            la->Draw("same");
-        for (int i = 1; i <= FTOF_sensorN; i++)
-        {
-            if(i>8) {
             la = DrawMyLatex("... ...", 0.3, 0.7 - 0.05 * i, 42, 0.035);
-            la->Draw("same"); 
-            break;
-            }
-            FTOFeff[i] = hFTOFeff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "Nch=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i, FTOFeff[i] * 100,FTOFeff[i] * 100*triggercounter/FTOFcounter);
-            la = DrawMyLatex(buff, 0.25, 0.7 - 0.05 * i, 42, 0.04);
             la->Draw("same");
-        }
-        
-        canvasname = filepath + "/" + rootname + "FTOFeff.png";
-        c->SaveAs(canvasname);
-
-        //** draw FTOFch eff
-        //*
-        c = cdC(ccounter++);
-        DrawMyHist(hFTOFCHeff, "Channel ID", "Counts", 1, 3);
-        hFTOFCHeff->Draw();
-        HistAutoYRange(hFTOFCHeff);
-
-        double FTOFCHeff[FTOF_sensorN];
-        for (int i = 0; i < FTOF_sensorN; i++)
-        {
-            if(i>8) {
-            la = DrawMyLatex("... ...", 0.35, 0.7 - 0.05 * i, 42, 0.035,2);
-            la->Draw("same"); 
             break;
-            }
-            FTOFCHeff[i] = hFTOFCHeff->GetBinContent(i + 1) / triggercounter;
-            sprintf(buff, "ChID=%d,Ratio=%.1f%%", i + 1, FTOFCHeff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.7 - 0.05 * i, 42, 0.04,2);
-            la->Draw("same");
         }
-        canvasname = filepath + "/" + rootname + "FTOFCHeff.png";
-        c->SaveAs(canvasname);
+        FTOFeff[i] = hFTOFeff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "Nch=%d,Ratio=%.1f%%,#color[2]{(Valid)%.1f%%}", i, FTOFeff[i] * 100, FTOFeff[i] * 100 * triggercounter / FTOFcounter);
+        la = DrawMyLatex(buff, 0.25, 0.7 - 0.05 * i, 42, 0.04);
+        la->Draw("same");
     }
+
+    canvasname = filepath + "/" + rootname + "FTOFeff.png";
+    c->SaveAs(canvasname);
+
+    //** draw FTOFch eff
+    //*
+    c = cdC(ccounter++);
+    DrawMyHist(hFTOFCHeff, "Channel ID", "Counts", 1, 3);
+    hFTOFCHeff->Draw();
+    c->Update();
+
+    SetEffstats(c, hFTOFCHeff, triggercounter, triggercounter, FTOFcounter);
+    double FTOFCHeff[FTOF_sensorN];
+    for (int i = 0; i < FTOF_sensorN; i++)
+    {
+        if (i > 8)
+        {
+            la = DrawMyLatex("... ...", 0.35, 0.7 - 0.05 * i, 42, 0.035, 2);
+            la->Draw("same");
+            break;
+        }
+        FTOFCHeff[i] = hFTOFCHeff->GetBinContent(i + 1) / triggercounter;
+        sprintf(buff, "ChID=%d,Ratio=%.1f%%", i + 1, FTOFCHeff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.7 - 0.05 * i, 42, 0.04, 2);
+        la->Draw("same");
+    }
+    canvasname = filepath + "/" + rootname + "FTOFCHeff.png";
+    c->SaveAs(canvasname);
+
+    //
+    // ---------draw hit pos of PMT--------//
+    //
+
+    c = cdC(counter++, 1300, 600);
+    DrawMy2dHist(hpos, "", "");
+    //ht->Rebin(2);
+    hpos->Draw("colz");
+
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    canvasname = filepath + "/" + rootname + "Pos_of_FTOFCH.png";
+    c->SaveAs(canvasname);
+}
+TH1D *hRBtheta;
+TH1D *htheta;
+TH1D *hthetaerr;
+
+void Definehist()
+{
+    hRBtheta = new TH1D("hRBtheta", "Rebuild theta", 100, 0, 100);
+    htheta = new TH1D("htheta", "CR theta", 100, 0, 100);
+    hthetaerr = new TH1D("hthetaerr", "Rebuild theta error", 100, -100, 100);
+}
+void Drawhist(TString path)
+{
+    TCanvas *cc = cdC(0,1300,600);
+    TLegend *leg = DrawMyLeg(0.6, 0.7, 0.9, 0.9);
+    cc->SetTitle("RebuildAngle");
+    cc->Clear();
+    cc->Divide(2, 1);
+    cc->cd(1);
+    DrawMyHist(htheta, "", "", 1, 3);
+    htheta->SetNdivisions(505);
+    htheta->Draw();
+    leg->AddEntry(htheta, "Rebuild angle","l");
+
+    DrawMyHist(hRBtheta, "", "", 2, 3);
+    hRBtheta->Draw("same");
+    hRBtheta->SetNdivisions(505);
+    leg->AddEntry(hRBtheta, "Simulated angle","l");
+    leg->Draw("same");
+
+    cc->cd(2);
+    DrawMyHist(hthetaerr, "", "", 1, 3);
+    hthetaerr->Draw();
+    hthetaerr->SetNdivisions(505);
+    cc->SaveAs(Form("%s/RebuildAngle.png", path.Data()));
+}
+void Rebuild(TString input = "../build")
+{
+    clock_t start, finish;
+    double totaltime;
+    start = clock();
+
+    Definehist();
+    TChain *t1 = new TChain("Run");
+    vector<TString> rootlist;
+    TString filepath;
+    TString rootname;
+    if (input.EndsWith(".root"))
+    {
+        rootlist.push_back(input);
+        filepath = GetFilepath(input);
+    }
+    else
+    {
+        GetFileList(input, "root", rootlist);
+        filepath = input;
+    }
+    rootname = GetFilename(rootlist.at(0));
+
+    for (int i = 0; i < rootlist.size(); i++)
+    {
+        t1->Add(rootlist.at(i));
+        cout << "Add rootfile to My chain: " << rootlist.at(i) << endl;
+    }
+
+    // Declaration of leaf types
+    vector<int> *R380_count = 0;
+    vector<int> *R380_id = 0;
+    vector<double> *R380_E = 0;
+    vector<double> *R380_t = 0;
+    vector<double> *R380_TOP = 0;
+    vector<double> *R380_x = 0;
+    vector<double> *R380_y = 0;
+    vector<double> *R380_z = 0;
+    vector<double> *R380_px = 0;
+    vector<double> *R380_py = 0;
+    vector<double> *R380_pz = 0;
+    vector<int> *R380_trackID = 0;
+    vector<int> *R107_count = 0;
+    vector<int> *R107_id = 0;
+    vector<double> *R107_E = 0;
+    vector<double> *R107_t = 0;
+    vector<double> *R107_TOP = 0;
+    vector<double> *R107_x = 0;
+    vector<double> *R107_y = 0;
+    vector<double> *R107_z = 0;
+    vector<double> *R107_px = 0;
+    vector<double> *R107_py = 0;
+    vector<double> *R107_pz = 0;
+    vector<int> *R107_trackID = 0;
+    vector<int> *mu_Count = 0;
+    vector<int> *mu_ID = 0;
+    vector<double> *mu_E = 0;
+    vector<double> *mu_t = 0;
+    vector<double> *mu_x = 0;
+    vector<double> *mu_y = 0;
+    vector<double> *mu_z = 0;
+    vector<double> *mu_px = 0;
+    vector<double> *mu_py = 0;
+    vector<double> *mu_pz = 0;
+    vector<int> *mu_DetID = 0;
+
+    // List of branches
+    TBranch *b_R380_count;   //!
+    TBranch *b_R380_id;      //!
+    TBranch *b_R380_E;       //!
+    TBranch *b_R380_t;       //!
+    TBranch *b_R380_TOP;     //!
+    TBranch *b_R380_x;       //!
+    TBranch *b_R380_y;       //!
+    TBranch *b_R380_z;       //!
+    TBranch *b_R380_px;      //!
+    TBranch *b_R380_py;      //!
+    TBranch *b_R380_pz;      //!
+    TBranch *b_R380_trackID; //!
+    TBranch *b_R107_count;   //!
+    TBranch *b_R107_id;      //!
+    TBranch *b_R107_E;       //!
+    TBranch *b_R107_t;       //!
+    TBranch *b_R107_TOP;     //!
+    TBranch *b_R107_x;       //!
+    TBranch *b_R107_y;       //!
+    TBranch *b_R107_z;       //!
+    TBranch *b_R107_px;      //!
+    TBranch *b_R107_py;      //!
+    TBranch *b_R107_pz;      //!
+    TBranch *b_R107_trackID; //!
+    TBranch *b_mu_Count;     //!
+    TBranch *b_mu_ID;        //!
+    TBranch *b_mu_E;         //!
+    TBranch *b_mu_t;         //!
+    TBranch *b_mu_x;         //!
+    TBranch *b_mu_y;         //!
+    TBranch *b_mu_z;         //!
+    TBranch *b_mu_px;        //!
+    TBranch *b_mu_py;        //!
+    TBranch *b_mu_pz;        //!
+    TBranch *b_mu_DetID;     //!
+    t1->SetMakeClass(1);
+    t1->SetBranchAddress("R380.count", &R380_count, &b_R380_count);
+    t1->SetBranchAddress("R380.id", &R380_id, &b_R380_id);
+    t1->SetBranchAddress("R380.E", &R380_E, &b_R380_E);
+    t1->SetBranchAddress("R380.t", &R380_t, &b_R380_t);
+    t1->SetBranchAddress("R380.TOP", &R380_TOP, &b_R380_TOP);
+    t1->SetBranchAddress("R380.x", &R380_x, &b_R380_x);
+    t1->SetBranchAddress("R380.y", &R380_y, &b_R380_y);
+    t1->SetBranchAddress("R380.z", &R380_z, &b_R380_z);
+    t1->SetBranchAddress("R380.px", &R380_px, &b_R380_px);
+    t1->SetBranchAddress("R380.py", &R380_py, &b_R380_py);
+    t1->SetBranchAddress("R380.pz", &R380_pz, &b_R380_pz);
+    t1->SetBranchAddress("R380.trackID", &R380_trackID, &b_R380_trackID);
+    t1->SetBranchAddress("R107.count", &R107_count, &b_R107_count);
+    t1->SetBranchAddress("R107.id", &R107_id, &b_R107_id);
+    t1->SetBranchAddress("R107.E", &R107_E, &b_R107_E);
+    t1->SetBranchAddress("R107.t", &R107_t, &b_R107_t);
+    t1->SetBranchAddress("R107.TOP", &R107_TOP, &b_R107_TOP);
+    t1->SetBranchAddress("R107.x", &R107_x, &b_R107_x);
+    t1->SetBranchAddress("R107.y", &R107_y, &b_R107_y);
+    t1->SetBranchAddress("R107.z", &R107_z, &b_R107_z);
+    t1->SetBranchAddress("R107.px", &R107_px, &b_R107_px);
+    t1->SetBranchAddress("R107.py", &R107_py, &b_R107_py);
+    t1->SetBranchAddress("R107.pz", &R107_pz, &b_R107_pz);
+    t1->SetBranchAddress("R107.trackID", &R107_trackID, &b_R107_trackID);
+    t1->SetBranchAddress("mu.Count", &mu_Count, &b_mu_Count);
+    t1->SetBranchAddress("mu.ID", &mu_ID, &b_mu_ID);
+    t1->SetBranchAddress("mu.E", &mu_E, &b_mu_E);
+    t1->SetBranchAddress("mu.t", &mu_t, &b_mu_t);
+    t1->SetBranchAddress("mu.x", &mu_x, &b_mu_x);
+    t1->SetBranchAddress("mu.y", &mu_y, &b_mu_y);
+    t1->SetBranchAddress("mu.z", &mu_z, &b_mu_z);
+    t1->SetBranchAddress("mu.px", &mu_px, &b_mu_px);
+    t1->SetBranchAddress("mu.py", &mu_py, &b_mu_py);
+    t1->SetBranchAddress("mu.pz", &mu_pz, &b_mu_pz);
+    t1->SetBranchAddress("mu.DetID", &mu_DetID, &b_mu_DetID);
+
+    rootname = GetFilename(rootlist.at(0));
+
+    CRTimeData T0data;
+    CRTimeData FTOFdata;
+    CRPosData MMdata;
+    CRPosData T0pos;
+    CRPosData FTOFpos;
+    CRMuData Mudata;
+    vector<CRPosData> MMvec;
+
+    vector<CRTimeData> T0Real;
+    vector<CRTimeData> FTOFReal;
+    vector<CRMuData> MuReal;
+    vector<vector<CRPosData>> MMReal;
+    vector<CRPosData> T0PosReal;
+    vector<CRPosData> FTOFPosReal;
+
+    //sprintf(buff, "%s/%sdata.root", filepath.Data(), rootname.Data());
+    //TFile *f2 = new TFile(buff, "RECREATE");
+    //TTree *t2 = new TTree("data", "restore analysed data  from G4");
+    //t2->Branch("T0Real", T0Real);
+    //t2->Branch("FTOFReal", FTOFReal);
+    //t2->Branch("MuReal", MuReal);
+    //t2->Branch("T0Rebuild", T0Rebuild);
+    //t2->Branch("FTOFRebuild", FTOFRebuild);
+    //t2->Branch("MuRebuild", MuRebuild);
+
+    int N = t1->GetEntries();
+    cout << "Entries = " << N << endl;
+
+    for (int iEvent = 0; iEvent < N; iEvent++)
+    {
+
+        T0data = {0};
+        FTOFdata = {0};
+        MMdata = {0};
+        T0pos = {0};
+        FTOFpos = {0};
+        Mudata = {0};
+        MMvec.clear();
+        if (iEvent % 10000 == 0)
+            cout << "The Entry No: " << iEvent << endl;
+        t1->GetEntry(iEvent);
+        vector<int> triggervec;
+        if (!mu_DetID->size())
+            continue;
+        for (int ihitdet = 0; ihitdet < mu_DetID->size(); ihitdet++)
+        {
+
+            int theID = mu_DetID->at(ihitdet);
+            if (theID == 300 || theID == 301)
+                triggervec.push_back(theID);
+            if (theID >= 0 && theID < 4)
+            {
+                MMdata.id = theID;
+                MMdata.t = mu_t->at(ihitdet);
+                MMdata.x = mu_x->at(ihitdet);
+                MMdata.y = mu_y->at(ihitdet);
+                MMdata.z = mu_z->at(ihitdet);
+                MMvec.push_back(MMdata);
+            }
+            if (theID == 100)
+            {
+                T0pos.id = theID;
+                T0pos.t = mu_t->at(ihitdet);
+                T0pos.x = mu_x->at(ihitdet);
+                T0pos.y = mu_y->at(ihitdet);
+                T0pos.z = mu_z->at(ihitdet);
+
+                for (int iT0hit = 0; iT0hit < R380_id->size(); iT0hit++)
+                {
+                    T0data.id = R380_id->at(iT0hit);
+                    T0data.t.push_back(R380_t->at(iT0hit));
+                    T0data.x.push_back(R380_x->at(iT0hit));
+                    T0data.y.push_back(R380_y->at(iT0hit));
+                    T0data.z.push_back(R380_z->at(iT0hit));
+                    T0data.TOP.push_back(R380_TOP->at(iT0hit));
+                }
+            }
+            if (theID == 200)
+            {
+                FTOFpos.id = theID;
+                FTOFpos.t = mu_t->at(ihitdet);
+                FTOFpos.x = mu_x->at(ihitdet);
+                FTOFpos.y = mu_y->at(ihitdet);
+                FTOFpos.z = mu_z->at(ihitdet);
+
+                for (int iFTOFhit = 0; iFTOFhit < R107_id->size(); iFTOFhit++)
+                {
+                    FTOFdata.id = R107_id->at(iFTOFhit);
+                    FTOFdata.t.push_back(R107_t->at(iFTOFhit));
+                    FTOFdata.x.push_back(R107_x->at(iFTOFhit));
+                    FTOFdata.y.push_back(R107_y->at(iFTOFhit));
+                    FTOFdata.z.push_back(R107_z->at(iFTOFhit));
+                    FTOFdata.TOP.push_back(R107_TOP->at(iFTOFhit));
+                }
+            }
+        }
+        Mudata.muE = mu_E->at(0);
+        Mudata.px = mu_px->at(0);
+        Mudata.py = mu_py->at(0);
+        Mudata.pz = mu_pz->at(0);
+        //cout<<"px, py, pz"<<mu_px->at(0)<<","<<mu_py->at(0)<<","<<mu_pz->at(0)<<endl;
+        Mudata.theta = TMath::ACos(-1 * Mudata.px);
+        if (triggervec.size() == 2)
+        {
+            T0Real.push_back(T0data);
+            FTOFReal.push_back(FTOFdata);
+            MuReal.push_back(Mudata);
+            MMReal.push_back(MMvec);
+        }
+    }
+
+    vector<double> Rebuildtheta = RebuildCRAngle(MMReal, possigma);
+    for (int i = 0; i < Rebuildtheta.size(); i++)
+    {
+        htheta->Fill(MuReal[i].theta/TMath::Pi()*180);
+        hRBtheta->Fill(Rebuildtheta[i]/TMath::Pi()*180);
+        hthetaerr->Fill((Rebuildtheta[i] - MuReal[i].theta)/TMath::Pi()*180);
+        cout << "Theta rb,simulated: " << Rebuildtheta[i] << ", " << MuReal[i].theta << endl;
+    }
+    Drawhist(filepath);
+}
+
+vector<double> RebuildCRAngle(vector<vector<CRPosData>> MMReal, double possigma)
+{
+    vector<CRPosData> MMvec;
+    CRPosData MMdata;
+    vector<double> theta;
+    //for (int i = 0; i < 5; i++)
+    for (int i = 0; i < MMReal.size(); i++)
+    {
+        MMvec = MMReal[i];
+
+        sort(MMvec.begin(), MMvec.end());
+        int N = MMvec.size();
+        if(N<2) continue;
+        double exp[2] = {0};
+        double delta[3] = {0}; // 0-x. 1-y, 2-z
+        TGraphErrors *g;
+
+        TVector3 v1;
+        for (int i = 0; i < 2; i++)
+        {
+
+            g = new TGraphErrors();
+            for (int j = 0; j < N; j++)
+            {
+                if (i == 0)
+                {
+
+                    g->SetPoint(j, MMvec[j].x, MMvec[j].y + r.Gaus(0, possigma));
+                    //cout<<"x"<<MMvec[j].x<<",y"<<i<<","<<MMvec[j].y + r.Gaus(0, possigma)<<endl;
+                }
+                else
+                {
+                    g->SetPoint(j, MMvec[j].x, MMvec[j].z + r.Gaus(0, possigma));
+                    //cout<<"x"<<MMvec[j].x<<",z"<<i<<","<<MMvec[j].z + r.Gaus(0, possigma)<<endl;
+                }
+            }
+            // fit
+            g->Draw();
+
+            g->Fit("pol1", "q");
+            //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
+            delta[1 + i] = g->GetFunction("pol1")->Eval(MMvec[N - 1].x) - g->GetFunction("pol1")->Eval(MMvec[0].x);
+            g->Clear();
+        }
+        delta[0] = MMvec[N - 1].x - MMvec[0].x;
+        v1.SetX(delta[0]);
+        v1.SetY(delta[1]);
+        v1.SetZ(delta[2]);
+        theta.push_back(TMath::ACos(v1.x() / v1.Mag()));
+        //cout << "rebuild theta: " << TMath::ACos(v1.x() / v1.Mag()) << endl;
+    }
+    return theta;
+}
+
+#if 0
     void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
     {
         //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
@@ -954,21 +1482,23 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
         vector<vector<double>> par(T);
         vector<vector<double>> tts(T);
 
-        vector<double> *hitT = new vector<double>;
-        vector<double> *TOPT = new vector<double>;
-        vector<int> *ID = new vector<int>;
+        vector<double> *R380t = new vector<double>;
+        vector<double> *R380TOP = new vector<double>;
+        vector<int> *R380id = new vector<int>;
 
-        vector<double> *DethitT = new vector<double>;
+        vector<double>  *R107t = new vector<double>;
+        vector<double>  *R107TOP = new vector<double>;
+        vector<int>     *R107id = new vector<int>;
 
-        vector<double> *IncidX = new vector<double>; //the position of incident event
-        vector<double> *IncidY = new vector<double>;
-        vector<double> *IncidZ = new vector<double>;
-        vector<double> *IncidPX = new vector<double>; //the direction of incident event
-        vector<double> *IncidPY = new vector<double>;
-        vector<double> *IncidPZ = new vector<double>;
-
-        vector<double> *IncidE = new vector<double>;
-        vector<int> *IncidID = new vector<int>;
+        vector<double> *mut = new vector<double>;
+        vector<double> *mux = new vector<double>; //the position of mu
+        vector<double> *muy = new vector<double>;
+        vector<double> *muz = new vector<double>;
+        vector<double> *mupx = new vector<double>; //the direction of mu
+        vector<double> *mupy = new vector<double>;
+        vector<double> *mupz = new vector<double>;
+        vector<double> *muE = new vector<double>; // the energy of mu
+        vector<int> *muDetID = new vector<int>; //the id of detecors that interacted with muon 
 
         //count = new vector<int>;
         int N = 0, hitN = 0, pN = 0;
@@ -1004,20 +1534,23 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
         //TFile *f1 = new TFile(buff, "READ");
         //TTree *t1 = (TTree *)f1->Get("Run");
 
-        t1->SetBranchAddress("PmtS.t", &hitT);
-        t1->SetBranchAddress("PmtS.TOP", &TOPT);
-        t1->SetBranchAddress("PmtS.id", &ID);
 
-        t1->SetBranchAddress("mu.t", &DethitT);
-        t1->SetBranchAddress("mu.x", &IncidX);
-        t1->SetBranchAddress("mu.y", &IncidY);
-        t1->SetBranchAddress("mu.z", &IncidZ);
-        t1->SetBranchAddress("mu.px", &IncidPX);
-        t1->SetBranchAddress("mu.py", &IncidPY);
-        t1->SetBranchAddress("mu.pz", &IncidPZ);
+// T0 data
+        t1->SetBranchAddress("R380.t", &R380t);
+        t1->SetBranchAddress("R380.TOP", &R380TOP);
+        t1->SetBranchAddress("R380.id", &R380id);
 
-        t1->SetBranchAddress("mu.E", &IncidE);
-        t1->SetBranchAddress("mu.DetID", &IncidID);
+//mu information
+        t1->SetBranchAddress("mu.t", &mut);
+        t1->SetBranchAddress("mu.x", &mux);
+        t1->SetBranchAddress("mu.y", &muy);
+        t1->SetBranchAddress("mu.z", &muz);
+        t1->SetBranchAddress("mu.px", &mupx);
+        t1->SetBranchAddress("mu.py", &mupy);
+        t1->SetBranchAddress("mu.pz", &mupz);
+
+        t1->SetBranchAddress("mu.E", &muE);
+        t1->SetBranchAddress("mu.DetID", &muDetID);
 
         //sprintf(name,"Thrd_%g",abs(thrd));
 
@@ -1501,189 +2034,189 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
         totaltime = (double)(finish - start) / CLOCKS_PER_SEC;
         cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
     }
+#endif
+void GetTimeRes(const char *rootname = "CRY3data")
+{
+    //void MygStyle();
+    //MygStyle();
+    gStyle->SetOptFit(111);
 
-    void GetTimeRes(const char *rootname = "CRY3data")
+    sprintf(buff, "%s/%s.dat", path, rootname);
+    ofstream out(buff);
+    cout << "===> Create your date file: " << buff << endl;
+
+    char name[100];
+    char buff[1024];
+
+    //***************************************************//
+    //--------------Configuration-----------------------//
+    //***************************************************//
+    double tL = -2.;
+    double tR = 2.;
+    double AL = 0;
+    double AR = 300;
+
+    double uL = -1e3;
+    double uR = 0;
+
+    int rbA = 10;
+    int rbt = 4;
+    int rbu = 1;
+
+    // the range set After Correct
+    //double L2 = -100e-12;
+    //double R2 = 100e-12;
+    int bint = (tR - tL) / 0.5e-3;
+    int binu = (uR - uL) / 30;
+    const int PMTN = 4; //the number of PMT copyvolume
+    const int DetN = 1;
+    const int T = PMTN * DetN; //the number of PMT copyvolume
+
+    //---------------------------------------------------//
+    //***************************************************//
+
+    //double RL,RR;
+    //double U_RL,U_RR;
+    //int binT = (init_tR-init_tL)/0.5e-12;
+    //int binU = (init_UR-init_UL)/1;
+
+    cout << "Start =====>>>>" << endl;
+    //return;
+    //cout<<"<<---- Succeed excuating ---->>"<<endl;
+    //return;
+    //thrd = (s+1)*0.2;
+    sprintf(name, "%s/%s", path, rootname);
+
+    sprintf(buff, "%s.root", name);
+    TFile *f = new TFile(buff, "READ");
+    TTree *t = (TTree *)f->Get("data");
+    cout << "Read rootfile: " << buff << endl;
+
+    double T0_1stpe[T] = {0}; // hit time of first pe
+    double xT0[T] = {0};      //time stamp of waveform
+    double TOP[T] = {0};      // TOP of photon
+    int CHID[T] = {0};
+    int NPE[T] = {0};
+    double U[T] = {0}; //Amplitude of waveform
+
+    int DetID[DetN] = {0};    //incident time
+    double DetT0[DetN] = {0}; //incident time
+    double InX[DetN] = {0};   //incident position
+    double InY[DetN] = {0};
+    double InZ[DetN] = {0};
+
+    double InE[DetN] = {0};
+
+    double InPX; //incident direction
+    double InPY;
+    double InPZ;
+
+    double Intheta; //incident direction
+    double Inphi;
+
+    double Caltheta; //incident direction
+    double Calphi;
+    double CalX[DetN] = {0};
+    double CalY[DetN] = {0};
+    double CalZ[DetN] = {0};
+
+    t->SetBranchAddress("CHID", CHID);
+    t->SetBranchAddress("NPE", NPE);
+    t->SetBranchAddress("U", U); //-mV
+    t->SetBranchAddress("xT0", xT0);
+    t->SetBranchAddress("T0_1stpe", T0_1stpe);
+    t->SetBranchAddress("TOP", TOP);
+
+    t->SetBranchAddress("DetID", DetID);
+    t->SetBranchAddress("DetT0", DetT0);
+
+    t->SetBranchAddress("InE", InE);    //mm
+    t->SetBranchAddress("InX", InX);    //mm
+    t->SetBranchAddress("InY", InY);    //mm
+    t->SetBranchAddress("InZ", InZ);    //mm
+    t->SetBranchAddress("InPX", &InPX); //momentum
+    t->SetBranchAddress("InPY", &InPY); //momentum
+    t->SetBranchAddress("InPZ", &InPZ); //momentum
+    t->SetBranchAddress("Intheta", &Intheta);
+    t->SetBranchAddress("Inphi", &Inphi);
+
+    t->SetBranchAddress("CalX", CalX); //mm
+    t->SetBranchAddress("CalY", CalY); //mm
+    t->SetBranchAddress("CalZ", CalZ); //mm
+    t->SetBranchAddress("Caltheta", &Caltheta);
+    t->SetBranchAddress("Calphi", &Calphi);
+
+    TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
+    TH1D *htcor = new TH1D("htcor", ";Time (ns);Counts", bint, tL, tR);
+    TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
+    TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
+    TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
+    TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
+    TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
+    TH1D *hPMTID = new TH1D("hPMTID", ";PMTID;Counts", 4, 0, 4);
+
+    TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
+    TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
+    TH1D *hdz = new TH1D("hdy", ";#Delta#Z (mm);Counts", 2000, -10, 10);
+
+    TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
+    TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
+
+    TH1D *hA = new TH1D("hA", ";reTrack (mm);Counts", 3e3, AL, AR);
+
+    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
+
+    TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
+    TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
+    TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
+
+    int N = t->GetEntries();
+    cout << "Total trigger events is: " << N << endl;
+    double Timestamp = 0;
+    double Timestampcor = 0;
+    double TimeSum = 0;
+    double PMTtime = 0;
+    double PMTtimecor = 0;
+    double reTOP = 0;
+    double reTrack = 0;
+    double reTrackSum = 0;
+    double meanreTrack = 0;
+    double CalPx, CalPy, CalPz;
+    vector<double> TT;
+    vector<double> AA;
+    TT.reserve(20e4);
+    AA.reserve(20e4);
+    //for (int i = 0; i < N; i++)
+    for (int i = 0; i < N; i++)
     {
-        //void MygStyle();
-        //MygStyle();
-        gStyle->SetOptFit(111);
+        t->GetEntry(i);
+        hdtheta->Fill(Caltheta - Intheta);
+        hdphi->Fill(Calphi - Inphi);
+        htheta->Fill(Caltheta);
+        hphi->Fill(Calphi);
+        hpos->Fill(InY[0], InZ[0]);
+        hdy->Fill(InY[0] - CalY[0]);
+        hdz->Fill(InZ[0] - CalZ[0]);
+        CalPx = -1 * TMath::Cos(Caltheta);
+        CalPz = TMath::Sin(Caltheta) * TMath::Cos(Calphi);
+        CalPy = TMath::Sin(Caltheta) * TMath::Sin(Calphi);
+        //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
+        //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
 
-        sprintf(buff, "%s/%s.dat", path, rootname);
-        ofstream out(buff);
-        cout << "===> Create your date file: " << buff << endl;
-
-        char name[100];
-        char buff[1024];
-
-        //***************************************************//
-        //--------------Configuration-----------------------//
-        //***************************************************//
-        double tL = -2.;
-        double tR = 2.;
-        double AL = 0;
-        double AR = 300;
-
-        double uL = -1e3;
-        double uR = 0;
-
-        int rbA = 10;
-        int rbt = 4;
-        int rbu = 1;
-
-        // the range set After Correct
-        //double L2 = -100e-12;
-        //double R2 = 100e-12;
-        int bint = (tR - tL) / 0.5e-3;
-        int binu = (uR - uL) / 30;
-        const int PMTN = 4; //the number of PMT copyvolume
-        const int DetN = 1;
-        const int T = PMTN * DetN; //the number of PMT copyvolume
-
-        //---------------------------------------------------//
-        //***************************************************//
-
-        //double RL,RR;
-        //double U_RL,U_RR;
-        //int binT = (init_tR-init_tL)/0.5e-12;
-        //int binU = (init_UR-init_UL)/1;
-
-        cout << "Start =====>>>>" << endl;
-        //return;
-        //cout<<"<<---- Succeed excuating ---->>"<<endl;
-        //return;
-        //thrd = (s+1)*0.2;
-        sprintf(name, "%s/%s", path, rootname);
-
-        sprintf(buff, "%s.root", name);
-        TFile *f = new TFile(buff, "READ");
-        TTree *t = (TTree *)f->Get("data");
-        cout << "Read rootfile: " << buff << endl;
-
-        double T0_1stpe[T] = {0}; // hit time of first pe
-        double xT0[T] = {0};      //time stamp of waveform
-        double TOP[T] = {0};      // TOP of photon
-        int CHID[T] = {0};
-        int NPE[T] = {0};
-        double U[T] = {0}; //Amplitude of waveform
-
-        int DetID[DetN] = {0};    //incident time
-        double DetT0[DetN] = {0}; //incident time
-        double InX[DetN] = {0};   //incident position
-        double InY[DetN] = {0};
-        double InZ[DetN] = {0};
-
-        double InE[DetN] = {0};
-
-        double InPX; //incident direction
-        double InPY;
-        double InPZ;
-
-        double Intheta; //incident direction
-        double Inphi;
-
-        double Caltheta; //incident direction
-        double Calphi;
-        double CalX[DetN] = {0};
-        double CalY[DetN] = {0};
-        double CalZ[DetN] = {0};
-
-        t->SetBranchAddress("CHID", CHID);
-        t->SetBranchAddress("NPE", NPE);
-        t->SetBranchAddress("U", U); //-mV
-        t->SetBranchAddress("xT0", xT0);
-        t->SetBranchAddress("T0_1stpe", T0_1stpe);
-        t->SetBranchAddress("TOP", TOP);
-
-        t->SetBranchAddress("DetID", DetID);
-        t->SetBranchAddress("DetT0", DetT0);
-
-        t->SetBranchAddress("InE", InE);    //mm
-        t->SetBranchAddress("InX", InX);    //mm
-        t->SetBranchAddress("InY", InY);    //mm
-        t->SetBranchAddress("InZ", InZ);    //mm
-        t->SetBranchAddress("InPX", &InPX); //momentum
-        t->SetBranchAddress("InPY", &InPY); //momentum
-        t->SetBranchAddress("InPZ", &InPZ); //momentum
-        t->SetBranchAddress("Intheta", &Intheta);
-        t->SetBranchAddress("Inphi", &Inphi);
-
-        t->SetBranchAddress("CalX", CalX); //mm
-        t->SetBranchAddress("CalY", CalY); //mm
-        t->SetBranchAddress("CalZ", CalZ); //mm
-        t->SetBranchAddress("Caltheta", &Caltheta);
-        t->SetBranchAddress("Calphi", &Calphi);
-
-        TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
-        TH1D *htcor = new TH1D("htcor", ";Time (ns);Counts", bint, tL, tR);
-        TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
-        TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
-        TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
-        TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
-        TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
-        TH1D *hPMTID = new TH1D("hPMTID", ";PMTID;Counts", 4, 0, 4);
-
-        TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
-        TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
-        TH1D *hdz = new TH1D("hdy", ";#Delta#Z (mm);Counts", 2000, -10, 10);
-
-        TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
-        TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
-
-        TH1D *hA = new TH1D("hA", ";reTrack (mm);Counts", 3e3, AL, AR);
-
-        TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
-
-        TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
-        TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
-        TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
-
-        int N = t->GetEntries();
-        cout << "Total trigger events is: " << N << endl;
-        double Timestamp = 0;
-        double Timestampcor = 0;
-        double TimeSum = 0;
-        double PMTtime = 0;
-        double PMTtimecor = 0;
-        double reTOP = 0;
-        double reTrack = 0;
-        double reTrackSum = 0;
-        double meanreTrack = 0;
-        double CalPx, CalPy, CalPz;
-        vector<double> TT;
-        vector<double> AA;
-        TT.reserve(20e4);
-        AA.reserve(20e4);
-        //for (int i = 0; i < N; i++)
-        for (int i = 0; i < N; i++)
+        for (int s = 0; s < T; s++)
         {
-            t->GetEntry(i);
-            hdtheta->Fill(Caltheta - Intheta);
-            hdphi->Fill(Calphi - Inphi);
-            htheta->Fill(Caltheta);
-            hphi->Fill(Calphi);
-            hpos->Fill(InY[0], InZ[0]);
-            hdy->Fill(InY[0] - CalY[0]);
-            hdz->Fill(InZ[0] - CalZ[0]);
-            CalPx = -1 * TMath::Cos(Caltheta);
-            CalPz = TMath::Sin(Caltheta) * TMath::Cos(Calphi);
-            CalPy = TMath::Sin(Caltheta) * TMath::Sin(Calphi);
-            //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
-            //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
 
-            for (int s = 0; s < T; s++)
-            {
-
-                hNPE->Fill(CHID[s], NPE[s]);
-            }
-            Timestamp = 0;
-            Timestampcor = 0;
-            PMTtime = 0;
-            PMTtimecor = 0;
-            reTrack = 0;
-            reTrackSum = 0;
-            //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
-            int PMTcounter = 0;
-            /*
+            hNPE->Fill(CHID[s], NPE[s]);
+        }
+        Timestamp = 0;
+        Timestampcor = 0;
+        PMTtime = 0;
+        PMTtimecor = 0;
+        reTrack = 0;
+        reTrackSum = 0;
+        //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
+        int PMTcounter = 0;
+        /*
                for (int k = 0; k < PMTN; k++)
                {
                if (U[PMTN + k] < 0 && xT0[PMTN + k] != 0 && U[k] < 0 && xT0[k] != 0)
@@ -1693,26 +2226,26 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
                }
                }
                */
-            for (int k = 0; k < PMTN; k++)
+        for (int k = 0; k < PMTN; k++)
+        {
+            //int k = 3;
+            if (U[k] < 0 && xT0[k] > 0)
             {
-                //int k = 3;
-                if (U[k] < 0 && xT0[k] > 0)
-                {
-                    //reTOP = RebuildTOP(1.5, InX[0], InY[0], InZ[0], InPX, InPY, InPZ, k + 1);
-                    reTrack = RebuildTrack(1.5, CalX[0], CalY[0], CalZ[0], CalPx, CalPy, CalPz, k + 1);
-                    reTrackSum += reTrack;
-                    //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
+                //reTOP = RebuildTOP(1.5, InX[0], InY[0], InZ[0], InPX, InPY, InPZ, k + 1);
+                reTrack = RebuildTrack(1.5, CalX[0], CalY[0], CalZ[0], CalPx, CalPy, CalPz, k + 1);
+                reTrackSum += reTrack;
+                //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
 
-                    PMTtime += xT0[k] - DetT0[0];
-                    PMTtimecor += xT0[k] - DetT0[0] - reTrack / 298 * 1.5;
-                    //PMTtime = xT0[0] - DetT0[0];
+                PMTtime += xT0[k] - DetT0[0];
+                PMTtimecor += xT0[k] - DetT0[0] - reTrack / 298 * 1.5;
+                //PMTtime = xT0[0] - DetT0[0];
 
-                    PMTcounter++;
-                    hPMTID->Fill(CHID[k]);
-                }
+                PMTcounter++;
+                hPMTID->Fill(CHID[k]);
             }
-            //if (PMTcounter >= 1)    return;
-            /*
+        }
+        //if (PMTcounter >= 1)    return;
+        /*
                for (int j = 0; j < DetN; j++)
                {
                int PMTcounter = 0;
@@ -1740,31 +2273,31 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
             }
             }
             */
-            //FlyTime = (InX[0] - InX[1]) / cos(Caltheta) / 1.e3 / 3.e8 * 1.e9;
-            //Timestamp = PMTtime / PMTcounter - FlyTime;
-            Timestamp = PMTtime / PMTcounter;
-            Timestampcor = PMTtimecor / PMTcounter;
-            meanreTrack = reTrackSum / PMTcounter;
-            hNPMT->Fill(PMTcounter);
-            h2dPMT->Fill(PMTcounter, Timestamp);
+        //FlyTime = (InX[0] - InX[1]) / cos(Caltheta) / 1.e3 / 3.e8 * 1.e9;
+        //Timestamp = PMTtime / PMTcounter - FlyTime;
+        Timestamp = PMTtime / PMTcounter;
+        Timestampcor = PMTtimecor / PMTcounter;
+        meanreTrack = reTrackSum / PMTcounter;
+        hNPMT->Fill(PMTcounter);
+        h2dPMT->Fill(PMTcounter, Timestamp);
 
-            //cout<<"FlyTime"<<FlyTime<<endl;
-            if (PMTcounter == 4)
-            {
-                TT.push_back(Timestampcor);
-                //AA.push_back(reTrack);
-                AA.push_back(meanreTrack);
+        //cout<<"FlyTime"<<FlyTime<<endl;
+        if (PMTcounter == 4)
+        {
+            TT.push_back(Timestampcor);
+            //AA.push_back(reTrack);
+            AA.push_back(meanreTrack);
 
-                //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
-                //cout << "timestamp: " << Timestamp << endl;
-                //cout << "Timestamp: " << Timestamp << endl;
-                //ht->Fill(Timestamp);
-                htcor->Fill(Timestamp);
-                htheta_cut->Fill(Caltheta);
-                hphi_cut->Fill(Calphi);
-                hpos_cut->Fill(InY[0], InZ[0]);
-            }
-            /*
+            //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
+            //cout << "timestamp: " << Timestamp << endl;
+            //cout << "Timestamp: " << Timestamp << endl;
+            //ht->Fill(Timestamp);
+            htcor->Fill(Timestamp);
+            htheta_cut->Fill(Caltheta);
+            hphi_cut->Fill(Calphi);
+            hpos_cut->Fill(InY[0], InZ[0]);
+        }
+        /*
                if (DetTime[1] > 0 && DetTime[0] > 0)
                {
 
@@ -1777,488 +2310,488 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
             hpos_cut->Fill(InY[0],InZ[0]);
             }
             */
-        }
-        TCanvas *c;
-        int CNum = 0;
-        TF1 *fit;
-        TLegend *leg;
-        TLatex *la;
+    }
+    TCanvas *c;
+    int CNum = 0;
+    TF1 *fit;
+    TLegend *leg;
+    TLatex *la;
 
-        char pngprefix[100];
-        sprintf(pngprefix, "%s/%s", path, rootname);
+    char pngprefix[100];
+    sprintf(pngprefix, "%s/%s", path, rootname);
 
-        //
-        // ---------draw efficiency of PMT--------//
-        //
-        double PMTEff[4];
-        c = cdC(CNum++);
-        DrawMyHist(hPMTID, "", "", 1, 2);
-        //ht->Rebin(2);
-        hPMTID->Draw();
-        hPMTID->GetXaxis()->SetNdivisions(505);
-        for (int i = 0; i < 4; i++)
+    //
+    // ---------draw efficiency of PMT--------//
+    //
+    double PMTEff[4];
+    c = cdC(CNum++);
+    DrawMyHist(hPMTID, "", "", 1, 2);
+    //ht->Rebin(2);
+    hPMTID->Draw();
+    hPMTID->GetXaxis()->SetNdivisions(505);
+    for (int i = 0; i < 4; i++)
+    {
+
+        PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
+        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+        la->Draw("same");
+    }
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sPMTID.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+    //
+    // ---------draw Time Res --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(ht, "", "", 1, 2);
+    //ht->Rebin(2);
+    htcor->Draw();
+    //return;
+    //fit = gausfit(htcor, 200e-3, 3, 3, rbt*8, tL, tR);
+    fit = gausfit(htcor, 200e-3, 3, 3, rbt * 2, tL, tR);
+    //fitT = gausfit(ht, 0.1, 3, 3, rbt*2, tL, tR);
+    if (!fit)
+    {
+        cout << "the htfit hist is NULL " << endl;
+        return;
+    }
+    sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sTimeRes.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
+
+    //
+    // ---------draw track vs TR --------//
+    //
+    c = cdC(CNum++);
+    const int iter = 5; //the number of iteration
+
+    //ht->Reset();
+    TH1F *htfit;
+    TH1F *hAfit;
+    TF1 *fitT;
+    TF1 *fitA;
+    TF1 *fitAT = new TF1("fitAT", "0", AL, AR);
+    double Treserve[200000];
+    double TAcor = 0;
+    double Amean = 0;
+    double Asigma = 0;
+    double Tmean = 0;
+    double Tsigma = 0;
+    for (int s = 0; s < iter; s++)
+    {
+        if (s != 0)
         {
+            if (Amean - 3 * Asigma <= 0)
 
-            PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
-            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
-            la->Draw("same");
+                //fitAT = profilefit(hAT, rbA *2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
+            else
+                //fitAT = profilefit(hAT, rbA * 2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+                fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
+            if (!fitAT)
+            {
+                cout << " the profilefit is failed! " << endl;
+                return;
+            }
+            ht->Reset();
+            hAT->Reset();
         }
-        //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-        //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-        //la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sPMTID.png", pngprefix);
-        c->SaveAs(buff);
-        //return;
+        for (int i = 0; i < TT.size(); i++)
+        {
+            if (s == 0)
+            {
+                cout << "AA & TT: " << AA[i] << "\t" << TT[i] << endl;
+                hA->Fill(AA[i]);
+                Treserve[i] = TT[i];
+                //tL = 23.5;
+                //tR = 25;
+                tL = -2;
+                tR = 2;
+                //tL = 43.5;
+                //tR = 46;
+            }
+            else
+            {
 
-        //
-        // ---------draw Time Res --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(ht, "", "", 1, 2);
-        //ht->Rebin(2);
-        htcor->Draw();
-        //return;
-        //fit = gausfit(htcor, 200e-3, 3, 3, rbt*8, tL, tR);
-        fit = gausfit(htcor, 200e-3, 3, 3, rbt * 2, tL, tR);
-        //fitT = gausfit(ht, 0.1, 3, 3, rbt*2, tL, tR);
-        if (!fit)
+                TAcor = fitAT->Eval(AA[i]);
+                Treserve[i] = Treserve[i] - TAcor;
+                tL = -1;
+                tR = 1;
+            }
+            ht->Fill(Treserve[i]);
+            hAT->Fill(AA[i], Treserve[i]);
+        }
+        c->cd();
+        if (s == 0)
+        {
+            fitA = gausfit(hA, 10, 3, 3, rbA, AL, AR);
+            //return;
+            if (!fitA)
+            {
+                cout << "the hAfit hist is NULL " << endl;
+                return;
+            }
+            DrawMyHist(hA, "", "", 1, 3);
+            //fitA = (TF1 *)hAfit->GetFunction("fitU");
+            Amean = fitA->GetParameter(1);
+            Asigma = fitA->GetParameter(2);
+            cout << "Amean=" << Amean << ",\tAsigma=" << Asigma << endl;
+            sprintf(buff, "%s_reTrack.png", pngprefix);
+            c->SaveAs(buff);
+        }
+        c->Clear();
+        //fitT = gausfit(ht, 0.1, 3, 3, rbt * 8, tL, tR);
+        fitT = gausfit(ht, 0.1, 3, 3, rbt * 4, tL, tR);
+        if (!fitT)
         {
             cout << "the htfit hist is NULL " << endl;
             return;
         }
-        sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-        la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sTimeRes.png", pngprefix);
-        c->SaveAs(buff);
-        //return;
+        DrawMyHist(ht, "", "", 1, 3);
+        //fitT = (TF1 *)htfit->GetFunction("fitU");
+        Tmean = fitT->GetParameter(1);
+        Tsigma = fitT->GetParameter(2);
 
-        //
-        // ---------draw track vs TR --------//
-        //
-        c = cdC(CNum++);
-        const int iter = 5; //the number of iteration
-
-        //ht->Reset();
-        TH1F *htfit;
-        TH1F *hAfit;
-        TF1 *fitT;
-        TF1 *fitA;
-        TF1 *fitAT = new TF1("fitAT", "0", AL, AR);
-        double Treserve[200000];
-        double TAcor = 0;
-        double Amean = 0;
-        double Asigma = 0;
-        double Tmean = 0;
-        double Tsigma = 0;
-        for (int s = 0; s < iter; s++)
-        {
-            if (s != 0)
-            {
-                if (Amean - 3 * Asigma <= 0)
-
-                    //fitAT = profilefit(hAT, rbA *2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
-                    fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, buff);
-                else
-                    //fitAT = profilefit(hAT, rbA * 2, rbt * 10, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
-                    fitAT = profilefit(hAT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, buff);
-                if (!fitAT)
-                {
-                    cout << " the profilefit is failed! " << endl;
-                    return;
-                }
-                ht->Reset();
-                hAT->Reset();
-            }
-            for (int i = 0; i < TT.size(); i++)
-            {
-                if (s == 0)
-                {
-                    cout << "AA & TT: " << AA[i] << "\t" << TT[i] << endl;
-                    hA->Fill(AA[i]);
-                    Treserve[i] = TT[i];
-                    //tL = 23.5;
-                    //tR = 25;
-                    tL = -2;
-                    tR = 2;
-                    //tL = 43.5;
-                    //tR = 46;
-                }
-                else
-                {
-
-                    TAcor = fitAT->Eval(AA[i]);
-                    Treserve[i] = Treserve[i] - TAcor;
-                    tL = -1;
-                    tR = 1;
-                }
-                ht->Fill(Treserve[i]);
-                hAT->Fill(AA[i], Treserve[i]);
-            }
-            c->cd();
-            if (s == 0)
-            {
-                fitA = gausfit(hA, 10, 3, 3, rbA, AL, AR);
-                //return;
-                if (!fitA)
-                {
-                    cout << "the hAfit hist is NULL " << endl;
-                    return;
-                }
-                DrawMyHist(hA, "", "", 1, 3);
-                //fitA = (TF1 *)hAfit->GetFunction("fitU");
-                Amean = fitA->GetParameter(1);
-                Asigma = fitA->GetParameter(2);
-                cout << "Amean=" << Amean << ",\tAsigma=" << Asigma << endl;
-                sprintf(buff, "%s_reTrack.png", pngprefix);
-                c->SaveAs(buff);
-            }
-            c->Clear();
-            //fitT = gausfit(ht, 0.1, 3, 3, rbt * 8, tL, tR);
-            fitT = gausfit(ht, 0.1, 3, 3, rbt * 4, tL, tR);
-            if (!fitT)
-            {
-                cout << "the htfit hist is NULL " << endl;
-                return;
-            }
-            DrawMyHist(ht, "", "", 1, 3);
-            //fitT = (TF1 *)htfit->GetFunction("fitU");
-            Tmean = fitT->GetParameter(1);
-            Tsigma = fitT->GetParameter(2);
-
-            ht->SetNdivisions(505);
-            sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
-            TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
-            l->Draw();
-            cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
-            sprintf(buff, "%s_TR_cor%d.png", pngprefix, s);
-            c->SaveAs(buff);
-        }
-        c = cdC(CNum++);
-        DrawMy2dHist(hAT, "", "", 1, 2);
-        //ht->Rebin(2);
-        hAT->Draw("colz");
-        //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-        //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-        //la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%shAT.png", pngprefix);
-        c->SaveAs(buff);
-        //return;
-
-        //
-        // ---------draw Number of fired PMT--------//
-        //
-        double Eff[5];
-        c = cdC(CNum++);
-        DrawMyHist(hNPMT, "", "", 1, 2);
-        //ht->Rebin(2);
-        hNPMT->Draw();
-        hNPMT->GetXaxis()->SetNdivisions(505);
-        for (int i = 0; i < 5; i++)
-        {
-
-            Eff[i] = hNPMT->GetBinContent(hNPMT->FindBin(i)) / hNPMT->Integral();
-            sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, Eff[i] * 100);
-            la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
-            la->Draw("same");
-        }
-        //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-        //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-        //la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sNPMT.png", pngprefix);
-        c->SaveAs(buff);
-        //return;
-
-        //
-        // ---------draw NPMT vs TR --------//
-        //
-        c = cdC(CNum++);
-        DrawMy2dHist(h2dPMT, "", "", 1, 2);
-        //ht->Rebin(2);
-        h2dPMT->Draw("colz");
-        h2dPMT->GetXaxis()->SetNdivisions(505);
-        //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-        //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-        //la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%s2dPMT.png", pngprefix);
-        c->SaveAs(buff);
-        //return;
-
-        //
-        // ---------draw delta theta --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(hdtheta, "", "", 1, 2);
-        //ht->Rebin(2);
-        hdtheta->GetXaxis()->SetNdivisions(505);
-        hdtheta->Draw();
-        fit = gausfit(hdtheta, 30e-3, 3, 3, 1, -0.1, 0.1);
-        sprintf(buff, "#sigma_{#theta}=%.0fmrad", fit->GetParameter(2) * 1e3);
-        la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sdeltatheta.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw delta phi --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(hdphi, "", "", 1, 2);
-        //ht->Rebin(2);
-        hdphi->GetXaxis()->SetNdivisions(505);
-        hdphi->Draw();
-        fit = gausfit(hdphi, 100e-3, 3, 3, 2, -0.2, 0.2);
-        sprintf(buff, "#sigma_{#phi}=%.0fmrad", fit->GetParameter(2) * 1e3);
-        la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sdeltaphi.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw NPE --------//
-        //
-        c = cdC(CNum++);
-        SetMyPad(gPad, 0.15, 0.15, 0.05, 0.15);
-        DrawMy2dHist(hNPE, "", "");
-        hNPE->Draw("colz");
-        sprintf(buff, "%sNPE.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw theta --------//
-        //
-        c = cdC(CNum++);
-        leg = DrawMyLeg(0.6, 0.7, 0.8, 0.9);
-        DrawMyHist(htheta, "", "", 1, 2);
-        htheta->Draw();
-        leg->AddEntry(htheta, "No cut", "l");
-        DrawMyHist(htheta_cut, "", "", 2, 2);
-        htheta_cut->Draw("SAME");
-        leg->AddEntry(htheta_cut, "All NPE>0", "l");
-        leg->Draw();
-        sprintf(buff, "%stheta.png", pngprefix);
-        c->SaveAs(buff);
-        //
-        // ---------draw phi --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(hphi, "", "", 1, 2);
-        hphi->Draw();
-        //hphi->GetYaxis()->SetRangeUser(0, 15e3);
-        DrawMyHist(hphi_cut, "", "", 2, 2);
-        //hphi_cut->Draw("");
-        hphi_cut->Draw("SAME");
-        leg->Draw();
-        sprintf(buff, "%sphi.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw hit pos--------//
-        //
-        leg = DrawMyLeg(0.6, 0.85, 0.9, 0.9);
-        leg->SetNColumns(2);
-        c = cdC(CNum++, 800, 800);
-        DrawMy2dHist(hpos, "", "", 24, 1, 1);
-        hpos->Draw();
-        leg->AddEntry(hpos, "No cut", "l");
-
-        DrawMy2dHist(hpos_cut, "", "", 3, 2, 1);
-        hpos_cut->Draw("SAME");
-        leg->AddEntry(hpos_cut, "All NPE>0", "p");
-        leg->Draw();
-        sprintf(buff, "E=%.2f", hpos_cut->Integral() / hpos->Integral());
-        la = DrawMyLatex(buff, 0.2, 0.85);
-        sprintf(buff, "%shitpos.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw delta y --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(hdy, "", "", 1, 2);
-        hdy->Rebin(20);
-        hdy->GetXaxis()->SetNdivisions(505);
-        hdy->Draw();
-        fit = gausfit(hdy, 3, 3, 3, 1, -10, 10);
-        sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2));
-        la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sdeltay.png", pngprefix);
-        c->SaveAs(buff);
-
-        //
-        // ---------draw delta z --------//
-        //
-        c = cdC(CNum++);
-        DrawMyHist(hdz, "", "", 1, 2);
-        hdz->Rebin(20);
-        hdz->GetXaxis()->SetNdivisions(505);
-        hdz->Draw();
-        fit = gausfit(hdz, 3, 3, 3, 1, 10, 10);
-        sprintf(buff, "#sigma_{z}=%.0fmm", fit->GetParameter(2));
-        la = DrawMyLatex(buff, 0.2, 0.4);
-        sprintf(buff, "%sdeltaz.png", pngprefix);
+        ht->SetNdivisions(505);
+        sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
+        TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
+        l->Draw();
+        cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
+        sprintf(buff, "%s_TR_cor%d.png", pngprefix, s);
         c->SaveAs(buff);
     }
+    c = cdC(CNum++);
+    DrawMy2dHist(hAT, "", "", 1, 2);
+    //ht->Rebin(2);
+    hAT->Draw("colz");
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%shAT.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
 
-    void PrintResults(const char *rootname = "x2y2z1data")
+    //
+    // ---------draw Number of fired PMT--------//
+    //
+    double Eff[5];
+    c = cdC(CNum++);
+    DrawMyHist(hNPMT, "", "", 1, 2);
+    //ht->Rebin(2);
+    hNPMT->Draw();
+    hNPMT->GetXaxis()->SetNdivisions(505);
+    for (int i = 0; i < 5; i++)
     {
 
-        //void MygStyle();
-        //MygStyle();
-        //gStyle->SetOptFit(111);
+        Eff[i] = hNPMT->GetBinContent(hNPMT->FindBin(i)) / hNPMT->Integral();
+        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, Eff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+        la->Draw("same");
+    }
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sNPMT.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
 
-        sprintf(buff, "%s/%s.dat", path, rootname);
-        ofstream out(buff);
-        cout << "===> Create your date file: " << buff << endl;
+    //
+    // ---------draw NPMT vs TR --------//
+    //
+    c = cdC(CNum++);
+    DrawMy2dHist(h2dPMT, "", "", 1, 2);
+    //ht->Rebin(2);
+    h2dPMT->Draw("colz");
+    h2dPMT->GetXaxis()->SetNdivisions(505);
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%s2dPMT.png", pngprefix);
+    c->SaveAs(buff);
+    //return;
 
-        char name[100];
-        char buff[1024];
+    //
+    // ---------draw delta theta --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdtheta, "", "", 1, 2);
+    //ht->Rebin(2);
+    hdtheta->GetXaxis()->SetNdivisions(505);
+    hdtheta->Draw();
+    fit = gausfit(hdtheta, 30e-3, 3, 3, 1, -0.1, 0.1);
+    sprintf(buff, "#sigma_{#theta}=%.0fmrad", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltatheta.png", pngprefix);
+    c->SaveAs(buff);
 
-        //***************************************************//
-        //--------------Configuration-----------------------//
-        //***************************************************//
-        double tL = 0.;
-        double tR = 3.;
+    //
+    // ---------draw delta phi --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdphi, "", "", 1, 2);
+    //ht->Rebin(2);
+    hdphi->GetXaxis()->SetNdivisions(505);
+    hdphi->Draw();
+    fit = gausfit(hdphi, 100e-3, 3, 3, 2, -0.2, 0.2);
+    sprintf(buff, "#sigma_{#phi}=%.0fmrad", fit->GetParameter(2) * 1e3);
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltaphi.png", pngprefix);
+    c->SaveAs(buff);
 
-        double uL = -1e3;
-        double uR = 0;
+    //
+    // ---------draw NPE --------//
+    //
+    c = cdC(CNum++);
+    SetMyPad(gPad, 0.15, 0.15, 0.05, 0.15);
+    DrawMy2dHist(hNPE, "", "");
+    hNPE->Draw("colz");
+    sprintf(buff, "%sNPE.png", pngprefix);
+    c->SaveAs(buff);
 
-        int rbt = 2;
-        int rbu = 1;
+    //
+    // ---------draw theta --------//
+    //
+    c = cdC(CNum++);
+    leg = DrawMyLeg(0.6, 0.7, 0.8, 0.9);
+    DrawMyHist(htheta, "", "", 1, 2);
+    htheta->Draw();
+    leg->AddEntry(htheta, "No cut", "l");
+    DrawMyHist(htheta_cut, "", "", 2, 2);
+    htheta_cut->Draw("SAME");
+    leg->AddEntry(htheta_cut, "All NPE>0", "l");
+    leg->Draw();
+    sprintf(buff, "%stheta.png", pngprefix);
+    c->SaveAs(buff);
+    //
+    // ---------draw phi --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hphi, "", "", 1, 2);
+    hphi->Draw();
+    //hphi->GetYaxis()->SetRangeUser(0, 15e3);
+    DrawMyHist(hphi_cut, "", "", 2, 2);
+    //hphi_cut->Draw("");
+    hphi_cut->Draw("SAME");
+    leg->Draw();
+    sprintf(buff, "%sphi.png", pngprefix);
+    c->SaveAs(buff);
 
-        // the range set After Correct
-        //double L2 = -100e-12;
-        //double R2 = 100e-12;
-        int bint = (tR - tL) / 5e-3;
-        int binu = (uR - uL) / 30;
-        const int T = 4;
-        const int iter = 5; //the number of iteration
-        //---------------------------------------------------//
-        //***************************************************//
+    //
+    // ---------draw hit pos--------//
+    //
+    leg = DrawMyLeg(0.6, 0.85, 0.9, 0.9);
+    leg->SetNColumns(2);
+    c = cdC(CNum++, 800, 800);
+    DrawMy2dHist(hpos, "", "", 24, 1, 1);
+    hpos->Draw();
+    leg->AddEntry(hpos, "No cut", "l");
 
-        //double RL,RR;
-        //double U_RL,U_RR;
-        //int binT = (init_tR-init_tL)/0.5e-12;
-        //int binU = (init_UR-init_UL)/1;
+    DrawMy2dHist(hpos_cut, "", "", 3, 2, 1);
+    hpos_cut->Draw("SAME");
+    leg->AddEntry(hpos_cut, "All NPE>0", "p");
+    leg->Draw();
+    sprintf(buff, "E=%.2f", hpos_cut->Integral() / hpos->Integral());
+    la = DrawMyLatex(buff, 0.2, 0.85);
+    sprintf(buff, "%shitpos.png", pngprefix);
+    c->SaveAs(buff);
 
-        cout << "Start =====>>>>" << endl;
-        //return;
-        //cout<<"<<---- Succeed excuating ---->>"<<endl;
-        //return;
-        //thrd = (s+1)*0.2;
-        sprintf(name, "%s/%s", path, rootname);
+    //
+    // ---------draw delta y --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdy, "", "", 1, 2);
+    hdy->Rebin(20);
+    hdy->GetXaxis()->SetNdivisions(505);
+    hdy->Draw();
+    fit = gausfit(hdy, 3, 3, 3, 1, -10, 10);
+    sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2));
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltay.png", pngprefix);
+    c->SaveAs(buff);
 
-        sprintf(buff, "%s.root", name);
-        TFile *f = new TFile(buff, "READ");
-        TTree *t = (TTree *)f->Get("data");
+    //
+    // ---------draw delta z --------//
+    //
+    c = cdC(CNum++);
+    DrawMyHist(hdz, "", "", 1, 2);
+    hdz->Rebin(20);
+    hdz->GetXaxis()->SetNdivisions(505);
+    hdz->Draw();
+    fit = gausfit(hdz, 3, 3, 3, 1, 10, 10);
+    sprintf(buff, "#sigma_{z}=%.0fmm", fit->GetParameter(2));
+    la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sdeltaz.png", pngprefix);
+    c->SaveAs(buff);
+}
 
-        double xT0[T] = {0}; //time stamp of waveform
-        int CHID[T] = {0};
-        int NPE[T] = {0};
-        double U[T] = {0}; //Amplitude of waveform
-        double InE[T] = {0};
-        double InX[T] = {0}; //incident position
-        double InY[T] = {0};
-        double InZ[T] = {0};
-        double Intheta[T] = {0};
-        double Inphi[T] = {0};
+void PrintResults(const char *rootname = "x2y2z1data")
+{
 
-        double CalX[T] = {0}; //incident position
-        double CalY[T] = {0};
-        double CalZ[T] = {0};
-        double Caltheta[T] = {0};
-        double Calphi[T] = {0};
+    //void MygStyle();
+    //MygStyle();
+    //gStyle->SetOptFit(111);
 
-        //double InPX[T] = {0}; //incident direction
-        //double InPY[T] = {0};
-        //double InPZ[T] = {0};
+    sprintf(buff, "%s/%s.dat", path, rootname);
+    ofstream out(buff);
+    cout << "===> Create your date file: " << buff << endl;
 
-        double T0_1stpe[T] = {0}; // hit time of first pe
+    char name[100];
+    char buff[1024];
 
-        double Utemp = 0, Ttemp = 0;
-        double T0_cor = 0;
-        float TT[1000000] = {0.};
+    //***************************************************//
+    //--------------Configuration-----------------------//
+    //***************************************************//
+    double tL = 0.;
+    double tR = 3.;
 
-        t->SetBranchAddress("CHID", CHID);
-        t->SetBranchAddress("NPE", NPE);
-        t->SetBranchAddress("U", U); //-mV
-        t->SetBranchAddress("xT0", xT0);
-        t->SetBranchAddress("T0_1stpe", T0_1stpe);
+    double uL = -1e3;
+    double uR = 0;
 
-        t->SetBranchAddress("InE", InE); //mm
-        t->SetBranchAddress("InX", InX); //mm
-        t->SetBranchAddress("InY", InY); //mm
-        t->SetBranchAddress("InZ", InZ); //mm
-        t->SetBranchAddress("Intheta", Intheta);
-        t->SetBranchAddress("Inphi", Inphi);
+    int rbt = 2;
+    int rbu = 1;
 
-        t->SetBranchAddress("CalX", CalX); //mm
-        t->SetBranchAddress("CalY", CalY); //mm
-        t->SetBranchAddress("CalZ", CalZ); //mm
-        t->SetBranchAddress("Caltheta", Caltheta);
-        t->SetBranchAddress("Calphi", Calphi);
+    // the range set After Correct
+    //double L2 = -100e-12;
+    //double R2 = 100e-12;
+    int bint = (tR - tL) / 5e-3;
+    int binu = (uR - uL) / 30;
+    const int T = 4;
+    const int iter = 5; //the number of iteration
+    //---------------------------------------------------//
+    //***************************************************//
 
-        //t->SetBranchAddress("InPX", InPX); //mm
-        //t->SetBranchAddress("InPY", InPY); //mm
-        //t->SetBranchAddress("InPZ", InPZ); //mm
+    //double RL,RR;
+    //double U_RL,U_RR;
+    //int binT = (init_tR-init_tL)/0.5e-12;
+    //int binU = (init_UR-init_UL)/1;
 
-        TH1D *ht[4];
-        TH1D *h1st[4];
-        TH1D *hNPE[4];
-        TH1D *hU[4];
+    cout << "Start =====>>>>" << endl;
+    //return;
+    //cout<<"<<---- Succeed excuating ---->>"<<endl;
+    //return;
+    //thrd = (s+1)*0.2;
+    sprintf(name, "%s/%s", path, rootname);
+
+    sprintf(buff, "%s.root", name);
+    TFile *f = new TFile(buff, "READ");
+    TTree *t = (TTree *)f->Get("data");
+
+    double xT0[T] = {0}; //time stamp of waveform
+    int CHID[T] = {0};
+    int NPE[T] = {0};
+    double U[T] = {0}; //Amplitude of waveform
+    double InE[T] = {0};
+    double InX[T] = {0}; //incident position
+    double InY[T] = {0};
+    double InZ[T] = {0};
+    double Intheta[T] = {0};
+    double Inphi[T] = {0};
+
+    double CalX[T] = {0}; //incident position
+    double CalY[T] = {0};
+    double CalZ[T] = {0};
+    double Caltheta[T] = {0};
+    double Calphi[T] = {0};
+
+    //double InPX[T] = {0}; //incident direction
+    //double InPY[T] = {0};
+    //double InPZ[T] = {0};
+
+    double T0_1stpe[T] = {0}; // hit time of first pe
+
+    double Utemp = 0, Ttemp = 0;
+    double T0_cor = 0;
+    float TT[1000000] = {0.};
+
+    t->SetBranchAddress("CHID", CHID);
+    t->SetBranchAddress("NPE", NPE);
+    t->SetBranchAddress("U", U); //-mV
+    t->SetBranchAddress("xT0", xT0);
+    t->SetBranchAddress("T0_1stpe", T0_1stpe);
+
+    t->SetBranchAddress("InE", InE); //mm
+    t->SetBranchAddress("InX", InX); //mm
+    t->SetBranchAddress("InY", InY); //mm
+    t->SetBranchAddress("InZ", InZ); //mm
+    t->SetBranchAddress("Intheta", Intheta);
+    t->SetBranchAddress("Inphi", Inphi);
+
+    t->SetBranchAddress("CalX", CalX); //mm
+    t->SetBranchAddress("CalY", CalY); //mm
+    t->SetBranchAddress("CalZ", CalZ); //mm
+    t->SetBranchAddress("Caltheta", Caltheta);
+    t->SetBranchAddress("Calphi", Calphi);
+
+    //t->SetBranchAddress("InPX", InPX); //mm
+    //t->SetBranchAddress("InPY", InPY); //mm
+    //t->SetBranchAddress("InPZ", InPZ); //mm
+
+    TH1D *ht[4];
+    TH1D *h1st[4];
+    TH1D *hNPE[4];
+    TH1D *hU[4];
+    for (int iT = 0; iT < T; iT++)
+    {
+        sprintf(buff, "ht%d", iT);
+        ht[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
+        sprintf(buff, "h1st%d", iT);
+        h1st[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
+        sprintf(buff, "hU%d", iT);
+        hU[iT] = new TH1D(buff, ";Amplitude (mV);Counts", binu, uL, uR);
+        sprintf(buff, "hNPE%d", iT);
+        hNPE[iT] = new TH1D(buff, ";NPE;Counts", 20, 0, 30);
+    }
+    //t->Draw("T0>>h");
+
+    int N = 0;
+    N = t->GetEntries();
+    cout << "the Entries is :" << N << endl;
+    for (int i = 0; i < N; i++)
+    {
+        t->GetEntry(i);
+
         for (int iT = 0; iT < T; iT++)
         {
-            sprintf(buff, "ht%d", iT);
-            ht[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
-            sprintf(buff, "h1st%d", iT);
-            h1st[iT] = new TH1D(buff, ";Time (ns);Counts", bint, tL, tR);
-            sprintf(buff, "hU%d", iT);
-            hU[iT] = new TH1D(buff, ";Amplitude (mV);Counts", binu, uL, uR);
-            sprintf(buff, "hNPE%d", iT);
-            hNPE[iT] = new TH1D(buff, ";NPE;Counts", 20, 0, 30);
-        }
-        //t->Draw("T0>>h");
 
-        int N = 0;
-        N = t->GetEntries();
-        cout << "the Entries is :" << N << endl;
-        for (int i = 0; i < N; i++)
-        {
-            t->GetEntry(i);
-
-            for (int iT = 0; iT < T; iT++)
+            if (U[iT] < 0 && xT0[iT] != 0)
             {
 
-                if (U[iT] < 0 && xT0[iT] != 0)
-                {
-
-                    ht[iT]->Fill(xT0[iT]);
-                    h1st[iT]->Fill(T0_1stpe[iT]);
-                    hU[iT]->Fill(U[iT]);
-                    hNPE[iT]->Fill(NPE[iT]);
-                }
+                ht[iT]->Fill(xT0[iT]);
+                h1st[iT]->Fill(T0_1stpe[iT]);
+                hU[iT]->Fill(U[iT]);
+                hNPE[iT]->Fill(NPE[iT]);
             }
         }
-        int CCounter = 0;
-        TLatex *la;
-        TF1 *ff;
-        TCanvas *c1;
-        double ANPE[T] = {0};
-        double ANPEErr[T] = {0};
-        double TRSigma[T] = {0};
-        double TRSigmaErr[T] = {0};
-        double TRMean[T] = {0};
-        double TRMeanErr[T] = {0};
+    }
+    int CCounter = 0;
+    TLatex *la;
+    TF1 *ff;
+    TCanvas *c1;
+    double ANPE[T] = {0};
+    double ANPEErr[T] = {0};
+    double TRSigma[T] = {0};
+    double TRSigmaErr[T] = {0};
+    double TRMean[T] = {0};
+    double TRMeanErr[T] = {0};
 
-        for (int i = 0; i < T; i++)
-        {
-            // --- Draw NPE distribution ---
-            c1 = cdC(CCounter++);
-            DrawMyHist(hNPE[i], "Number of Photons", "Counts");
-            hNPE[i]->Draw();
-            ANPE[i] = -1;
-            ANPEErr[i] = -999;
-            ANPE[i] = hNPE[i]->GetMean();
-            ANPEErr[i] = hNPE[i]->GetRMS();
-            /*
+    for (int i = 0; i < T; i++)
+    {
+        // --- Draw NPE distribution ---
+        c1 = cdC(CCounter++);
+        DrawMyHist(hNPE[i], "Number of Photons", "Counts");
+        hNPE[i]->Draw();
+        ANPE[i] = -1;
+        ANPEErr[i] = -999;
+        ANPE[i] = hNPE[i]->GetMean();
+        ANPEErr[i] = hNPE[i]->GetRMS();
+        /*
                ff = gausfit(hNPE[i], 5, 2, 2, 1, 0, 30);
                if (ff)
                {
@@ -2266,58 +2799,58 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
                ANPEErr[i] = ff->GetParError(1);
                }
                */
-            sprintf(buff, "Npe=%.0f", ANPE[i]);
-            la = DrawMyLatex(buff, 0.55, 0.25);
-            sprintf(buff, "%s/%sCH%dPhotonNum.png", path, rootname, i);
-            c1->SaveAs(buff);
+        sprintf(buff, "Npe=%.0f", ANPE[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "%s/%sCH%dPhotonNum.png", path, rootname, i);
+        c1->SaveAs(buff);
 
-            // ---Time distribution ---//
-            c1 = cdC(CCounter++);
-            DrawMyHist(ht[i], "TimeRes (ns)", "Counts");
-            ht[i]->Draw();
-            ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
-            TRSigma[i] = -999;
-            TRSigmaErr[i] = -999;
-            if (ff)
-            {
-                TRMean[i] = ff->GetParameter(1) * 1e3;
-                TRMeanErr[i] = ff->GetParError(1) * 1e3;
-                TRSigma[i] = ff->GetParameter(2) * 1e3;
-                TRSigmaErr[i] = ff->GetParError(2) * 1e3;
-            }
-            sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
-            la = DrawMyLatex(buff, 0.55, 0.25);
-            sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
-            la = DrawMyLatex(buff, 0.55, 0.35);
-
-            sprintf(buff, "%s/%sCH%dTR.png", path, rootname, i);
-            c1->SaveAs(buff);
-        }
-        out << InX[0] << "\t"
-            << InY[0] << "\t"
-            << InZ[0] << "\t"
-            << Intheta[0] << "\t"
-            << Inphi[0] << endl;
-        for (int i = 0; i < T; i++)
+        // ---Time distribution ---//
+        c1 = cdC(CCounter++);
+        DrawMyHist(ht[i], "TimeRes (ns)", "Counts");
+        ht[i]->Draw();
+        ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
+        TRSigma[i] = -999;
+        TRSigmaErr[i] = -999;
+        if (ff)
         {
-
-            out << ANPE[i] << "\t"
-                << ANPEErr[i] << "\t"
-                << TRSigma[i] << "\t"
-                << TRSigmaErr[i] << endl;
+            TRMean[i] = ff->GetParameter(1) * 1e3;
+            TRMeanErr[i] = ff->GetParError(1) * 1e3;
+            TRSigma[i] = ff->GetParameter(2) * 1e3;
+            TRSigmaErr[i] = ff->GetParError(2) * 1e3;
         }
-        return;
-        //c1 = cdC(CCounter++);
-        //RL = h->GetMean();
-        //cout<<"RL = "<<RL<<endl;
-        //return;
-        //c1->Divide(2,2);
+        sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.35);
 
-        // DrawMyCanvas((TH1**)&ht[0],2, 2);
-        //TH1F *hFrame = (TH1F*) (*(&ht[0]+1))->Clone();
-        //hFrame->Draw();
-        //return;
-        /*
+        sprintf(buff, "%s/%sCH%dTR.png", path, rootname, i);
+        c1->SaveAs(buff);
+    }
+    out << InX[0] << "\t"
+        << InY[0] << "\t"
+        << InZ[0] << "\t"
+        << Intheta[0] << "\t"
+        << Inphi[0] << endl;
+    for (int i = 0; i < T; i++)
+    {
+
+        out << ANPE[i] << "\t"
+            << ANPEErr[i] << "\t"
+            << TRSigma[i] << "\t"
+            << TRSigmaErr[i] << endl;
+    }
+    return;
+    //c1 = cdC(CCounter++);
+    //RL = h->GetMean();
+    //cout<<"RL = "<<RL<<endl;
+    //return;
+    //c1->Divide(2,2);
+
+    // DrawMyCanvas((TH1**)&ht[0],2, 2);
+    //TH1F *hFrame = (TH1F*) (*(&ht[0]+1))->Clone();
+    //hFrame->Draw();
+    //return;
+    /*
            for (int i = 0; i < 4; i++)
            {
            c1 = cdC(CCounter++);
@@ -2331,61 +2864,61 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
            c1->SaveAs(buff);
            }
            */
-        c1 = cdC(CCounter++);
-        c1->Divide(2, 2, 0.01, 0.01);
-        for (int i = 0; i < T; i++)
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2, 0.01, 0.01);
+    for (int i = 0; i < T; i++)
+    {
+        c1->cd(i + 1);
+        hNPE[i]->Draw();
+        DrawMyHist(hNPE[i], "", "");
+        hNPE[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
+        sprintf(buff, "CH%d", i + 1);
+        DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
+        sprintf(buff, "Mean=%.0f PE", hNPE[i]->GetMean());
+        DrawMyLatex(buff, 0.6, 0.5, 42, 0.06, 2);
+    }
+    sprintf(buff, "%s_NPE.png", name);
+    c1->SaveAs(buff);
+
+    c1 = cdC(CCounter++);
+    c1->Divide(2, 2, 0.01, 0.01);
+    for (int i = 0; i < 4; i++)
+    {
+        c1->cd(i + 1);
+        ht[i]->Draw();
+        DrawMyHist(ht[i], "", "");
+        ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
+        TRSigma[i] = -999;
+        TRSigmaErr[i] = -999;
+        if (ff)
         {
-            c1->cd(i + 1);
-            hNPE[i]->Draw();
-            DrawMyHist(hNPE[i], "", "");
-            hNPE[i]->GetXaxis()->SetNdivisions(505);
-            gPad->SetLeftMargin(0.2);
-            gPad->SetRightMargin(0.01);
-            gPad->SetTopMargin(0.01);
-            gPad->SetBottomMargin(0.2);
-            sprintf(buff, "CH%d", i + 1);
-            DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
-            sprintf(buff, "Mean=%.0f PE", hNPE[i]->GetMean());
-            DrawMyLatex(buff, 0.6, 0.5, 42, 0.06, 2);
+            TRMean[i] = ff->GetParameter(1) * 1e3;
+            TRMeanErr[i] = ff->GetParError(1) * 1e3;
+            TRSigma[i] = ff->GetParameter(2) * 1e3;
+            TRSigmaErr[i] = ff->GetParError(2) * 1e3;
         }
-        sprintf(buff, "%s_NPE.png", name);
-        c1->SaveAs(buff);
+        ht[i]->GetXaxis()->SetNdivisions(505);
+        gPad->SetLeftMargin(0.2);
+        gPad->SetRightMargin(0.01);
+        gPad->SetTopMargin(0.01);
+        gPad->SetBottomMargin(0.2);
 
-        c1 = cdC(CCounter++);
-        c1->Divide(2, 2, 0.01, 0.01);
-        for (int i = 0; i < 4; i++)
-        {
-            c1->cd(i + 1);
-            ht[i]->Draw();
-            DrawMyHist(ht[i], "", "");
-            ff = gausfit(ht[i], 20e-3, 2, 2, 1, 0., 3);
-            TRSigma[i] = -999;
-            TRSigmaErr[i] = -999;
-            if (ff)
-            {
-                TRMean[i] = ff->GetParameter(1) * 1e3;
-                TRMeanErr[i] = ff->GetParError(1) * 1e3;
-                TRSigma[i] = ff->GetParameter(2) * 1e3;
-                TRSigmaErr[i] = ff->GetParError(2) * 1e3;
-            }
-            ht[i]->GetXaxis()->SetNdivisions(505);
-            gPad->SetLeftMargin(0.2);
-            gPad->SetRightMargin(0.01);
-            gPad->SetTopMargin(0.01);
-            gPad->SetBottomMargin(0.2);
+        sprintf(buff, "CH%d", i + 1);
+        DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
 
-            sprintf(buff, "CH%d", i + 1);
-            DrawMyLatex(buff, 0.5, 0.9, 42, 0.06, 2);
+        sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.25);
+        sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
+        la = DrawMyLatex(buff, 0.55, 0.35);
+    }
+    sprintf(buff, "%s_Time.png", name);
+    c1->SaveAs(buff);
 
-            sprintf(buff, "Sigma=%.0f#pm%.0fps", TRSigma[i], TRSigmaErr[i]);
-            la = DrawMyLatex(buff, 0.55, 0.25);
-            sprintf(buff, "Mean=%.0f#pm%.0fps", TRMean[i], TRMeanErr[i]);
-            la = DrawMyLatex(buff, 0.55, 0.35);
-        }
-        sprintf(buff, "%s_Time.png", name);
-        c1->SaveAs(buff);
-
-        /* 
+    /* 
         //
         // -- print 1st pe arrival time distrubutions --
         //
@@ -2430,133 +2963,133 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
         sprintf(buff, "%s_Amp.png", name);
         c1->SaveAs(buff);
         */
-    }
+}
 
-    void Output(const char *rootname = "x2y2z1_model2blackwrap")
+void Output(const char *rootname = "x2y2z1_model2blackwrap")
+{
+    gStyle->SetOptFit(111);
+    char buff[1024];
+    sprintf(buff, "%s/%sdata.root", path, rootname);
+    cout << "Check File :" << buff << endl;
+    if (gSystem->AccessPathName(buff))
     {
-        gStyle->SetOptFit(111);
-        char buff[1024];
-        sprintf(buff, "%s/%sdata.root", path, rootname);
-        cout << "Check File :" << buff << endl;
-        if (gSystem->AccessPathName(buff))
-        {
-            cout << "==> the file isn't exist!" << endl;
-            CalculateTR(rootname, 0.2, "CFD", 1);
-        }
-        sprintf(buff, "%sdata", rootname);
-        PrintResults(buff);
+        cout << "==> the file isn't exist!" << endl;
+        //CalculateTR(rootname, 0.2, "CFD", 1);
     }
+    sprintf(buff, "%sdata", rootname);
+    PrintResults(buff);
+}
 
-    void readdatresults()
+void readdatresults()
+{
+    gStyle->SetOptTitle(1);
+    int theta[] = {5, 10, 15, 20, 25, 30, 35};
+    int phi[] = {45, 60, 75, 90, 105, 120, 135};
+    const int T = 4;
+    double NPE[T] = {0};
+    double NPEErr[T] = {0};
+    double TRSigma[T] = {0};
+    double TRSigmaErr[T] = {0};
+    double InX[T] = {0}; //incident position
+    double InY[T] = {0};
+    double InZ[T] = {0};
+    double InPX[T] = {0}; //incident direction
+    double InPY[T] = {0};
+    double InPZ[T] = {0};
+
+    char buff[200];
+    char name[200];
+    TH2D *hTR[T];
+    TH2D *hNPE[T];
+    ifstream input;
+    int xNum = sizeof(phi) / sizeof(phi[0]);
+    double xMin = phi[0] - 0.5 * (phi[1] - phi[0]);
+    double xMax = phi[xNum - 1] + 0.5 * (phi[1] - phi[0]);
+
+    int yNum = sizeof(theta) / sizeof(theta[0]);
+    double yMin = theta[0] - 0.5 * (theta[1] - theta[0]);
+    double yMax = theta[yNum - 1] + 0.5 * (theta[1] - theta[0]);
+
+    for (int i = 0; i < T; i++)
     {
-        gStyle->SetOptTitle(1);
-        int theta[] = {5, 10, 15, 20, 25, 30, 35};
-        int phi[] = {45, 60, 75, 90, 105, 120, 135};
-        const int T = 4;
-        double NPE[T] = {0};
-        double NPEErr[T] = {0};
-        double TRSigma[T] = {0};
-        double TRSigmaErr[T] = {0};
-        double InX[T] = {0}; //incident position
-        double InY[T] = {0};
-        double InZ[T] = {0};
-        double InPX[T] = {0}; //incident direction
-        double InPY[T] = {0};
-        double InPZ[T] = {0};
-
-        char buff[200];
-        char name[200];
-        TH2D *hTR[T];
-        TH2D *hNPE[T];
+        sprintf(buff, "hTR%d", i);
+        sprintf(name, "TR(ps),CH=%d", i);
+        hTR[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
+        sprintf(buff, "hNPE%d", i);
+        sprintf(name, "NPE,CH=%d", i);
+        hNPE[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
         ifstream input;
-        int xNum = sizeof(phi) / sizeof(phi[0]);
-        double xMin = phi[0] - 0.5 * (phi[1] - phi[0]);
-        double xMax = phi[xNum - 1] + 0.5 * (phi[1] - phi[0]);
-
-        int yNum = sizeof(theta) / sizeof(theta[0]);
-        double yMin = theta[0] - 0.5 * (theta[1] - theta[0]);
-        double yMax = theta[yNum - 1] + 0.5 * (theta[1] - theta[0]);
-
-        for (int i = 0; i < T; i++)
+        for (int j = 0; j < xNum; j++)
         {
-            sprintf(buff, "hTR%d", i);
-            sprintf(name, "TR(ps),CH=%d", i);
-            hTR[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
-            sprintf(buff, "hNPE%d", i);
-            sprintf(name, "NPE,CH=%d", i);
-            hNPE[i] = new TH2D(buff, name, xNum, xMin, xMax, yNum, yMin, yMax);
-            ifstream input;
-            for (int j = 0; j < xNum; j++)
+            for (int k = 0; k < yNum; k++)
             {
-                for (int k = 0; k < yNum; k++)
+
+                sprintf(buff, "%s/model1_theta%dphi%ddata.dat", path, theta[j], phi[k]);
+                cout << " ==> Read data file: " << buff << endl;
+                if (gSystem->AccessPathName(buff))
+                {
+                    cout << "the file isn't exist!" << endl;
+                    return;
+                }
+                input.open(buff);
+                input >> InX[0] >> InY[0] >> InZ[0] >> InPX[0] >> InPY[0] >> InPZ[0];
+                for (int ich = 0; ich < T; ich++)
                 {
 
-                    sprintf(buff, "%s/model1_theta%dphi%ddata.dat", path, theta[j], phi[k]);
-                    cout << " ==> Read data file: " << buff << endl;
-                    if (gSystem->AccessPathName(buff))
-                    {
-                        cout << "the file isn't exist!" << endl;
-                        return;
-                    }
-                    input.open(buff);
-                    input >> InX[0] >> InY[0] >> InZ[0] >> InPX[0] >> InPY[0] >> InPZ[0];
-                    for (int ich = 0; ich < T; ich++)
-                    {
-
-                        input >> NPE[ich] >> NPEErr[ich] >> TRSigma[ich] >> TRSigmaErr[ich];
-                    }
-
-                    cout << NPE[i] << "\t" << TRSigma[i] << endl;
-                    //hTR[i]->Fill(phi[k],theta[j]);
-                    //cout<<reTrkLTRSigma<<endl;
-
-                    TRSigma[i] = URound(TRSigma[i], 1);
-                    hTR[i]->SetBinContent(k + 1, j + 1, TRSigma[i]);
-
-                    cout << " TR " << i << "\t:" << TRSigma[i] << endl;
-
-                    NPE[i] = URound(NPE[i], 0);
-                    hNPE[i]->SetBinContent(k + 1, j + 1, NPE[i]);
-                    input.close();
+                    input >> NPE[ich] >> NPEErr[ich] >> TRSigma[ich] >> TRSigmaErr[ich];
                 }
+
+                cout << NPE[i] << "\t" << TRSigma[i] << endl;
+                //hTR[i]->Fill(phi[k],theta[j]);
+                //cout<<reTrkLTRSigma<<endl;
+
+                TRSigma[i] = URound(TRSigma[i], 1);
+                hTR[i]->SetBinContent(k + 1, j + 1, TRSigma[i]);
+
+                cout << " TR " << i << "\t:" << TRSigma[i] << endl;
+
+                NPE[i] = URound(NPE[i], 0);
+                hNPE[i]->SetBinContent(k + 1, j + 1, NPE[i]);
+                input.close();
             }
-        }
-
-        //return;
-        TCanvas *c;
-        int cNum = 1;
-
-        //char prefix[100] = "nogroundpi";
-        for (int i = 0; i < T; i++)
-        {
-
-            c = cdC(cNum++);
-            DrawMy2dHist(hTR[i], "#phi (degree)", "#theta (degree)");
-            hTR[i]->Draw("colz");
-            //TExec *ex1 = new TExec("ex1", "Pal();");
-            TExec *ex1 = new TExec("ex1", "gStyle->SetPalette(55, 0, 0.45);");
-            ex1->Draw();
-
-            hTR[i]->Draw("colz TEXT SAME");
-            hTR[i]->SetMarkerSize(2.8);
-            sprintf(buff, "%s/CH%dTR.png", path, i);
-            c->Update();
-            c->Modified();
-            c->SaveAs(buff);
-
-            c = cdC(cNum++);
-            DrawMy2dHist(hNPE[i], "#phi (degree)", "#theta (degree)");
-            hNPE[i]->Draw("colz");
-            TExec *ex2 = new TExec("ex2", "gStyle->SetPalette(55, 0, 0.45);");
-            ex2->Draw();
-            hNPE[i]->Draw("colz text SAME");
-            hNPE[i]->SetMarkerSize(2.8);
-            sprintf(buff, "%s/CH%dNPE.png", path, i);
-            c->SaveAs(buff);
         }
     }
 
-    /*
+    //return;
+    TCanvas *c;
+    int cNum = 1;
+
+    //char prefix[100] = "nogroundpi";
+    for (int i = 0; i < T; i++)
+    {
+
+        c = cdC(cNum++);
+        DrawMy2dHist(hTR[i], "#phi (degree)", "#theta (degree)");
+        hTR[i]->Draw("colz");
+        //TExec *ex1 = new TExec("ex1", "Pal();");
+        TExec *ex1 = new TExec("ex1", "gStyle->SetPalette(55, 0, 0.45);");
+        ex1->Draw();
+
+        hTR[i]->Draw("colz TEXT SAME");
+        hTR[i]->SetMarkerSize(2.8);
+        sprintf(buff, "%s/CH%dTR.png", path, i);
+        c->Update();
+        c->Modified();
+        c->SaveAs(buff);
+
+        c = cdC(cNum++);
+        DrawMy2dHist(hNPE[i], "#phi (degree)", "#theta (degree)");
+        hNPE[i]->Draw("colz");
+        TExec *ex2 = new TExec("ex2", "gStyle->SetPalette(55, 0, 0.45);");
+        ex2->Draw();
+        hNPE[i]->Draw("colz text SAME");
+        hNPE[i]->SetMarkerSize(2.8);
+        sprintf(buff, "%s/CH%dNPE.png", path, i);
+        c->SaveAs(buff);
+    }
+}
+
+/*
        TLegend *DrawMyLeg(Double_t xlow = 0.2, Double_t ylow = 0.2, Double_t xup = 0.5, Double_t yup = 0.5, Int_t textFont = 62, Size_t textSize = 0.05)
        {
        TLegend *leg = new TLegend(xlow, ylow, xup, yup);

@@ -8,6 +8,7 @@
 		"files.associations": {
 			"*.gdml_entity": "html",
 			"*.mac": "shellscript",
+			"*.gdml": "html",
 			"Output.C": "cpp",
 			"iostream": "cpp",
 			"MultiTiersOutputfun_SiPM.C": "cpp",
@@ -79,7 +80,20 @@
 			"group": "cpp",
 			"vertices": "cpp",
 			"vmanip": "cpp",
-			"polygon": "cpp"
+			"polygon": "cpp",
+			"Run.C": "cpp",
+			"ntuple_binding": "cpp",
+			"ntuple_booking": "cpp",
+			"rcsv_ntuple": "cpp",
+			"base_leaf": "cpp",
+			"branch": "cpp",
+			"named": "cpp",
+			"ntuple": "cpp",
+			"tree": "cpp",
+			"field_desc": "cpp",
+			"wcsv_ntuple": "cpp",
+			"bufobj": "cpp",
+			"mesh": "cpp"
 		}
 	}
 }

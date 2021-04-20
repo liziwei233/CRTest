@@ -18,6 +18,8 @@
 #include "TLatex.h"
 #include "TLegend.h"
 #include "TVirtualPad.h"
+#include "TPaveText.h"
+#include "TPaveStats.h"
 
 using namespace std;
 
@@ -289,6 +291,7 @@ TLegend *DrawMyLeg(Double_t xlow = 0.3, Double_t ylow = 0.6, Double_t xup = 0.6,
     //leg->Draw("same");
     return leg;
 }
+
 void SetMyPad(TVirtualPad *pad, float left, float right, float top, float bottom)
 {
     pad->SetFillColor(10);
@@ -313,6 +316,18 @@ TLatex *DrawMyLatex(char *text, Double_t x = 0.65, Double_t y = 0.5, Int_t textF
     latex->Draw("same");
     return latex;
 }
+
+TLatex *SetMyLatex(char *text, Double_t x = 0.65, Double_t y = 0.5, Int_t textFont = 42, Size_t textSize = 0.07, Color_t colorIndex = 1)
+{
+    TLatex *latex = new TLatex(x, y, text);
+    //latex->SetNDC();
+    latex->SetTextFont(textFont);
+    latex->SetTextSize(textSize);
+    latex->SetTextColor(colorIndex);
+    ///latex->Draw("same");
+    return latex;
+}
+
 void DrawMyPad(TVirtualPad *pad, const char *xname, const char *yname, float x1, float x2, float y1, float y2)
 {
 
@@ -340,10 +355,10 @@ void DrawMyPad(TVirtualPad *pad, const char *xname, const char *yname, float x1,
     pad->Modified();
     pad->Update();
 }
-TCanvas *cdC(int n, double w=800, double h=600, double left = 0.15, double right = 0.1, double up = 0.1, double down = 0.15)
+TCanvas *cdC(int n, int W=800, int H=600, double left = 0.15, double right = 0.1, double up = 0.1, double down = 0.15)
 {
     sprintf(buff, "c%d", n);
-    TCanvas *c = new TCanvas(buff, buff, w, h);
+    TCanvas *c = new TCanvas(buff, buff, W, H);
     c->cd();
     //gPad->SetGrid();
     //SetMyPad(gPad, 0.15, 0.05, 0.1, 0.14);
