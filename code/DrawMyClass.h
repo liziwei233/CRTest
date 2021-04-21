@@ -280,7 +280,7 @@ void Drawyline(float y1, Width_t LWidth = 1, Style_t LStyle = 1, Color_t LColor 
     line1->Draw("same");
 }
 
-TLegend *DrawMyLeg(Double_t xlow = 0.3, Double_t ylow = 0.6, Double_t xup = 0.6, Double_t yup = 0.9, Int_t textFont = 62, Double_t textSize = 0.03)
+TLegend *DrawMyLeg(Double_t xlow = 0.3, Double_t ylow = 0.6, Double_t xup = 0.6, Double_t yup = 0.9, Int_t textFont = 42, Double_t textSize = 0.03)
 {
     TLegend *leg = new TLegend(xlow, ylow, xup, yup);
     //leg->SetBorderSize(0);

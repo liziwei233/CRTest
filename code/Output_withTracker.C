@@ -11,6 +11,7 @@
 #include "DrawMyClass.h"
 #include "TGraphErrors.h"
 #include "TVector3.h"
+#include "TFile.h"
 
 using namespace std;
 
@@ -1061,24 +1062,28 @@ void Definehist()
 }
 void Drawhist(TString path)
 {
+    gStyle->SetOptFit(1);
     TCanvas *cc = cdC(0,1300,600);
-    TLegend *leg = DrawMyLeg(0.6, 0.7, 0.9, 0.9);
+    TLegend *leg = DrawMyLeg(0.35, 0.78, 0.78, 0.9);
     cc->SetTitle("RebuildAngle");
     cc->Clear();
     cc->Divide(2, 1);
     cc->cd(1);
+    SetMyPad(gPad, 0.18, 0.1, 0.1, 0.18);
     DrawMyHist(htheta, "#theta (#circ)", "Counts", 2, 3);
-    htheta->SetNdivisions(505);
+    //htheta->SetNdivisions(505);
     htheta->Draw();
     leg->AddEntry(htheta, "Simulated angle","l");
 
     DrawMyHist(hRBtheta, "", "", 1, 3);
     hRBtheta->Draw("same");
     hRBtheta->SetNdivisions(505);
-    leg->AddEntry(hRBtheta, "Rebuild angle","l");
+    sprintf(buff,"Rebuild angle (#sigma_{x}=%g#mum)",possigma*1e3);
+    leg->AddEntry(hRBtheta, buff,"l");
     leg->Draw("same");
 
     cc->cd(2);
+    SetMyPad(gPad, 0.18, 0.1, 0.1, 0.18);
     DrawMyHist(hthetaerr, "#Delta#theta (#circ)", "Counts", 1, 3);
     hthetaerr->Draw();
     hthetaerr->SetNdivisions(505);
@@ -1256,7 +1261,7 @@ void Rebuild(TString input = "../build")
     cout << "Entries = " << N << endl;
 
         vector<int> triggervec;
-    for (int iEvent = 0,int pb=0; iEvent < N; iEvent++)
+    for (int iEvent = 0,pb=0; iEvent < N; iEvent++)
     {
 
         T0data = {0};
@@ -1268,9 +1273,11 @@ void Rebuild(TString input = "../build")
         MMvec.clear();
 
         triggervec.clear();
+        
         ProcessBar(iEvent, pb, N);
         //if (iEvent % 10000 == 0)
         //    cout << "The Entry No: " << iEvent << endl;
+        
         t1->GetEntry(iEvent);
         if (!mu_DetID->size())
             continue;
@@ -1372,6 +1379,18 @@ void Rebuild(TString input = "../build")
     Drawhist(filepath);
 }
 
+void ReadRBResults(TString input = "../build"){
+     vector<TString> fList;
+     GetFileList(input, "Rebuildresulst.root", fList);
+     TString rootname = fList[0];
+     TFile *f2 = new TFile(rootname.Data(), "Read");
+     f2->GetObject("htheta",htheta);
+    f2->GetObject("hRBtheta",hRBtheta);
+    f2->GetObject("hthetaerr", hthetaerr);
+    Drawhist(input);
+
+
+}
 double RebuildCRAngle(vector<CRPosData> MMvec, double possigma)
 {
     CRPosData MMdata;
@@ -1401,11 +1420,12 @@ double RebuildCRAngle(vector<CRPosData> MMvec, double possigma)
                 {
 
                     g->SetPoint(j, MMvec[j].x, MMvec[j].y + r.Gaus(0, possigma));
-                    //cout<<"x"<<MMvec[j].x<<",y"<<i<<","<<MMvec[j].y + r.Gaus(0, possigma)<<endl;
+                    //cout<<"x="<<MMvec[j].x<<",y="<<MMvec[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
                 }
                 else
                 {
                     g->SetPoint(j, MMvec[j].x, MMvec[j].z + r.Gaus(0, possigma));
+                    //cout<<"x="<<MMvec[j].x<<",z="<<MMvec[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
                     //cout<<"x"<<MMvec[j].x<<",z"<<i<<","<<MMvec[j].z + r.Gaus(0, possigma)<<endl;
                 }
             }
