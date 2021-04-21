@@ -18,7 +18,7 @@ TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
 
 //** CRSystem parameters
 TRandom3 r;
-double possigma = 200e-3; //Tracker postion resolution
+double possigma = 200e-3; //unit:mm Tracker postion resolution
 
 // ** build data structure
 struct CRTimeData
@@ -42,6 +42,9 @@ struct CRPosData
     { //符号重载
         return x < s2.x;
     }
+    void Print(){
+        cout<<"id,x,y,z,t: "<<id<<","<<x<<","<<y<<","<<z<<","<<t<<endl;
+    }
 };
 struct CRMuData
 {
@@ -50,6 +53,9 @@ struct CRMuData
     double py;
     double pz;
     double theta;
+    void Print(){
+        cout<<"E,p(x,y,z),theta: "<<muE<<",p("<<px<<","<<py<<","<<pz<<"),theta"<<theta<<endl;
+    }
 };
 
 // ** declaration of id of detectors in cosmicray system **
@@ -73,7 +79,7 @@ char detName[8][10] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts);
 Double_t response(Double_t x, Double_t par[7]);
 TF1 *pol3fit(TGraph *g, float U_RL, float U_RR);
-vector<double> RebuildCRAngle(vector<vector<CRPosData>> MMReal, double possigma);
+double RebuildCRAngle(vector<CRPosData> MMvec, double possigma);
 
 // ** declaration of number of channels **
 //
@@ -97,6 +103,20 @@ void IndexFTOFpos(int chid, int &x, int &y)
     y = chid % 4;
     x = chid / 4;
 }
+void ProcessBar(int i, int &j, int total)
+{
+  if (total && (j + 1 == i * 100 / total || !j || i == total - 1))
+    {
+        if (i == total - 1)
+              j++;
+                  cout << "\r==================== " << j << "% =====================";
+                      if (i != total - 1)
+                            j++;
+                                fflush(stdout);
+                                    if (j == 100)
+                                          cout << endl;
+                                            }
+                                            }
 //vector<int> FTOFCHNo= {FTOFNo * 16 + 0, FTOFNo * 16 + 1, FTOFNo * 16 + 2, FTOFNo * 16 + 3, FTOFNo * 16 + 7, FTOFNo * 16 + 8, FTOFNo * 16 + 11, FTOFNo * 16 + 12, FTOFNo * 16 + 13, FTOFNo * 16 + 14, FTOFNo * 16 + 15};
 
 Double_t response(Double_t x, Double_t par[7])
@@ -1019,6 +1039,7 @@ void CalculateEff(TString input = "../build")
 
     c = cdC(counter++, 1300, 600);
     DrawMy2dHist(hpos, "", "");
+    hpos->GetZaxis()->SetRangeUser(0,hpos->GetMaximum());
     //ht->Rebin(2);
     hpos->Draw("colz");
 
@@ -1034,9 +1055,9 @@ TH1D *hthetaerr;
 
 void Definehist()
 {
-    hRBtheta = new TH1D("hRBtheta", "Rebuild theta", 100, 0, 100);
-    htheta = new TH1D("htheta", "CR theta", 100, 0, 100);
-    hthetaerr = new TH1D("hthetaerr", "Rebuild theta error", 100, -100, 100);
+    hRBtheta = new TH1D("hRBtheta", "Rebuild theta", 200, 0, 60);
+    htheta = new TH1D("htheta", "CR theta", 200, 0, 60);
+    hthetaerr = new TH1D("hthetaerr", "Rebuild theta error", 1e3, -0.5, 0.5);
 }
 void Drawhist(TString path)
 {
@@ -1046,21 +1067,23 @@ void Drawhist(TString path)
     cc->Clear();
     cc->Divide(2, 1);
     cc->cd(1);
-    DrawMyHist(htheta, "", "", 1, 3);
+    DrawMyHist(htheta, "#theta (#circ)", "Counts", 2, 3);
     htheta->SetNdivisions(505);
     htheta->Draw();
-    leg->AddEntry(htheta, "Rebuild angle","l");
+    leg->AddEntry(htheta, "Simulated angle","l");
 
-    DrawMyHist(hRBtheta, "", "", 2, 3);
+    DrawMyHist(hRBtheta, "", "", 1, 3);
     hRBtheta->Draw("same");
     hRBtheta->SetNdivisions(505);
-    leg->AddEntry(hRBtheta, "Simulated angle","l");
+    leg->AddEntry(hRBtheta, "Rebuild angle","l");
     leg->Draw("same");
 
     cc->cd(2);
-    DrawMyHist(hthetaerr, "", "", 1, 3);
+    DrawMyHist(hthetaerr, "#Delta#theta (#circ)", "Counts", 1, 3);
     hthetaerr->Draw();
     hthetaerr->SetNdivisions(505);
+    TF1 *fit = new TF1("fit","gaus");
+    hthetaerr->Fit(fit,"Q");
     cc->SaveAs(Form("%s/RebuildAngle.png", path.Data()));
 }
 void Rebuild(TString input = "../build")
@@ -1085,6 +1108,9 @@ void Rebuild(TString input = "../build")
         filepath = input;
     }
     rootname = GetFilename(rootlist.at(0));
+    sprintf(buff, "%s/%sRebuildresulst.root", filepath.Data(), rootname.Data());
+    TFile *f2 = new TFile(buff, "RECREATE");
+    //TTree *t2 = new TTree("data", "restore analysed data  from G4");
 
     for (int i = 0; i < rootlist.size(); i++)
     {
@@ -1219,9 +1245,6 @@ void Rebuild(TString input = "../build")
     vector<CRPosData> T0PosReal;
     vector<CRPosData> FTOFPosReal;
 
-    //sprintf(buff, "%s/%sdata.root", filepath.Data(), rootname.Data());
-    //TFile *f2 = new TFile(buff, "RECREATE");
-    //TTree *t2 = new TTree("data", "restore analysed data  from G4");
     //t2->Branch("T0Real", T0Real);
     //t2->Branch("FTOFReal", FTOFReal);
     //t2->Branch("MuReal", MuReal);
@@ -1232,7 +1255,8 @@ void Rebuild(TString input = "../build")
     int N = t1->GetEntries();
     cout << "Entries = " << N << endl;
 
-    for (int iEvent = 0; iEvent < N; iEvent++)
+        vector<int> triggervec;
+    for (int iEvent = 0,int pb=0; iEvent < N; iEvent++)
     {
 
         T0data = {0};
@@ -1242,10 +1266,12 @@ void Rebuild(TString input = "../build")
         FTOFpos = {0};
         Mudata = {0};
         MMvec.clear();
-        if (iEvent % 10000 == 0)
-            cout << "The Entry No: " << iEvent << endl;
+
+        triggervec.clear();
+        ProcessBar(iEvent, pb, N);
+        //if (iEvent % 10000 == 0)
+        //    cout << "The Entry No: " << iEvent << endl;
         t1->GetEntry(iEvent);
-        vector<int> triggervec;
         if (!mu_DetID->size())
             continue;
         for (int ihitdet = 0; ihitdet < mu_DetID->size(); ihitdet++)
@@ -1262,6 +1288,7 @@ void Rebuild(TString input = "../build")
                 MMdata.y = mu_y->at(ihitdet);
                 MMdata.z = mu_z->at(ihitdet);
                 MMvec.push_back(MMdata);
+                
             }
             if (theID == 100)
             {
@@ -1299,13 +1326,16 @@ void Rebuild(TString input = "../build")
                     FTOFdata.TOP.push_back(R107_TOP->at(iFTOFhit));
                 }
             }
-        }
-        Mudata.muE = mu_E->at(0);
-        Mudata.px = mu_px->at(0);
-        Mudata.py = mu_py->at(0);
-        Mudata.pz = mu_pz->at(0);
+            
+
+                Mudata.muE = mu_E->at(ihitdet);
+                Mudata.px = mu_px->at(ihitdet);
+                Mudata.py = mu_py->at(ihitdet);
+                Mudata.pz = mu_pz->at(ihitdet);
         //cout<<"px, py, pz"<<mu_px->at(0)<<","<<mu_py->at(0)<<","<<mu_pz->at(0)<<endl;
-        Mudata.theta = TMath::ACos(-1 * Mudata.px);
+                Mudata.theta = TMath::ACos(-1 * Mudata.px);
+        }
+        
         if (triggervec.size() == 2)
         {
             T0Real.push_back(T0data);
@@ -1315,30 +1345,47 @@ void Rebuild(TString input = "../build")
         }
     }
 
-    vector<double> Rebuildtheta = RebuildCRAngle(MMReal, possigma);
-    for (int i = 0; i < Rebuildtheta.size(); i++)
+    for (int i = 0; i < MMReal.size(); i++)
     {
-        htheta->Fill(MuReal[i].theta/TMath::Pi()*180);
-        hRBtheta->Fill(Rebuildtheta[i]/TMath::Pi()*180);
-        hthetaerr->Fill((Rebuildtheta[i] - MuReal[i].theta)/TMath::Pi()*180);
-        cout << "Theta rb,simulated: " << Rebuildtheta[i] << ", " << MuReal[i].theta << endl;
+        double RBt = RebuildCRAngle(MMReal[i], possigma)/TMath::Pi()*180;
+        if(RBt>20) continue;
+        double SMt = RebuildCRAngle(MMReal[i], 0)/TMath::Pi()*180;
+        double Errt = RBt-SMt;
+        htheta->Fill(SMt);
+        hRBtheta->Fill(RBt);
+        hthetaerr->Fill(Errt);
+        if(abs(Errt)>10) {
+
+        //cout << "Theta rb,simulated: " << RBt << ", " << SMt << endl;
+        MuReal[i].Print();
+        MMvec = MMReal[i];
+        for(int j = 0; j<MMvec.size(); j++){
+            MMvec[j].Print();
+        }
+        }
+
+        
     }
+    f2->WriteTObject(htheta);
+    f2->WriteTObject(hRBtheta);
+    f2->WriteTObject(hthetaerr);
     Drawhist(filepath);
 }
 
-vector<double> RebuildCRAngle(vector<vector<CRPosData>> MMReal, double possigma)
+double RebuildCRAngle(vector<CRPosData> MMvec, double possigma)
 {
-    vector<CRPosData> MMvec;
     CRPosData MMdata;
-    vector<double> theta;
+    double theta;
     //for (int i = 0; i < 5; i++)
-    for (int i = 0; i < MMReal.size(); i++)
-    {
-        MMvec = MMReal[i];
+   
 
         sort(MMvec.begin(), MMvec.end());
         int N = MMvec.size();
-        if(N<2) continue;
+        if(N<4) {
+            
+        return theta=999;
+
+        }
         double exp[2] = {0};
         double delta[3] = {0}; // 0-x. 1-y, 2-z
         TGraphErrors *g;
@@ -1369,14 +1416,18 @@ vector<double> RebuildCRAngle(vector<vector<CRPosData>> MMReal, double possigma)
             //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
             delta[1 + i] = g->GetFunction("pol1")->Eval(MMvec[N - 1].x) - g->GetFunction("pol1")->Eval(MMvec[0].x);
             g->Clear();
+            //cout<<" delta[1 + i]="<<delta[1 + i];
         }
         delta[0] = MMvec[N - 1].x - MMvec[0].x;
+        //cout<<" delta[0]="<<delta[0];
+        //cout<<endl;
         v1.SetX(delta[0]);
         v1.SetY(delta[1]);
         v1.SetZ(delta[2]);
-        theta.push_back(TMath::ACos(v1.x() / v1.Mag()));
+        theta=TMath::ACos(v1.x() / v1.Mag());
+        //cout<<"theta="<<theta<<endl;
         //cout << "rebuild theta: " << TMath::ACos(v1.x() / v1.Mag()) << endl;
-    }
+    
     return theta;
 }
 
