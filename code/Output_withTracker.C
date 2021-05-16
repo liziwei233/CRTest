@@ -22,7 +22,7 @@ TRandom3 r;
 double possigma = 200e-3; //unit:mm Tracker postion resolution
 
 //** hist parameters
-double tL = -5.;
+double tL = -2.;
 double tR = 2.;
 double AL = 0;
 double AR = 600;
@@ -412,7 +412,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
        
-    cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
+    //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     double Ax0, Ay0, Az0;
     double px, py, pz;
     double swap;
@@ -1277,12 +1277,12 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
         {
             if (s == 0)
             {
-                cout << "AA & TT: " << AA[i] << "\t" << TT[i] << endl;
+                //cout << "AA & TT: " << AA[i] << "\t" << TT[i] << endl;
                 hL->Fill(AA[i]);
                 Treserve[i] = TT[i];
                 //tL = 23.5;
                 //tR = 25;
-                tL = -5.;
+                tL = -2.;
                 tR = 2;
                 //tL = 43.5;
                 //tR = 46;
@@ -1639,7 +1639,7 @@ void Rebuild(TString input = "../build")
         TVector3 T0fitpos(0, 0, 0);
         TVector3 Mufitdir(0, 0, 0);
         T0fitpos.SetX(T0PosReal[i].x);
-        RebuildSensorSignal(T0Real[i], T0Eledata);
+        RebuildSensorSignal(T0Real[i], T0Eledata,4,"CFD",0.2);
         //cout<<"T0Eledata[0].tot:"<<T0Eledata[0].tot<<endl;
         Mufitdir = RebuildCRAngle(MMReal[i], possigma, T0fitpos);
         #if 0
@@ -1686,21 +1686,22 @@ void Rebuild(TString input = "../build")
                 //PMTtime += T0Eledata[j].thtime[0]-T0PosReal[i].t ;
                 //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0PosReal[i].t ;
                 T0time[j] = T0Eledata[j].thtime[0];
-                PMTtime += T0Eledata[j].thtime[0];
-                PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5;
+                PMTtime += T0Eledata[j].thtime[0] - T0PosReal[i].t;
+                PMTtimecor += T0Eledata[j].thtime[0] - T0PosReal[i].t - reTrack / 298 * 1.5;
                 T0timecor[j] = T0Eledata[j].thtime[0] - reTrack / 298 * 1.5;
                 PMTcounter++;
                 hPMTID->Fill(T0Eledata[j].id);
             }
         }
-        if(T0time[0]!=0&&T0time[2]!=0){
-            Timestamp = T0time[0]-T0time[2];
-        Timestampcor = T0timecor[0]-T0timecor[2];
-           //meanreTrack =  (T0reTrack[0]+T0reTrack[2])/2;
-           meanreTrack =  T0reTrack[0];
-        //Timestamp = PMTtime / PMTcounter;
-        //Timestampcor = PMTtimecor / PMTcounter;
-        //meanreTrack = reTrackSum / PMTcounter;
+        //if(PMTcounter==4&&T0time[0]!=0&&T0time[2]!=0){
+        if(PMTcounter==4){
+            //Timestamp = T0time[0]-T0time[2];
+        //Timestampcor = T0timecor[0]-T0timecor[2];
+          // meanreTrack =  (T0reTrack[0]+T0reTrack[2])/2;
+           //meanreTrack =  T0reTrack[0];
+        Timestamp = PMTtime / PMTcounter;
+        Timestampcor = PMTtimecor / PMTcounter;
+        meanreTrack = reTrackSum / PMTcounter;
         //cout<<"PMTcounter:"<<PMTcounter<<endl;
         //cout<<"Timestamp:"<<Timestamp<<endl;
         //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
@@ -2613,7 +2614,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     double uR = 0;
 
     int rbA = 10;
-    int rbt = 4;
+    int rbt = 10;
     int rbu = 1;
 
     // the range set After Correct
