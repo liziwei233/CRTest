@@ -1636,7 +1636,7 @@ void RebuildData(TString input = "../build")
         }
 
         //if (triggervec.size() == 2)
-        if (mu_DetID->size() >= TrackerN + 1)
+        if (mu_DetID->size() >= TrackerN + 4)
         {
             T0photonvec.push_back(T0photon);
             FTOFphotonvec.push_back(FTOFphoton);
@@ -1851,13 +1851,13 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         if (PMTcounter == 4)
         {
             //return;
-            Timestamp = T0time[1]-T0time[3];
-            Timestampcor = T0timecor[1]-T0timecor[3];
-             meanreTrack =  T0reTrack[3];
+            //Timestamp = T0time[1]-T0time[3];
+            //Timestampcor = T0timecor[1]-T0timecor[3];
+             //meanreTrack =  T0reTrack[3];
             //meanreTrack =  T0reTrack[0];
-            //Timestamp = PMTtime / PMTcounter;
-            //Timestampcor = PMTtimecor / PMTcounter;
-            //meanreTrack = reTrackSum / PMTcounter;
+            Timestamp = PMTtime / PMTcounter;
+            Timestampcor = PMTtimecor / PMTcounter;
+            meanreTrack = reTrackSum / PMTcounter;
             //cout<<"PMTcounter:"<<PMTcounter<<endl;
             //cout<<"Timestamp:"<<Timestamp<<endl;
             //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
