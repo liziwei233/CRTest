@@ -12,7 +12,7 @@
 #include "TGraphErrors.h"
 #include "TVector3.h"
 #include "TFile.h"
-
+#include "CRsysRBData.h"
 using namespace std;
 
 TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
@@ -25,17 +25,21 @@ double possigma = 200e-3; //unit:mm Tracker postion resolution
 double tL = -2.;
 double tR = 2.;
 double AL = 0;
-double AR = 600;
+//double AR = 600;
+double AR = 300;
 double uL = -1e3;
 double uR = 0;
 int bint = (tR - tL) / 0.5e-3;
 int binu = (uR - uL) / 30;
 //int rbA = 10;
-int rbA = 20;
-int rbt = 4;
+int rbA = 5;
+int rbt = 12;
 int rbu = 1;
 
 // ** build data structure
+
+//
+// Time structure : id,photonE,TOP,x,y,z,t
 struct CRTimeData
 {
     vector<int> id; // channel data
@@ -45,7 +49,8 @@ struct CRTimeData
     vector<double> y;
     vector<double> z;
     vector<double> t;
-    void Initial(){
+    void Initial()
+    {
         id.clear();
         photonE.clear();
         TOP.clear();
@@ -55,27 +60,45 @@ struct CRTimeData
         t.clear();
     }
 };
+
+// Ele time:id, thrd, U, tot,thtime[2],fittot,fittime[2]
 struct EleTimeData
 {
-    int id;      // channel id
-    double thrd; // mV
-    double U;    //amplitude
-    double tot;
-    double thtime[2]; // 0-of leading edge, 1-of falling edge
-    double fittot;
-    double fittime[2];
-    void Initial(){
-        id = -999;
-        thrd = -999;
-        U = -999;
-        tot = -999;
-        thtime[0] = -999;
-        thtime[1] = -999;
-        fittime[0] = -999;
-        fittime[1] = -999;
-        fittot = -999;
+    vector<int> id;      // channel id
+    vector<double> thrd; // mV
+    vector<double> U;    //amplitude
+    vector<double> tot;
+    vector<double> thtime[2]; // 0-of leading edge, 1-of falling edge
+    vector<double> fittot;
+    vector<double> fittime[2];
+    void Initial()
+    {
+        vector<int>().swap(id);      // mV
+        vector<double>().swap(thrd); // mV
+        vector<double>().swap(U);    //amplitude
+        vector<double>().swap(tot);
+        vector<double>().swap(thtime[0]); // 0-of leading edge, 1-of falling edge
+        vector<double>().swap(thtime[1]); // 0-of leading edge, 1-of falling edge
+        vector<double>().swap(fittot);
+        vector<double>().swap(fittime[0]);
+        vector<double>().swap(fittime[1]);
+    }
+    void Print()
+    {
+        for (int i = 0; i < id.size(); i++)
+        {
+
+            cout << "id=" << id[i] << endl;
+            cout << "thrd=" << thrd[i] << endl;
+            cout << "U=" << U[i] << endl;
+            cout << "tot=" << tot[i] << endl;
+            cout << "thtime=" << thtime[0][i] << "," << thtime[1][i] << endl;
+            cout << "fittot=" << fittot[i] << endl;
+            cout << "fittime=" << fittime[0][i] << "," << fittime[1][i] << endl;
+        }
     }
 };
+// Pos: detector id, x, y, z, t
 struct CRPosData
 {
     int id; // detector id
@@ -91,7 +114,8 @@ struct CRPosData
     {
         cout << "id,x,y,z,t: " << id << "," << x << "," << y << "," << z << "," << t << endl;
     }
-    void Initial(){
+    void Initial()
+    {
         id = -999;
         x = -999;
         y = -999;
@@ -99,6 +123,7 @@ struct CRPosData
         t = -999;
     }
 };
+// Cosmicray info: muE, px, py, pz, theta
 struct CRMuData
 {
     double muE;
@@ -110,14 +135,14 @@ struct CRMuData
     {
         cout << "E,p(x,y,z),theta: " << muE << ",p(" << px << "," << py << "," << pz << "),theta" << theta << endl;
     }
-    void Initial(){
+    void Initial()
+    {
         muE = -999;
         px = -999;
         py = -999;
         pz = -999;
         theta = -999;
     }
-
 };
 
 // ** declaration of id of detectors in cosmicray system **
@@ -135,15 +160,17 @@ enum
     PS1id = 301,
 } DetectorID;
 char detName[8][10] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
+int TrackerN = 4;
+int TriggerN = 2;
 
 // **declaration function
 //
 Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts);
 Double_t response(Double_t x, Double_t par[7]);
 TF1 *pol3fit(TGraph *g, float U_RL, float U_RR);
-//double RebuildCRAngle(vector<CRPosData> MMvec, double possigma);
-TVector3 RebuildCRAngle(vector<CRPosData> MMvec, double possigma, TVector3 &fitpos);
-void RebuildSensorSignal(CRTimeData T0data, EleTimeData *T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30);
+//double RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma);
+void RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, CRPosData &RBT0pos, CRPosData &RBFTOFpos, CRMuData &RBMudata);
+void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30);
 
 // ** declaration of number of channels **
 //
@@ -352,7 +379,7 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
         for (int j = 0; j < N; j++)
         {
             //cout<<"x"<<p[0][j]<<",yz"<<i<<","<<p[1+i][j]<<endl;
-            g->SetPoint(j, p[0][j], p[1 + i][j]);
+            g->SetPoint(j, p[0][j], p[1 + i][j] + r.Gaus(0, possigma));
         }
         // fit
         g->Fit("pol1", "q");
@@ -411,7 +438,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         return sqrt(Ox * Ox + Oy * Oy + Oz * Oz);
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
-       
+
     //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     double Ax0, Ay0, Az0;
     double px, py, pz;
@@ -438,7 +465,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         Inz = swap;
     }
     double thetaC = TMath::ACos(1 / np);
-    double theta = TMath::ACos(pz); //angle between momentum direction of mu and z axis;
+    double theta = TMath::ACos(pz/TMath::Sqrt(px*px+py*py+pz*pz)); //angle between momentum direction of mu and z axis;
 
     double Ax, Ay, Az;
     Az = Az0;
@@ -1223,7 +1250,6 @@ void Drawhist(TString path)
     sprintf(buff, "#sigma_{y}=%.0fmm", fit->GetParameter(2));
     la = DrawMyLatex(buff, 0.2, 0.4);
     la->Draw();
-    
 
     cc->cd(2);
     SetMyPad(gPad, 0.18, 0.1, 0.1, 0.18);
@@ -1262,9 +1288,9 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
         if (s != 0)
         {
             if (Amean - 3 * Asigma <= 0)
-                fitAT = profilefit(hLT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, 0.1, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s));
+                fitAT = profilefit(hLT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, 0.1, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s-1));
             else
-                fitAT = profilefit(hLT, rbA, rbt * 8, Tmean - 3 * Tsigma, Tmean + 3 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s));
+                fitAT = profilefit(hLT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s-1));
             if (!fitAT)
             {
                 cout << " the profilefit is failed! " << endl;
@@ -1291,6 +1317,7 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
             {
 
                 TAcor = fitAT->Eval(AA[i]);
+                //cout << "TAcor: " << TAcor << endl;
                 Treserve[i] = Treserve[i] - TAcor;
                 tL = -1;
                 tR = 1;
@@ -1308,6 +1335,7 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
                 return;
             }
             DrawMyHist(hL, "", "", 1, 3);
+            hL->Draw();
             //fitA = (TF1 *)hAfit->GetFunction("fitU");
             Amean = fitA->GetParameter(1);
             Asigma = fitA->GetParameter(2);
@@ -1317,7 +1345,7 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
         cc->Clear();
         DrawMyHist(ht, "", "", 1, 3);
         ht->Draw();
-        fitT = gausfit(ht, 0.1, 3, 3, rbt * 8, tL, tR);
+        fitT = gausfit(ht, 0.1, 3, 3, rbt * 4, tL, tR);
         //fitT = gausfit(ht, 0.1, 3, 3, rbt * 20, tL, tR);
         if (!fitT)
         {
@@ -1334,21 +1362,20 @@ void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
         l->Draw();
         cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
         cc->SaveAs(Form("%s/TR_cor%d.png", path.Data(), s));
-    cc = cdC(CNum++);
-    DrawMy2dHist(hLT, "", "", 1, 2);
-    //ht->Rebin(2);
-    hLT->Draw("colz");
-    cc->Modified();
-    cc->Update();
+        cc = cdC(CNum++);
+        DrawMy2dHist(hLT, "", "", 1, 2);
+        //ht->Rebin(2);
+        hLT->Draw("colz");
+        cc->Modified();
+        cc->Update();
 
-    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-    //la = DrawMyLatex(buff, 0.2, 0.4);
-    cc->SaveAs(Form("%s/hAT%d.png", path.Data(),s));
+        //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+        //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+        //la = DrawMyLatex(buff, 0.2, 0.4);
+        cc->SaveAs(Form("%s/hAT%d.png", path.Data(), s));
     }
-
 }
-void Rebuild(TString input = "../build")
+void RebuildData(TString input = "../build")
 {
     clock_t start, finish;
     double totaltime;
@@ -1370,8 +1397,6 @@ void Rebuild(TString input = "../build")
         filepath = input;
     }
     rootname = GetFilename(rootlist.at(0));
-    sprintf(buff, "%s/%sRebuildresulst.root", filepath.Data(), rootname.Data());
-    TFile *f2 = new TFile(buff, "RECREATE");
     //TTree *t2 = new TTree("data", "restore analysed data  from G4");
 
     for (int i = 0; i < rootlist.size(); i++)
@@ -1381,18 +1406,18 @@ void Rebuild(TString input = "../build")
     }
 
     // Declaration of leaf types
-    vector<int> *R380_count = 0;
-    vector<int> *R380_id = 0;
-    vector<double> *R380_E = 0;
-    vector<double> *R380_t = 0;
-    vector<double> *R380_TOP = 0;
-    vector<double> *R380_x = 0;
-    vector<double> *R380_y = 0;
-    vector<double> *R380_z = 0;
-    vector<double> *R380_px = 0;
-    vector<double> *R380_py = 0;
-    vector<double> *R380_pz = 0;
-    vector<int> *R380_trackID = 0;
+    vector<int> *PmtS_count = 0;
+    vector<int> *PmtS_id = 0;
+    vector<double> *PmtS_E = 0;
+    vector<double> *PmtS_t = 0;
+    vector<double> *PmtS_TOP = 0;
+    vector<double> *PmtS_x = 0;
+    vector<double> *PmtS_y = 0;
+    vector<double> *PmtS_z = 0;
+    vector<double> *PmtS_px = 0;
+    vector<double> *PmtS_py = 0;
+    vector<double> *PmtS_pz = 0;
+    vector<int> *PmtS_trackID = 0;
     vector<int> *R107_count = 0;
     vector<int> *R107_id = 0;
     vector<double> *R107_E = 0;
@@ -1418,18 +1443,18 @@ void Rebuild(TString input = "../build")
     vector<int> *mu_DetID = 0;
 
     // List of branches
-    TBranch *b_R380_count;   //!
-    TBranch *b_R380_id;      //!
-    TBranch *b_R380_E;       //!
-    TBranch *b_R380_t;       //!
-    TBranch *b_R380_TOP;     //!
-    TBranch *b_R380_x;       //!
-    TBranch *b_R380_y;       //!
-    TBranch *b_R380_z;       //!
-    TBranch *b_R380_px;      //!
-    TBranch *b_R380_py;      //!
-    TBranch *b_R380_pz;      //!
-    TBranch *b_R380_trackID; //!
+    TBranch *b_PmtS_count;   //!
+    TBranch *b_PmtS_id;      //!
+    TBranch *b_PmtS_E;       //!
+    TBranch *b_PmtS_t;       //!
+    TBranch *b_PmtS_TOP;     //!
+    TBranch *b_PmtS_x;       //!
+    TBranch *b_PmtS_y;       //!
+    TBranch *b_PmtS_z;       //!
+    TBranch *b_PmtS_px;      //!
+    TBranch *b_PmtS_py;      //!
+    TBranch *b_PmtS_pz;      //!
+    TBranch *b_PmtS_trackID; //!
     TBranch *b_R107_count;   //!
     TBranch *b_R107_id;      //!
     TBranch *b_R107_E;       //!
@@ -1454,18 +1479,18 @@ void Rebuild(TString input = "../build")
     TBranch *b_mu_pz;        //!
     TBranch *b_mu_DetID;     //!
     t1->SetMakeClass(1);
-    t1->SetBranchAddress("R380.count", &R380_count, &b_R380_count);
-    t1->SetBranchAddress("R380.id", &R380_id, &b_R380_id);
-    t1->SetBranchAddress("R380.E", &R380_E, &b_R380_E);
-    t1->SetBranchAddress("R380.t", &R380_t, &b_R380_t);
-    t1->SetBranchAddress("R380.TOP", &R380_TOP, &b_R380_TOP);
-    t1->SetBranchAddress("R380.x", &R380_x, &b_R380_x);
-    t1->SetBranchAddress("R380.y", &R380_y, &b_R380_y);
-    t1->SetBranchAddress("R380.z", &R380_z, &b_R380_z);
-    t1->SetBranchAddress("R380.px", &R380_px, &b_R380_px);
-    t1->SetBranchAddress("R380.py", &R380_py, &b_R380_py);
-    t1->SetBranchAddress("R380.pz", &R380_pz, &b_R380_pz);
-    t1->SetBranchAddress("R380.trackID", &R380_trackID, &b_R380_trackID);
+    t1->SetBranchAddress("PmtS.count", &PmtS_count, &b_PmtS_count);
+    t1->SetBranchAddress("PmtS.id", &PmtS_id, &b_PmtS_id);
+    t1->SetBranchAddress("PmtS.E", &PmtS_E, &b_PmtS_E);
+    t1->SetBranchAddress("PmtS.t", &PmtS_t, &b_PmtS_t);
+    t1->SetBranchAddress("PmtS.TOP", &PmtS_TOP, &b_PmtS_TOP);
+    t1->SetBranchAddress("PmtS.x", &PmtS_x, &b_PmtS_x);
+    t1->SetBranchAddress("PmtS.y", &PmtS_y, &b_PmtS_y);
+    t1->SetBranchAddress("PmtS.z", &PmtS_z, &b_PmtS_z);
+    t1->SetBranchAddress("PmtS.px", &PmtS_px, &b_PmtS_px);
+    t1->SetBranchAddress("PmtS.py", &PmtS_py, &b_PmtS_py);
+    t1->SetBranchAddress("PmtS.pz", &PmtS_pz, &b_PmtS_pz);
+    t1->SetBranchAddress("PmtS.trackID", &PmtS_trackID, &b_PmtS_trackID);
     t1->SetBranchAddress("R107.count", &R107_count, &b_R107_count);
     t1->SetBranchAddress("R107.id", &R107_id, &b_R107_id);
     t1->SetBranchAddress("R107.E", &R107_E, &b_R107_E);
@@ -1492,42 +1517,54 @@ void Rebuild(TString input = "../build")
 
     rootname = GetFilename(rootlist.at(0));
 
-    CRTimeData T0data;
-    CRTimeData FTOFdata;
-    CRPosData MMdata;
+    CRTimeData T0photon;
+    CRTimeData FTOFphoton;
     CRPosData T0pos;
     CRPosData FTOFpos;
+    CRPosData MMpos;
+    vector<CRPosData> *Trackerpos = new vector<CRPosData>;
     CRMuData Mudata;
-    vector<CRPosData> MMvec;
+    //vector<CRPosData> Trackerpos;
+    EleTimeData T0Ele;
+    EleTimeData FTOFEle;
+    CRPosData RBT0pos;
+    CRPosData RBFTOFpos;
+    CRMuData RBMudata;
 
-    vector<CRTimeData> T0Real;
-    vector<CRTimeData> FTOFReal;
-    vector<CRMuData> MuReal;
-    vector<vector<CRPosData>> MMReal;
-    vector<CRPosData> T0PosReal;
-    vector<CRPosData> FTOFPosReal;
+    vector<CRTimeData> T0photonvec;
+    vector<CRTimeData> FTOFphotonvec;
+    vector<CRMuData> Mudatavec;
+    vector<vector<CRPosData>> Trackerposvec;
+    vector<CRPosData> T0posvec;
+    vector<CRPosData> FTOFposvec;
 
-    //t2->Branch("T0Real", T0Real);
-    //t2->Branch("FTOFReal", FTOFReal);
-    //t2->Branch("MuReal", MuReal);
+    CRsysRBData data;
+    cout << "> progress check <" << endl;
+    //t2->Branch("T0photonvec", T0photonvec);
+    //t2->Branch("FTOFphotonvec", FTOFphotonvec);
+    //t2->Branch("Mudatavec", Mudatavec);
     //t2->Branch("T0Rebuild", T0Rebuild);
     //t2->Branch("FTOFRebuild", FTOFRebuild);
     //t2->Branch("MuRebuild", MuRebuild);
-
+    sprintf(buff, "%s/%sRBdata.root", filepath.Data(), rootname.Data());
+    TFile *f2 = new TFile(buff, "RECREATE");
+    TTree *t2 = new TTree("data", "restore analysed data  from G4");
+    t2->Branch("data", &data);
     int N = t1->GetEntries();
     cout << "Entries = " << N << endl;
-
+    //N=100;
     vector<int> triggervec;
     for (int iEvent = 0, pb = 0; iEvent < N; iEvent++)
     {
 
-        T0data.Initial();
-        FTOFdata.Initial();
-        MMdata.Initial();
+        T0photon.Initial();
+        FTOFphoton.Initial();
+        MMpos.Initial();
+        Trackerpos->clear();
+
         T0pos.Initial();
         FTOFpos.Initial();
         Mudata.Initial();
-        MMvec.clear();
 
         triggervec.clear();
 
@@ -1536,7 +1573,7 @@ void Rebuild(TString input = "../build")
         //    cout << "The Entry No: " << iEvent << endl;
 
         t1->GetEntry(iEvent);
-        if (!mu_DetID->size())
+        if (!mu_DetID->size() || !PmtS_id->size())
             continue;
         for (int ihitdet = 0; ihitdet < mu_DetID->size(); ihitdet++)
         {
@@ -1546,12 +1583,12 @@ void Rebuild(TString input = "../build")
                 triggervec.push_back(theID);
             if (theID >= 0 && theID < 4)
             {
-                MMdata.id = theID;
-                MMdata.t = mu_t->at(ihitdet);
-                MMdata.x = mu_x->at(ihitdet);
-                MMdata.y = mu_y->at(ihitdet);
-                MMdata.z = mu_z->at(ihitdet);
-                MMvec.push_back(MMdata);
+                MMpos.id = theID;
+                MMpos.t = mu_t->at(ihitdet);
+                MMpos.x = mu_x->at(ihitdet);
+                MMpos.y = mu_y->at(ihitdet);
+                MMpos.z = mu_z->at(ihitdet);
+                Trackerpos->push_back(MMpos);
             }
             if (theID == 100)
             {
@@ -1561,14 +1598,14 @@ void Rebuild(TString input = "../build")
                 T0pos.y = mu_y->at(ihitdet);
                 T0pos.z = mu_z->at(ihitdet);
 
-                for (int iT0hit = 0; iT0hit < R380_id->size(); iT0hit++)
+                for (int iT0hit = 0; iT0hit < PmtS_id->size(); iT0hit++)
                 {
-                    T0data.id.push_back(R380_id->at(iT0hit));
-                    T0data.t.push_back(R380_t->at(iT0hit));
-                    T0data.x.push_back(R380_x->at(iT0hit));
-                    T0data.y.push_back(R380_y->at(iT0hit));
-                    T0data.z.push_back(R380_z->at(iT0hit));
-                    T0data.TOP.push_back(R380_TOP->at(iT0hit));
+                    T0photon.id.push_back(PmtS_id->at(iT0hit));
+                    T0photon.t.push_back(PmtS_t->at(iT0hit));
+                    T0photon.x.push_back(PmtS_x->at(iT0hit));
+                    T0photon.y.push_back(PmtS_y->at(iT0hit));
+                    T0photon.z.push_back(PmtS_z->at(iT0hit));
+                    T0photon.TOP.push_back(PmtS_TOP->at(iT0hit));
                 }
             }
             if (theID == 200)
@@ -1581,12 +1618,12 @@ void Rebuild(TString input = "../build")
 
                 for (int iFTOFhit = 0; iFTOFhit < R107_id->size(); iFTOFhit++)
                 {
-                    FTOFdata.id.push_back(R107_id->at(iFTOFhit));
-                    FTOFdata.t.push_back(R107_t->at(iFTOFhit));
-                    FTOFdata.x.push_back(R107_x->at(iFTOFhit));
-                    FTOFdata.y.push_back(R107_y->at(iFTOFhit));
-                    FTOFdata.z.push_back(R107_z->at(iFTOFhit));
-                    FTOFdata.TOP.push_back(R107_TOP->at(iFTOFhit));
+                    FTOFphoton.id.push_back(R107_id->at(iFTOFhit));
+                    FTOFphoton.t.push_back(R107_t->at(iFTOFhit));
+                    FTOFphoton.x.push_back(R107_x->at(iFTOFhit));
+                    FTOFphoton.y.push_back(R107_y->at(iFTOFhit));
+                    FTOFphoton.z.push_back(R107_z->at(iFTOFhit));
+                    FTOFphoton.TOP.push_back(R107_TOP->at(iFTOFhit));
                 }
             }
 
@@ -1598,145 +1635,280 @@ void Rebuild(TString input = "../build")
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
         }
 
-        if (triggervec.size() == 2)
+        //if (triggervec.size() == 2)
+        if (mu_DetID->size() >= TrackerN + 1)
         {
-            T0Real.push_back(T0data);
-            T0PosReal.push_back(T0pos);
-            FTOFReal.push_back(FTOFdata);
-            FTOFPosReal.push_back(FTOFpos);
-            MuReal.push_back(Mudata);
-            MMReal.push_back(MMvec);
-            
+            T0photonvec.push_back(T0photon);
+            FTOFphotonvec.push_back(FTOFphoton);
+            T0posvec.push_back(T0pos);
+            FTOFposvec.push_back(FTOFpos);
+            Mudatavec.push_back(Mudata);
+            Trackerposvec.push_back(*Trackerpos);
+
+            RBMudata.Initial();
+            RBT0pos.Initial();
+            RBT0pos.x = T0pos.x;
+            RBFTOFpos.Initial();
+            RBFTOFpos.x = FTOFpos.x;
+            RebuildCRAngle(*Trackerpos, possigma, RBT0pos, RBFTOFpos, RBMudata);
+
+            T0Ele.Initial();
+            RebuildSensorSignal(T0photon, T0Ele, 4, "CFD", 0.2);
+            //return;
+            //RebuildSensorSignal(FTOFphoton, FTOFEle,4,"CFD",0.2);
+            data.RBInitial();
+            data.T0photonid = T0photon.id;
+            data.T0photonE = T0photon.photonE;
+            data.T0photonTOP = T0photon.TOP;
+            data.T0photonx = T0photon.x;
+            data.T0photony = T0photon.y;
+            data.T0photonz = T0photon.z;
+            data.T0photont = T0photon.t;
+
+            data.T0detid = T0pos.id;
+            data.T0detx = T0pos.x;
+            data.T0dety = T0pos.y;
+            data.T0detz = T0pos.z;
+            data.T0dett = T0pos.t;
+
+            data.FTOFphotonid = FTOFphoton.id;
+            data.FTOFphotonE = FTOFphoton.photonE;
+            data.FTOFphotonTOP = FTOFphoton.TOP;
+            data.FTOFphotonx = FTOFphoton.x;
+            data.FTOFphotony = FTOFphoton.y;
+            data.FTOFphotonz = FTOFphoton.z;
+            data.FTOFphotont = FTOFphoton.t;
+
+            data.FTOFdetid = FTOFpos.id;
+            data.FTOFdetx = FTOFpos.x;
+            data.FTOFdety = FTOFpos.y;
+            data.FTOFdetz = FTOFpos.z;
+            data.FTOFdett = FTOFpos.t;
+            for (int iMM = 0; iMM < 4; iMM++)
+            {
+
+                data.Trackerdetx[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).x;
+                data.Trackerdety[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).y;
+                data.Trackerdetz[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).z;
+                data.Trackerdett[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).t;
+            }
+            data.CRE = Mudata.muE;
+            data.CRpx = Mudata.px;
+            data.CRpy = Mudata.py;
+            data.CRpz = Mudata.pz;
+            data.CRtheta = Mudata.theta;
+
+            data.T0detRBx = RBT0pos.x;
+            data.T0detRBy = RBT0pos.y;
+            data.T0detRBz = RBT0pos.z;
+
+            data.T0eleid = T0Ele.id;
+            data.T0elethrd = T0Ele.thrd;
+            data.T0eleU = T0Ele.U;
+            data.T0eletot = T0Ele.tot;
+            data.T0elethtime[0] = T0Ele.thtime[0];
+            data.T0elethtime[1] = T0Ele.thtime[1];
+            data.T0elefittot = T0Ele.fittot;
+            data.T0elefittime[0] = T0Ele.fittime[0];
+            data.T0elefittime[1] = T0Ele.fittime[1];
+
+            data.FTOFeleid = FTOFEle.id;
+            data.FTOFelethrd = FTOFEle.thrd;
+            data.FTOFeleU = FTOFEle.U;
+            data.FTOFeletot = FTOFEle.tot;
+            data.FTOFelethtime[0] = FTOFEle.thtime[0];
+            data.FTOFelethtime[1] = FTOFEle.thtime[1];
+            data.FTOFelefittot = FTOFEle.fittot;
+            data.FTOFelefittime[0] = FTOFEle.fittime[0];
+            data.FTOFelefittime[1] = FTOFEle.fittime[1];
+
+            data.CRRBpx = RBMudata.px;
+            data.CRRBpy = RBMudata.py;
+            data.CRRBpz = RBMudata.pz;
+            data.CRRBtheta = RBMudata.theta;
+            t2->Fill();
         }
     }
+    f2->cd();
+    t2->Write();
+    cout << "The process is over,THANK YOU!" << endl;
+}
+#if 1
+void RebuildT0(TString input = "../data.root", int force = 0)
+{
+    Definehist();
+    gStyle->SetOptFit(111);
+
+    vector<double> TT, AA;
+    TT.reserve(20e4);
+    AA.reserve(20e4);
+    bool flag = 0;
+
+    TString filepath;
+    TString rootname;
+    rootname = GetFilename(input);
+    filepath = GetFilepath(input);
+
+    sprintf(buff, "%s/%s.dat", filepath.Data(), rootname.Data());
+    if (!gSystem->AccessPathName(buff) && !force)
+    {
+        ifstream in;
+        in.open(buff);
+        double temp1 = 0, temp2 = 0;
+        while (in && (!in.eof()))
+        {
+
+            in >> temp1 >> temp2;
+            TT.push_back(temp1);
+            AA.push_back(temp2);
+        }
+        flag = 1;
+    }
+    if (flag)
+    {
+        TAcorrection(filepath, 4, TT, AA);
+        return;
+    }
+    ofstream out(buff);
+    cout << "===> Create your data file: " << buff << endl;
+    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
+
     double Timestamp = 0;
     double Timestampcor = 0;
     double PMTtime = 0;
-    double T0time[4]={0};
-    double T0timecor[4]={0};
-    double T0reTrack[4]={0};
+    double T0time[4] = {0};
+    double T0timecor[4] = {0};
+    double T0reTrack[4] = {0};
     double PMTtimecor = 0;
     double reTrack = 0;
     double reTrackSum = 0;
     int PMTcounter = 0;
+    int validcnt = 0;
     double meanreTrack = 0;
-    vector<double> TT, AA;
-    TT.reserve(20e4);
-    AA.reserve(20e4);
+
     double tL = -2.;
     double tR = 2.;
     double AL = 0;
     double AR = 300;
     int bint = (tR - tL) / 0.5e-3;
 
-    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
-    int validcnt=0;
-    for (int i = 0; i < T0Real.size(); i++)
+    cout << "Read rootfile: " << input.Data() << endl;
+    TFile *f = new TFile(input.Data(), "READ");
+    TTree *t = (TTree *)f->Get("data");
+    //t->SetMakeClass(1);
+    CRsysRBData *fdata;
+    fdata = new CRsysRBData();
+    TBranch *b_data;
+    t->SetBranchAddress("data", &fdata, &b_data);
+    int N = t->GetEntriesFast();
+    cout << "Total trigger events is: " << N << endl;
+
+    t->GetEntry(0);
+    cout << "fdata->T0detRBy=" << fdata->T0detRBy << "\t fdata->CRRBtheta=" << fdata->CRRBtheta << endl;
+    //return;
+    for (int i = 0; i < N; i++)
     //for (int i = 0; i < 2; i++)
     {
-        if(T0Real[i].id.size()<1) continue;
-        EleTimeData T0Eledata[4];
-        TVector3 T0fitpos(0, 0, 0);
-        TVector3 Mufitdir(0, 0, 0);
-        T0fitpos.SetX(T0PosReal[i].x);
-        RebuildSensorSignal(T0Real[i], T0Eledata,4,"CFD",0.2);
-        //cout<<"T0Eledata[0].tot:"<<T0Eledata[0].tot<<endl;
-        Mufitdir = RebuildCRAngle(MMReal[i], possigma, T0fitpos);
-        #if 0
-        if(T0fitpos.X()==-999) {
-            cout<<"entry=="<<i<<endl;
-            cout<<"T0 hits id=(";
-            for(int s=0;s<T0Real[i].id.size();s++)
-            {
-            cout<<T0Real[i].id[s]<<"\t";
-
-            }
-            cout<<")"<<endl;
-            T0PosReal[i].Print();
-            cout<<"T0fitpos:"<<endl;
-            T0fitpos.Print();
-        return;
-        }
-        //cout<<"Mufitdir:"<<endl;
-        //Mufitdir.Print();
-        //cout<<"T0fitpos:"<<endl;
-        //T0fitpos.Print();
-        #endif
-        if(Mufitdir.X()==-999) continue;
+        //data = CRsysRBData();
+        t->GetEntry(i);
+        //if (fdata->T0detRBy == -999 || fdata->CRRBtheta == -999)
+        //    continue;
+        //return;
         validcnt++;
-        PMTcounter=0;
         reTrackSum = 0;
         PMTtime = 0;
 
         PMTtimecor = 0;
         meanreTrack = 0;
-        memset(T0time,0,sizeof(T0time));
-        memset(T0timecor,0,sizeof(T0timecor));
-        for (int j = 0; j < 4; j++)
+        memset(T0time, 0, sizeof(T0time));
+        memset(T0timecor, 0, sizeof(T0timecor));
+        PMTcounter = 0;
+        TVector3 T0fitpos(fdata->T0detRBx, fdata->T0detRBy, fdata->T0detRBz);
+        TVector3 Mufitdir(-1*fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
+        for (int j = 0; j < fdata->T0eleid.size(); j++)
         {
-            if (T0Eledata[j].tot > 0)
+            if (fdata->T0elefittot[j] > 0)
             {
+                reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
 
-                reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, T0Eledata[j].id+1);
-
-        //cout<<"reTrack:"<<reTrack<<endl;
+                //cout<<"reTrack:"<<reTrack<<endl;
                 reTrackSum += reTrack;
-                T0reTrack[j] = reTrack;
+                T0reTrack[fdata->T0eleid[j]] = reTrack;
                 // * substract start time
-                //PMTtime += T0Eledata[j].thtime[0]-T0PosReal[i].t ;
-                //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0PosReal[i].t ;
-                T0time[j] = T0Eledata[j].thtime[0];
-                PMTtime += T0Eledata[j].thtime[0] - T0PosReal[i].t;
-                PMTtimecor += T0Eledata[j].thtime[0] - T0PosReal[i].t - reTrack / 298 * 1.5;
-                T0timecor[j] = T0Eledata[j].thtime[0] - reTrack / 298 * 1.5;
+                //PMTtime += T0Eledata[j].thtime[0]-T0posvec[i].t ;
+                //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0posvec[i].t ;
+                T0time[fdata->T0eleid[j]] = fdata->T0elefittime[0][j];
+                PMTtime += fdata->T0elefittime[0][j] - fdata->T0dett;
+                PMTtimecor += fdata->T0elefittime[0][j] - fdata->T0dett - reTrack / 298 * 1.5;
+                T0timecor[fdata->T0eleid[j]] = fdata->T0elefittime[0][j] - reTrack / 298 * 1.5;
                 PMTcounter++;
-                hPMTID->Fill(T0Eledata[j].id);
+                //hPMTID->Fill(fdata->T0eleid[j]);
             }
         }
-        //if(PMTcounter==4&&T0time[0]!=0&&T0time[2]!=0){
-        if(PMTcounter==4){
-            //Timestamp = T0time[0]-T0time[2];
-        //Timestampcor = T0timecor[0]-T0timecor[2];
-          // meanreTrack =  (T0reTrack[0]+T0reTrack[2])/2;
-           //meanreTrack =  T0reTrack[0];
-        Timestamp = PMTtime / PMTcounter;
-        Timestampcor = PMTtimecor / PMTcounter;
-        meanreTrack = reTrackSum / PMTcounter;
-        //cout<<"PMTcounter:"<<PMTcounter<<endl;
-        //cout<<"Timestamp:"<<Timestamp<<endl;
-        //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
-        //cout<<"Timestampcor:"<<Timestampcor<<endl;
-        //cout<<"meanreTrack:"<<meanreTrack<<endl;
-        //hNPMT->Fill(PMTcounter);
-        //h2dPMT->Fill(PMTcounter, Timestamp);
-        //if (PMTcounter ==2)
-        //{
+        //cout<<"id size="<<fdata->T0eleid.size()<<endl;
+        //cout<<"PMTcounter="<<PMTcounter<<endl;
+        //if(T0time[1]!=0&&T0time[3]!=0){
+        if (PMTcounter == 4)
+        {
+            //return;
+            Timestamp = T0time[1]-T0time[3];
+            Timestampcor = T0timecor[1]-T0timecor[3];
+             meanreTrack =  T0reTrack[3];
+            //meanreTrack =  T0reTrack[0];
+            //Timestamp = PMTtime / PMTcounter;
+            //Timestampcor = PMTtimecor / PMTcounter;
+            //meanreTrack = reTrackSum / PMTcounter;
+            //cout<<"PMTcounter:"<<PMTcounter<<endl;
+            //cout<<"Timestamp:"<<Timestamp<<endl;
+            //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
+            //cout<<"Timestampcor:"<<Timestampcor<<endl;
+            //cout<<"meanreTrack:"<<meanreTrack<<endl;
+            //hNPMT->Fill(PMTcounter);
+            //h2dPMT->Fill(PMTcounter, Timestamp);
+            //if (PMTcounter ==2)
+            //{
             //TT.push_back(Timestampcor);
-            TT.push_back(Timestamp);
+            TT.push_back(Timestampcor);
             //AA.push_back(reTrack);
             AA.push_back(meanreTrack);
+            out << TT.back() << "\t" << AA.back() << endl;
             ht->Fill(Timestamp);
+            hL->Fill(meanreTrack);
             htcor->Fill(Timestampcor);
-            hdy->Fill(T0fitpos.Y() - T0PosReal[i].y);
-            hdz->Fill(T0fitpos.Z() - T0PosReal[i].z);
-            hpos->Fill(T0fitpos.Y(), T0fitpos.Z());
-           // return;
+            hdy->Fill(fdata->T0dety - fdata->T0detRBy);
+            hdz->Fill(fdata->T0detz - fdata->T0detRBz);
+            hpos->Fill(fdata->T0detRBy, fdata->T0detRBz);
+            // return;
         }
     }
-    cout<<"valid events: "<<validcnt<<endl;
+    TCanvas *cht = cdC(100);
+    DrawMyHist(ht, "", "", 1, 3);
+    ht->Draw();
+    //fitA = (TF1 *)hAfit->GetFunction("fitU");
+
+    cht->SaveAs(Form("%s/ht.png", filepath.Data()));
+
+    TCanvas *chL = cdC(101);
+    DrawMyHist(hL, "", "", 1, 3);
+    hL->Draw();
+    //fitA = (TF1 *)hAfit->GetFunction("fitU");
+
+    chL->SaveAs(Form("%s/htrack.png", filepath.Data()));
+
+    cout << "valid events: " << validcnt << endl;
     //
     // ---------draw track vs TR --------//
     //
-        TAcorrection(filepath,4,TT,AA);
-    
+
+    TAcorrection(filepath, 4, TT, AA);
 
 #if 0
-    for (int i = 0; i < MMReal.size(); i++)
+    for (int i = 0; i < Trackerposvec.size(); i++)
     {
-        double RBt = RebuildCRAngle(MMReal[i], possigma) / TMath::Pi() * 180;
+        double RBt = RebuildCRAngle(Trackerposvec[i], possigma) / TMath::Pi() * 180;
         if (RBt > 20)
             continue;
-        double SMt = RebuildCRAngle(MMReal[i], 0) / TMath::Pi() * 180;
+        double SMt = RebuildCRAngle(Trackerposvec[i], 0) / TMath::Pi() * 180;
         double Errt = RBt - SMt;
         htheta->Fill(SMt);
         hRBtheta->Fill(RBt);
@@ -1745,11 +1917,11 @@ void Rebuild(TString input = "../build")
         {
 
             //cout << "Theta rb,simulated: " << RBt << ", " << SMt << endl;
-            MuReal[i].Print();
-            MMvec = MMReal[i];
-            for (int j = 0; j < MMvec.size(); j++)
+            Mudatavec[i].Print();
+            Trackerpos = Trackerposvec[i];
+            for (int j = 0; j < Trackerpos.size(); j++)
             {
-                MMvec[j].Print();
+                Trackerpos[j].Print();
             }
         }
     }
@@ -1760,6 +1932,7 @@ void Rebuild(TString input = "../build")
 #endif
     //Drawhist(filepath);
 }
+#endif
 
 void ReadRBResults(TString input = "../build")
 {
@@ -1772,7 +1945,7 @@ void ReadRBResults(TString input = "../build")
     f2->GetObject("hthetaerr", hthetaerr);
     Drawhist(input);
 }
-void RebuildSensorSignal(CRTimeData T0data, EleTimeData *T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30)
+void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30)
 {
     //cout << "\t>> Parameter list:" << endl;
     const int T = Nlayer;
@@ -1787,23 +1960,19 @@ void RebuildSensorSignal(CRTimeData T0data, EleTimeData *T0Eledata, int Nlayer =
     //double thrd = -30; //Umax = -28.94mV
     double x[range] = {0};
     double y[range] = {0};
-    int N = T0data.t.size();
-    for (int i = 0; i < N; i++)
+    int N = T0photon.t.size();
+    for (int s = 0; s < T; s++)
     {
-        int temp = T0data.t[i] * 1e-9;
-        for (int s = 0; s < T; s++)
+        for (int i = 0; i < N; i++)
         {
-            if (T0data.id[i] == s)
+            if (T0photon.id[i] == s)
             {
+                double temp = T0photon.t[i] * 1e-9;
 
                 par[s].push_back(temp);
                 tts[s].push_back(r.Gaus(0, ttssigma));
             }
         }
-    }
-    for (int s = 0; s < T; s++)
-    {
-        T0Eledata[s].Initial();
         if (!par[s].size())
             continue;
 
@@ -1850,35 +2019,136 @@ void RebuildSensorSignal(CRTimeData T0data, EleTimeData *T0Eledata, int Nlayer =
         {
 
             TGraph *g = new TGraph(range, x, y);
+            g->Draw();
             TF1 *fit = pol3fit(g, x[thtimepos[i]] - 60e-3, x[thtimepos[i]] + 80e-3); //[-60ps, 80ps]
             fittime[i] = fit->GetX(thrd);
+            g->Clear();
         }
         fittot = fittime[1] - fittime[0];
 
-        T0Eledata[s].id = s;
-        T0Eledata[s].thrd = thrd;
-        T0Eledata[s].U = U;
-        T0Eledata[s].tot = tot;
-        T0Eledata[s].fittot = fittot;
-        T0Eledata[s].fittime[0] = fittime[0];
-        T0Eledata[s].fittime[1] = fittime[1];
-        T0Eledata[s].thtime[0] = thtime[0];
-        T0Eledata[s].thtime[1] = thtime[1];
+        T0Eledata.id.push_back(s);
+        T0Eledata.thrd.push_back(thrd);
+        T0Eledata.U.push_back(U);
+        T0Eledata.tot.push_back(tot);
+        T0Eledata.fittot.push_back(fittot);
+        T0Eledata.fittime[0].push_back(fittime[0]);
+        T0Eledata.fittime[1].push_back(fittime[1]);
+        T0Eledata.thtime[0].push_back(thtime[0]);
+        T0Eledata.thtime[1].push_back(thtime[1]);
     }
 };
-//double RebuildCRAngle(vector<CRPosData> MMvec, double possigma, TVector3 &fitpos)
-TVector3 RebuildCRAngle(vector<CRPosData> MMvec, double possigma, TVector3 &fitpos)
+//double RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, TVector3 &fitpos)
+void RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, CRPosData &RBT0pos, CRPosData &RBFTOFpos, CRMuData &RBMudata)
 {
-    CRPosData MMdata;
+    CRPosData MMpos;
     double theta;
+    double phi;
     //for (int i = 0; i < 5; i++)
 
-    sort(MMvec.begin(), MMvec.end());
-    int N = MMvec.size();
+    sort(Trackerpos.begin(), Trackerpos.end());
+    int N = Trackerpos.size();
     if (N < 4)
     {
 
-        return {-999,-999,-999};
+        return;
+    }
+    /*
+    for(int i=0;i<N;i++){
+        cout<<"Trackerpos"<<i<<": "<<Trackerpos[i].x<<"\t"<<Trackerpos[i].y<<"\t"<<Trackerpos[i].z<<endl;
+    }
+    */
+    double expT0[2] = {0};
+    double expFTOF[2] = {0};
+    double delta[3] = {0}; // 0-x. 1-y, 2-z
+    TGraphErrors *g;
+
+    TVector3 v1;
+    for (int i = 0; i < 2; i++)
+    {
+
+        g = new TGraphErrors();
+        for (int j = 0; j < N; j++)
+        {
+            if (i == 0)
+            {
+
+                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].y + r.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
+            }
+            else
+            {
+                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].z + r.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
+                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + r.Gaus(0, possigma)<<endl;
+            }
+        }
+        // fit
+        g->Draw();
+
+        g->Fit("pol1", "q");
+        if (RBT0pos.x != 0)
+        {
+            expT0[i] = g->GetFunction("pol1")->Eval(RBT0pos.x);
+        }
+
+        if (RBFTOFpos.x != 0)
+        {
+            expFTOF[i] = g->GetFunction("pol1")->Eval(RBFTOFpos.x);
+        }
+        //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
+        delta[1 + i] = g->GetFunction("pol1")->Eval(Trackerpos[N - 1].x) - g->GetFunction("pol1")->Eval(Trackerpos[0].x);
+        g->Clear();
+        //cout<<" delta[1 + i]="<<delta[1 + i];
+    }
+    if (RBT0pos.x != 0)
+    {
+        RBT0pos.y = expT0[0];
+        RBT0pos.z = expT0[1];
+    }
+    if (RBFTOFpos.x != 0)
+    {
+        RBFTOFpos.y = expFTOF[0];
+        RBFTOFpos.z = expFTOF[1];
+    }
+    delta[0] = Trackerpos[N - 1].x - Trackerpos[0].x;
+    //cout<<" delta[0]="<<delta[0];
+    //cout<<endl;
+    //cout<<" delta xyz:"<<delta[0]<<"\t"<<delta[1]<<"\t"<<delta[2]<<endl;
+
+    v1.SetX(delta[0]);
+    v1.SetY(delta[1]);
+    v1.SetZ(delta[2]);
+    theta = TMath::ACos(v1.x() / v1.Mag());
+    phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
+
+    RBMudata.px = -1*delta[0];
+    RBMudata.py = -1*delta[1];
+    RBMudata.pz = -1*delta[2];
+    RBMudata.theta = theta;
+    if (v1.y() < 0)
+        phi = -1 * (phi);
+    //cout<<"theta,phi="<<theta<<"\t"<<phi<<endl;
+
+    //cout<<"theta="<<theta<<endl;
+    //cout << "rebuild theta: " << TMath::ACos(v1.x() / v1.Mag()) << endl;
+    //return theta;
+}
+void RebuildCRAngle2(int N, double *TrackerX, double *TrackerY, double *TrackerZ, double *theta, double *phi, double targetX, double *targetY, double *targetZ)
+{
+    //CRPosData MMpos;
+    //double theta;
+    //for (int i = 0; i < 5; i++)
+
+    //sort(Trackerpos.begin(), Trackerpos.end());
+    //int N = Trackerpos.size();
+
+    if (N < 4)
+    {
+
+        return;
+    }
+    for(int i=0;i<N;i++){
+        cout<<"Trackerpos"<<i<<": "<<TrackerX[i]<<"\t"<<TrackerY[i]<<"\t"<<TrackerZ[i]<<endl;
     }
     double exp[2] = {0};
     double delta[3] = {0}; // 0-x. 1-y, 2-z
@@ -1894,48 +2164,50 @@ TVector3 RebuildCRAngle(vector<CRPosData> MMvec, double possigma, TVector3 &fitp
             if (i == 0)
             {
 
-                g->SetPoint(j, MMvec[j].x, MMvec[j].y + r.Gaus(0, possigma));
-                //cout<<"x="<<MMvec[j].x<<",y="<<MMvec[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, TrackerX[j], TrackerY[j] + r.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
             }
             else
             {
-                g->SetPoint(j, MMvec[j].x, MMvec[j].z + r.Gaus(0, possigma));
-                //cout<<"x="<<MMvec[j].x<<",z="<<MMvec[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
-                //cout<<"x"<<MMvec[j].x<<",z"<<i<<","<<MMvec[j].z + r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, TrackerX[j], TrackerZ[j] + r.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
+                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + r.Gaus(0, possigma)<<endl;
             }
         }
         // fit
         g->Draw();
 
         g->Fit("pol1", "q");
-        if (fitpos.X() != 0)
+        if (targetX != 0)
         {
-            exp[i] = g->GetFunction("pol1")->Eval(fitpos.X());
+            exp[i] = g->GetFunction("pol1")->Eval(targetX);
         }
         //delta[i + 1] = p[1 + i][0] - p[1 + i][N - 1];
-        delta[1 + i] = g->GetFunction("pol1")->Eval(MMvec[N - 1].x) - g->GetFunction("pol1")->Eval(MMvec[0].x);
+        delta[1 + i] = g->GetFunction("pol1")->Eval(TrackerX[N - 1]) - g->GetFunction("pol1")->Eval(TrackerX[0]);
         g->Clear();
         //cout<<" delta[1 + i]="<<delta[1 + i];
     }
-    if (fitpos.X() != 0)
+    if (targetX != 0)
     {
-        fitpos.SetY(exp[0]);
-        fitpos.SetZ(exp[1]);
+        *targetY = exp[0];
+        *targetZ = exp[1];
     }
-    delta[0] = MMvec[N - 1].x - MMvec[0].x;
-    //cout<<" delta[0]="<<delta[0];
+    delta[0] = TrackerX[N - 1] - TrackerX[0];
+    cout<<" delta xyz:"<<delta[0]<<"\t"<<delta[1]<<"\t"<<delta[2]<<endl;
     //cout<<endl;
     v1.SetX(delta[0]);
     v1.SetY(delta[1]);
     v1.SetZ(delta[2]);
-    theta = TMath::ACos(v1.x() / v1.Mag());
-    //cout<<"theta="<<theta<<endl;
+    *theta = TMath::ACos(v1.x() / v1.Mag());
+    *phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
+    if (v1.y() < 0)
+        *phi = -1 * (*phi);
+    cout<<"theta,phi="<<*theta<<"\t"<<*phi<<endl;
     //cout << "rebuild theta: " << TMath::ACos(v1.x() / v1.Mag()) << endl;
     //return theta;
-    return v1;
+    //return v1;
 }
-
-#if 0
+#if 1
 void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParType = "CFD", unsigned long processN = 1)
 {
     //void Outputfun_MCP(const char *rootname="",double fac = -30, const char* ParType="FIX"){
@@ -1976,7 +2248,7 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
     const int PMTN = 4; //the number of PMT copyvolume
     const int DetN = 1;
     const int T = PMTN * DetN; //the number of PMT copyvolume
-    const int TrackerN = 2;    //the number of Trackers
+    const int TrackerN = 4;    //the number of Trackers
 
     //Double_t parR[500]={};
     //Double_t parL[500]={};
@@ -1995,7 +2267,7 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
     Double_t thrd = -30;   //Umax = -28.94mV
     double Rate = 0;
 
-    double possigma = 3000e-3; //50 um
+    double possigma = 200e-3; //50 um
 
     bool flag = 0;
     int index = 0;
@@ -2037,23 +2309,21 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
     vector<vector<double>> par(T);
     vector<vector<double>> tts(T);
 
-    vector<double> *R380t = new vector<double>;
-    vector<double> *R380TOP = new vector<double>;
-    vector<int> *R380id = new vector<int>;
+    vector<double> *hitT = new vector<double>;
+    vector<double> *TOPT = new vector<double>;
+    vector<int> *ID = new vector<int>;
 
-    vector<double> *R107t = new vector<double>;
-    vector<double> *R107TOP = new vector<double>;
-    vector<int> *R107id = new vector<int>;
+    vector<double> *DethitT = new vector<double>;
 
-    vector<double> *mut = new vector<double>;
-    vector<double> *mux = new vector<double>; //the position of mu
-    vector<double> *muy = new vector<double>;
-    vector<double> *muz = new vector<double>;
-    vector<double> *mupx = new vector<double>; //the direction of mu
-    vector<double> *mupy = new vector<double>;
-    vector<double> *mupz = new vector<double>;
-    vector<double> *muE = new vector<double>; // the energy of mu
-    vector<int> *muDetID = new vector<int>;   //the id of detecors that interacted with muon
+    vector<double> *IncidX = new vector<double>; //the position of incident event
+    vector<double> *IncidY = new vector<double>;
+    vector<double> *IncidZ = new vector<double>;
+    vector<double> *IncidPX = new vector<double>; //the direction of incident event
+    vector<double> *IncidPY = new vector<double>;
+    vector<double> *IncidPZ = new vector<double>;
+
+    vector<double> *IncidE = new vector<double>;
+    vector<int> *IncidID = new vector<int>;
 
     //count = new vector<int>;
     int N = 0, hitN = 0, pN = 0;
@@ -2083,28 +2353,26 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
         t1->Add(rootlist.at(i));
         cout << "Add rootfile to My chain: " << rootlist.at(i) << endl;
     }
-    sprintf(name, "%s", rootname.Data());
+    t1->SetBranchAddress("PmtS.t", &hitT);
+    t1->SetBranchAddress("PmtS.TOP", &TOPT);
+    t1->SetBranchAddress("PmtS.id", &ID);
+
+    t1->SetBranchAddress("mu.t", &DethitT);
+    t1->SetBranchAddress("mu.x", &IncidX);
+    t1->SetBranchAddress("mu.y", &IncidY);
+    t1->SetBranchAddress("mu.z", &IncidZ);
+    t1->SetBranchAddress("mu.px", &IncidPX);
+    t1->SetBranchAddress("mu.py", &IncidPY);
+    t1->SetBranchAddress("mu.pz", &IncidPZ);
+
+    t1->SetBranchAddress("mu.E", &IncidE);
+    t1->SetBranchAddress("mu.DetID", &IncidID);
+
+    sprintf(name, "%s/%s", filepath.Data(), rootname.Data());
     //sprintf(buff, "%s.root", name);
 
     //TFile *f1 = new TFile(buff, "READ");
     //TTree *t1 = (TTree *)f1->Get("Run");
-
-    // T0 data
-    t1->SetBranchAddress("R380.t", &R380t);
-    t1->SetBranchAddress("R380.TOP", &R380TOP);
-    t1->SetBranchAddress("R380.id", &R380id);
-
-    //mu information
-    t1->SetBranchAddress("mu.t", &mut);
-    t1->SetBranchAddress("mu.x", &mux);
-    t1->SetBranchAddress("mu.y", &muy);
-    t1->SetBranchAddress("mu.z", &muz);
-    t1->SetBranchAddress("mu.px", &mupx);
-    t1->SetBranchAddress("mu.py", &mupy);
-    t1->SetBranchAddress("mu.pz", &mupz);
-
-    t1->SetBranchAddress("mu.E", &muE);
-    t1->SetBranchAddress("mu.DetID", &muDetID);
 
     //sprintf(name,"Thrd_%g",abs(thrd));
 
@@ -2232,6 +2500,7 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
         {
             int Trackers = 0;
 
+            /*
             // Pick up which layer fires
             for (int iLayer = 0; iLayer < IncidX->size(); iLayer++)
             {
@@ -2239,8 +2508,8 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
                     Trackers++;
             }
             if (Trackers >= 2)
-
-            //if (IncidX->size() == TrackerN + DetN)
+            */
+            if (IncidX->size() == TrackerN + DetN)
             {
                 effN++;
 
@@ -2285,11 +2554,14 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
 
                         Detcounter++;
                     }
-                    else if (IncidID->at(i) == 1 || IncidID->at(i) == 2)
+                    //else if (IncidID->at(i) == 1 || IncidID->at(i) == 2)
+                    else if (IncidID->at(i) >= 0 && IncidID->at(i) < 4)
                     {
                         TrackerX[Trackercounter] = IncidX->at(i);
-                        TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
-                        TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
+                        //TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
+                        TrackerY[Trackercounter] = IncidY->at(i);
+                        //TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
+                        TrackerZ[Trackercounter] = IncidZ->at(i);
                         Trackercounter++;
                     }
                 }
@@ -2297,7 +2569,9 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
                 {
 
                     CalX[i] = InX[i];
-                    GetTrackerAngle(Trackercounter, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
+                    RebuildCRAngle2(Trackercounter, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
+                    return;
+                    //GetTrackerAngle(Trackercounter, TrackerX, TrackerY, TrackerZ, &Caltheta, &Calphi, CalX[i], &CalY[i], &CalZ[i]);
                 }
                 for (int iT = 0; iT < T; iT++)
                 {
@@ -2589,15 +2863,40 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
     cout << "\nthe whole time through the procedure is " << totaltime << "s!!" << endl; //delete count;
 }
 #endif
-void GetTimeRes(const char *rootname = "CRY3data")
+void GetTimeRes(const char *rootname = "CRY3data", int force = 0)
 {
     //void MygStyle();
     //MygStyle();
     gStyle->SetOptFit(111);
 
+    vector<double> TT;
+    vector<double> AA;
+    TT.reserve(20e4);
+    AA.reserve(20e4);
+    bool flag = 0;
+
+    sprintf(path, "/mnt/d/Simulation_data/TriggerSys/Debug");
     sprintf(buff, "%s/%s.dat", path, rootname);
-    ofstream out(buff);
-    cout << "===> Create your date file: " << buff << endl;
+    if (!gSystem->AccessPathName(buff) && !force)
+    {
+        ifstream in;
+        in.open(buff);
+        double temp1 = 0, temp2 = 0;
+        while (in && (!in.eof()))
+        {
+
+            in >> temp1 >> temp2;
+            TT.push_back(temp1);
+            AA.push_back(temp2);
+            cout<<"AA="<<AA.back()<<", TT="<<TT.back()<<endl;;
+        }
+        flag = 1;
+    }
+    ofstream out;
+    if (!flag)
+    {out.open(buff);}
+    cout << "===> Create your data file: " << buff << endl;
+    
 
     char name[100];
     char buff[1024];
@@ -2625,8 +2924,46 @@ void GetTimeRes(const char *rootname = "CRY3data")
     const int PMTN = 4; //the number of PMT copyvolume
     const int DetN = 1;
     const int T = PMTN * DetN; //the number of PMT copyvolume
+    int N;
 
-    //---------------------------------------------------//
+    
+
+    TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
+    TH1D *htcor = new TH1D("htcor", ";Time (ns);Counts", bint, tL, tR);
+    TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
+    TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
+    TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
+    TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
+    TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
+    TH1D *hPMTID = new TH1D("hPMTID", ";PMTID;Counts", 4, 0, 4);
+
+    TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
+    TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
+    TH1D *hdz = new TH1D("hdz", ";#Delta#Z (mm);Counts", 2000, -10, 10);
+
+    TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
+    TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
+
+    TH1D *hA = new TH1D("hA", ";reTrack (mm);Counts", 3e3, AL, AR);
+
+    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
+
+    TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
+    TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
+    TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
+
+    
+        //---------------------------------------------------//
+    double Timestamp = 0;
+    double Timestampcor = 0;
+    double TimeSum = 0;
+    double PMTtime = 0;
+    double PMTtimecor = 0;
+    double reTOP = 0;
+    double reTrack = 0;
+    double reTrackSum = 0;
+    double meanreTrack = 0;
+    double CalPx, CalPy, CalPz;
     //***************************************************//
 
     //double RL,RR;
@@ -2634,17 +2971,6 @@ void GetTimeRes(const char *rootname = "CRY3data")
     //int binT = (init_tR-init_tL)/0.5e-12;
     //int binU = (init_UR-init_UL)/1;
 
-    cout << "Start =====>>>>" << endl;
-    //return;
-    //cout<<"<<---- Succeed excuating ---->>"<<endl;
-    //return;
-    //thrd = (s+1)*0.2;
-    sprintf(name, "%s/%s", path, rootname);
-
-    sprintf(buff, "%s.root", name);
-    TFile *f = new TFile(buff, "READ");
-    TTree *t = (TTree *)f->Get("data");
-    cout << "Read rootfile: " << buff << endl;
 
     double T0_1stpe[T] = {0}; // hit time of first pe
     double xT0[T] = {0};      //time stamp of waveform
@@ -2674,6 +3000,19 @@ void GetTimeRes(const char *rootname = "CRY3data")
     double CalY[DetN] = {0};
     double CalZ[DetN] = {0};
 
+if (!flag){
+
+    cout << "Start =====>>>>" << endl;
+    //return;
+    //cout<<"<<---- Succeed excuating ---->>"<<endl;
+    //return;
+    //thrd = (s+1)*0.2;
+    sprintf(name, "%s/%s", path, rootname);
+
+    sprintf(buff, "%s.root", name);
+    TFile *f = new TFile(buff, "READ");
+    TTree *t = (TTree *)f->Get("data");
+    cout << "Read rootfile: " << buff << endl;
     t->SetBranchAddress("CHID", CHID);
     t->SetBranchAddress("NPE", NPE);
     t->SetBranchAddress("U", U); //-mV
@@ -2699,78 +3038,41 @@ void GetTimeRes(const char *rootname = "CRY3data")
     t->SetBranchAddress("CalZ", CalZ); //mm
     t->SetBranchAddress("Caltheta", &Caltheta);
     t->SetBranchAddress("Calphi", &Calphi);
-
-    TH1D *ht = new TH1D("ht", ";Time (ns);Counts", bint, tL, tR);
-    TH1D *htcor = new TH1D("htcor", ";Time (ns);Counts", bint, tL, tR);
-    TH1D *htheta = new TH1D("htheta", ";#theta (rad);Counts", 200, 0, 1.5);
-    TH1D *hphi = new TH1D("hphi", ";#phi (rad);Counts", 200, -3.15, 3.15);
-    TH1D *hdtheta = new TH1D("hdtheta", ";#Delta#theta (rad);Counts", 2000, -1, 1);
-    TH1D *hdphi = new TH1D("hdphi", ";#Delta#phi (rad);Counts", 2000, -1, 1);
-    TH1D *hNPMT = new TH1D("hNPMT", ";Number of Fired PMT;Counts", 5, 0, 5);
-    TH1D *hPMTID = new TH1D("hPMTID", ";PMTID;Counts", 4, 0, 4);
-
-    TH2D *hpos = new TH2D("hpos", ";Y (mm); Z (mm)", 200, -95, 95, 200, -95, 95);
-    TH1D *hdy = new TH1D("hdy", ";#Delta#Y (mm);Counts", 2000, -10, 10);
-    TH1D *hdz = new TH1D("hdz", ";#Delta#Z (mm);Counts", 2000, -10, 10);
-
-    TH2D *hNPE = new TH2D("hNPE", ";PMTID; NPE", 8, 0, 8, 16, -1, 15);
-    TH2D *h2dPMT = new TH2D("h2dPMT", ";Number of Fired PMT;TR (ns)", 5, 0, 5, bint, tL, tR);
-
-    TH1D *hA = new TH1D("hA", ";reTrack (mm);Counts", 3e3, AL, AR);
-
-    TH2D *hAT = new TH2D("hAT", ";reTrack;TR (ns)", 3e3, AL, AR, bint, tL, tR);
-
-    TH1D *htheta_cut = (TH1D *)htheta->Clone("htheta_cut");
-    TH1D *hphi_cut = (TH1D *)hphi->Clone("hphi_cut");
-    TH2D *hpos_cut = (TH2D *)hpos->Clone("hpos_cut");
-
-    int N = t->GetEntries();
+    
+    
+    N = t->GetEntries();
     cout << "Total trigger events is: " << N << endl;
-    double Timestamp = 0;
-    double Timestampcor = 0;
-    double TimeSum = 0;
-    double PMTtime = 0;
-    double PMTtimecor = 0;
-    double reTOP = 0;
-    double reTrack = 0;
-    double reTrackSum = 0;
-    double meanreTrack = 0;
-    double CalPx, CalPy, CalPz;
-    vector<double> TT;
-    vector<double> AA;
-    TT.reserve(20e4);
-    AA.reserve(20e4);
-    //for (int i = 0; i < N; i++)
-    for (int i = 0; i < N; i++)
-    {
-        t->GetEntry(i);
-        hdtheta->Fill(Caltheta - Intheta);
-        hdphi->Fill(Calphi - Inphi);
-        htheta->Fill(Caltheta);
-        hphi->Fill(Calphi);
-        hpos->Fill(InY[0], InZ[0]);
-        hdy->Fill(InY[0] - CalY[0]);
-        hdz->Fill(InZ[0] - CalZ[0]);
-        CalPx = -1 * TMath::Cos(Caltheta);
-        CalPz = TMath::Sin(Caltheta) * TMath::Cos(Calphi);
-        CalPy = TMath::Sin(Caltheta) * TMath::Sin(Calphi);
-        //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
-        //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
-
-        for (int s = 0; s < T; s++)
+        //for (int i = 0; i < N; i++)
+        for (int i = 0; i < N; i++)
         {
+            t->GetEntry(i);
+            hdtheta->Fill(Caltheta - Intheta);
+            hdphi->Fill(Calphi - Inphi);
+            htheta->Fill(Caltheta);
+            hphi->Fill(Calphi);
+            hpos->Fill(InY[0], InZ[0]);
+            hdy->Fill(InY[0] - CalY[0]);
+            hdz->Fill(InZ[0] - CalZ[0]);
+            CalPx = -1 * TMath::Cos(Caltheta);
+            CalPz = TMath::Sin(Caltheta) * TMath::Cos(Calphi);
+            CalPy = TMath::Sin(Caltheta) * TMath::Sin(Calphi);
+            //cout<<CalPx<<"\t"<<CalPy<<"\t"<<CalPz<<"\t"<<endl;
+            //cout<<InPX<<"\t"<<InPY<<"\t"<<InPZ<<"\t"<<endl;
 
-            hNPE->Fill(CHID[s], NPE[s]);
-        }
-        Timestamp = 0;
-        Timestampcor = 0;
-        PMTtime = 0;
-        PMTtimecor = 0;
-        reTrack = 0;
-        reTrackSum = 0;
-        //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
-        int PMTcounter = 0;
-        /*
+            for (int s = 0; s < T; s++)
+            {
+
+                hNPE->Fill(CHID[s], NPE[s]);
+            }
+            Timestamp = 0;
+            Timestampcor = 0;
+            PMTtime = 0;
+            PMTtimecor = 0;
+            reTrack = 0;
+            reTrackSum = 0;
+            //cout<<"U & xT0: "<<U[0]<<"\t"<<xT0[0]<<endl;
+            int PMTcounter = 0;
+            /*
                for (int k = 0; k < PMTN; k++)
                {
                if (U[PMTN + k] < 0 && xT0[PMTN + k] != 0 && U[k] < 0 && xT0[k] != 0)
@@ -2780,28 +3082,37 @@ void GetTimeRes(const char *rootname = "CRY3data")
                }
                }
                */
-        for (int k = 0; k < PMTN; k++)
-        {
-            //int k = 3;
-            if (U[k] < 0 && xT0[k] > 0)
+            for (int k = 0; k < PMTN; k++)
             {
-                //reTOP = RebuildTOP(1.5, InX[0], InY[0], InZ[0], InPX, InPY, InPZ, k + 1);
-                TVector3 Inpos(CalX[0], CalY[0], CalZ[0]);
-                TVector3 Indir(CalPx, CalPy, CalPz);
-                reTrack = RebuildTrack(1.5,Inpos, Indir, k + 1);
-                reTrackSum += reTrack;
-                //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
+                //int k = 3;
+                if (U[k] < 0 && xT0[k] > 0)
+                {
+                    //reTOP = RebuildTOP(1.5, InX[0], InY[0], InZ[0], InPX, InPY, InPZ, k + 1);
+                    TVector3 Inpos(CalX[0], CalY[0], CalZ[0]);
+                    TVector3 Indir(CalPx, CalPy, CalPz);
+                    reTrack = RebuildTrack(1.5, Inpos, Indir, k + 1);
+                cout<<"reTrack:"<<reTrack<<endl;
 
-                PMTtime += xT0[k] - DetT0[0];
-                PMTtimecor += xT0[k] - DetT0[0] - reTrack / 298 * 1.5;
-                //PMTtime = xT0[0] - DetT0[0];
+                    /*
+        cout<<"T0 fit postion: ";
+                Inpos.Print();
+        cout<<"Mu fit direction: ";
+                Indir.Print();
+        if (i>5) return;
+        */
+                    reTrackSum += reTrack;
+                    //cout << "delta TOP" << reTrack / 298 * 1.5 - TOP[0] << endl;
 
-                PMTcounter++;
-                hPMTID->Fill(CHID[k]);
+                    PMTtime += xT0[k] - DetT0[0];
+                    PMTtimecor += xT0[k] - DetT0[0] - reTrack / 298 * 1.5;
+                    //PMTtime = xT0[0] - DetT0[0];
+
+                    PMTcounter++;
+                    hPMTID->Fill(CHID[k]);
+                }
             }
-        }
-        //if (PMTcounter >= 1)    return;
-        /*
+            //if (PMTcounter >= 1)    return;
+            /*
                for (int j = 0; j < DetN; j++)
                {
                int PMTcounter = 0;
@@ -2829,31 +3140,33 @@ void GetTimeRes(const char *rootname = "CRY3data")
             }
             }
             */
-        //FlyTime = (InX[0] - InX[1]) / cos(Caltheta) / 1.e3 / 3.e8 * 1.e9;
-        //Timestamp = PMTtime / PMTcounter - FlyTime;
-        Timestamp = PMTtime / PMTcounter;
-        Timestampcor = PMTtimecor / PMTcounter;
-        meanreTrack = reTrackSum / PMTcounter;
-        hNPMT->Fill(PMTcounter);
-        h2dPMT->Fill(PMTcounter, Timestamp);
+            //FlyTime = (InX[0] - InX[1]) / cos(Caltheta) / 1.e3 / 3.e8 * 1.e9;
+            //Timestamp = PMTtime / PMTcounter - FlyTime;
+            Timestamp = PMTtime / PMTcounter;
+            Timestampcor = PMTtimecor / PMTcounter;
+            meanreTrack = reTrackSum / PMTcounter;
+            hNPMT->Fill(PMTcounter);
+            h2dPMT->Fill(PMTcounter, Timestamp);
 
-        //cout<<"FlyTime"<<FlyTime<<endl;
-        if (PMTcounter == 4)
-        {
-            TT.push_back(Timestampcor);
-            //AA.push_back(reTrack);
-            AA.push_back(meanreTrack);
-
-            //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
-            //cout << "timestamp: " << Timestamp << endl;
-            //cout << "Timestamp: " << Timestamp << endl;
-            //ht->Fill(Timestamp);
-            htcor->Fill(Timestamp);
-            htheta_cut->Fill(Caltheta);
-            hphi_cut->Fill(Calphi);
-            hpos_cut->Fill(InY[0], InZ[0]);
-        }
-        /*
+            //cout<<"FlyTime"<<FlyTime<<endl;
+            if (PMTcounter == 4)
+            {
+                return;
+                TT.push_back(Timestamp);
+                //TT.push_back(Timestampcor);
+                //AA.push_back(reTrack);
+                AA.push_back(meanreTrack);
+                if(out.is_open()) out << TT.back() << "\t" << AA.back() << endl;
+                //cout << "DetTime[1]" << DetTime[1] << "\t" << DetTime[0] << endl;
+                //cout << "timestamp: " << Timestamp << endl;
+                //cout << "Timestamp: " << Timestamp << endl;
+                //ht->Fill(Timestamp);
+                htcor->Fill(Timestamp);
+                htheta_cut->Fill(Caltheta);
+                hphi_cut->Fill(Calphi);
+                hpos_cut->Fill(InY[0], InZ[0]);
+            }
+            /*
                if (DetTime[1] > 0 && DetTime[0] > 0)
                {
 
@@ -2866,7 +3179,9 @@ void GetTimeRes(const char *rootname = "CRY3data")
             hpos_cut->Fill(InY[0],InZ[0]);
             }
             */
-    }
+        }
+}
+    
     TCanvas *c;
     int CNum = 0;
     TF1 *fit;
@@ -2876,30 +3191,7 @@ void GetTimeRes(const char *rootname = "CRY3data")
     char pngprefix[100];
     sprintf(pngprefix, "%s/%s", path, rootname);
 
-    //
-    // ---------draw efficiency of PMT--------//
-    //
-    double PMTEff[4];
-    c = cdC(CNum++);
-    DrawMyHist(hPMTID, "", "", 1, 2);
-    //ht->Rebin(2);
-    hPMTID->Draw();
-    hPMTID->GetXaxis()->SetNdivisions(505);
-    for (int i = 0; i < 4; i++)
-    {
-
-        PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
-        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
-        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
-        la->Draw("same");
-    }
-    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
-    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
-    //la = DrawMyLatex(buff, 0.2, 0.4);
-    sprintf(buff, "%sPMTID.png", pngprefix);
-    c->SaveAs(buff);
-    //return;
-
+/*
     //
     // ---------draw Time Res --------//
     //
@@ -2920,8 +3212,9 @@ void GetTimeRes(const char *rootname = "CRY3data")
     la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%sTimeRes.png", pngprefix);
     c->SaveAs(buff);
-    //return;
 
+    //return;
+*/
     //
     // ---------draw track vs TR --------//
     //
@@ -3031,6 +3324,30 @@ void GetTimeRes(const char *rootname = "CRY3data")
     //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
     //la = DrawMyLatex(buff, 0.2, 0.4);
     sprintf(buff, "%shAT.png", pngprefix);
+    c->SaveAs(buff);
+    return;
+
+    //
+    // ---------draw efficiency of PMT--------//
+    //
+    double PMTEff[4];
+    c = cdC(CNum++);
+    DrawMyHist(hPMTID, "", "", 1, 2);
+    //ht->Rebin(2);
+    hPMTID->Draw();
+    hPMTID->GetXaxis()->SetNdivisions(505);
+    for (int i = 0; i < 4; i++)
+    {
+
+        PMTEff[i] = hPMTID->GetBinContent(hPMTID->FindBin(i)) / N;
+        sprintf(buff, "NPMT=%d,Eff=%.1f%%", i, PMTEff[i] * 100);
+        la = DrawMyLatex(buff, 0.3, 0.4 + 0.1 * i, 42, 0.06);
+        la->Draw("same");
+    }
+    //fit = gausfit(ht, 20e-3, 3, 3, 1, tL, tR);
+    //sprintf(buff, "TR=%.0fps", fit->GetParameter(2) * 1e3);
+    //la = DrawMyLatex(buff, 0.2, 0.4);
+    sprintf(buff, "%sPMTID.png", pngprefix);
     c->SaveAs(buff);
     //return;
 

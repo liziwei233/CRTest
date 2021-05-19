@@ -93,7 +93,15 @@
 			"field_desc": "cpp",
 			"wcsv_ntuple": "cpp",
 			"bufobj": "cpp",
-			"mesh": "cpp"
+			"mesh": "cpp",
+			"DircRecSvc.C": "cpp",
+			"LUT.C": "cpp",
+			"DircData.C": "cpp",
+			"DircRec.C": "cpp",
+			"DircSep.C": "cpp",
+			"DircRecAlg.C": "cpp",
+			"branch_element": "cpp",
+			"file": "cpp"
 		}
 	}
 }
