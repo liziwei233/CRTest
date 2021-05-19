@@ -1406,18 +1406,18 @@ void RebuildData(TString input = "../build")
     }
 
     // Declaration of leaf types
-    vector<int> *PmtS_count = 0;
-    vector<int> *PmtS_id = 0;
-    vector<double> *PmtS_E = 0;
-    vector<double> *PmtS_t = 0;
-    vector<double> *PmtS_TOP = 0;
-    vector<double> *PmtS_x = 0;
-    vector<double> *PmtS_y = 0;
-    vector<double> *PmtS_z = 0;
-    vector<double> *PmtS_px = 0;
-    vector<double> *PmtS_py = 0;
-    vector<double> *PmtS_pz = 0;
-    vector<int> *PmtS_trackID = 0;
+    vector<int> *R380_count = 0;
+    vector<int> *R380_id = 0;
+    vector<double> *R380_E = 0;
+    vector<double> *R380_t = 0;
+    vector<double> *R380_TOP = 0;
+    vector<double> *R380_x = 0;
+    vector<double> *R380_y = 0;
+    vector<double> *R380_z = 0;
+    vector<double> *R380_px = 0;
+    vector<double> *R380_py = 0;
+    vector<double> *R380_pz = 0;
+    vector<int> *R380_trackID = 0;
     vector<int> *R107_count = 0;
     vector<int> *R107_id = 0;
     vector<double> *R107_E = 0;
@@ -1443,18 +1443,18 @@ void RebuildData(TString input = "../build")
     vector<int> *mu_DetID = 0;
 
     // List of branches
-    TBranch *b_PmtS_count;   //!
-    TBranch *b_PmtS_id;      //!
-    TBranch *b_PmtS_E;       //!
-    TBranch *b_PmtS_t;       //!
-    TBranch *b_PmtS_TOP;     //!
-    TBranch *b_PmtS_x;       //!
-    TBranch *b_PmtS_y;       //!
-    TBranch *b_PmtS_z;       //!
-    TBranch *b_PmtS_px;      //!
-    TBranch *b_PmtS_py;      //!
-    TBranch *b_PmtS_pz;      //!
-    TBranch *b_PmtS_trackID; //!
+    TBranch *b_R380_count;   //!
+    TBranch *b_R380_id;      //!
+    TBranch *b_R380_E;       //!
+    TBranch *b_R380_t;       //!
+    TBranch *b_R380_TOP;     //!
+    TBranch *b_R380_x;       //!
+    TBranch *b_R380_y;       //!
+    TBranch *b_R380_z;       //!
+    TBranch *b_R380_px;      //!
+    TBranch *b_R380_py;      //!
+    TBranch *b_R380_pz;      //!
+    TBranch *b_R380_trackID; //!
     TBranch *b_R107_count;   //!
     TBranch *b_R107_id;      //!
     TBranch *b_R107_E;       //!
@@ -1479,18 +1479,18 @@ void RebuildData(TString input = "../build")
     TBranch *b_mu_pz;        //!
     TBranch *b_mu_DetID;     //!
     t1->SetMakeClass(1);
-    t1->SetBranchAddress("PmtS.count", &PmtS_count, &b_PmtS_count);
-    t1->SetBranchAddress("PmtS.id", &PmtS_id, &b_PmtS_id);
-    t1->SetBranchAddress("PmtS.E", &PmtS_E, &b_PmtS_E);
-    t1->SetBranchAddress("PmtS.t", &PmtS_t, &b_PmtS_t);
-    t1->SetBranchAddress("PmtS.TOP", &PmtS_TOP, &b_PmtS_TOP);
-    t1->SetBranchAddress("PmtS.x", &PmtS_x, &b_PmtS_x);
-    t1->SetBranchAddress("PmtS.y", &PmtS_y, &b_PmtS_y);
-    t1->SetBranchAddress("PmtS.z", &PmtS_z, &b_PmtS_z);
-    t1->SetBranchAddress("PmtS.px", &PmtS_px, &b_PmtS_px);
-    t1->SetBranchAddress("PmtS.py", &PmtS_py, &b_PmtS_py);
-    t1->SetBranchAddress("PmtS.pz", &PmtS_pz, &b_PmtS_pz);
-    t1->SetBranchAddress("PmtS.trackID", &PmtS_trackID, &b_PmtS_trackID);
+    t1->SetBranchAddress("R380.count", &R380_count, &b_R380_count);
+    t1->SetBranchAddress("R380.id", &R380_id, &b_R380_id);
+    t1->SetBranchAddress("R380.E", &R380_E, &b_R380_E);
+    t1->SetBranchAddress("R380.t", &R380_t, &b_R380_t);
+    t1->SetBranchAddress("R380.TOP", &R380_TOP, &b_R380_TOP);
+    t1->SetBranchAddress("R380.x", &R380_x, &b_R380_x);
+    t1->SetBranchAddress("R380.y", &R380_y, &b_R380_y);
+    t1->SetBranchAddress("R380.z", &R380_z, &b_R380_z);
+    t1->SetBranchAddress("R380.px", &R380_px, &b_R380_px);
+    t1->SetBranchAddress("R380.py", &R380_py, &b_R380_py);
+    t1->SetBranchAddress("R380.pz", &R380_pz, &b_R380_pz);
+    t1->SetBranchAddress("R380.trackID", &R380_trackID, &b_R380_trackID);
     t1->SetBranchAddress("R107.count", &R107_count, &b_R107_count);
     t1->SetBranchAddress("R107.id", &R107_id, &b_R107_id);
     t1->SetBranchAddress("R107.E", &R107_E, &b_R107_E);
@@ -1573,7 +1573,7 @@ void RebuildData(TString input = "../build")
         //    cout << "The Entry No: " << iEvent << endl;
 
         t1->GetEntry(iEvent);
-        if (!mu_DetID->size() || !PmtS_id->size())
+        if (!mu_DetID->size() || !R380_id->size())
             continue;
         for (int ihitdet = 0; ihitdet < mu_DetID->size(); ihitdet++)
         {
@@ -1598,14 +1598,14 @@ void RebuildData(TString input = "../build")
                 T0pos.y = mu_y->at(ihitdet);
                 T0pos.z = mu_z->at(ihitdet);
 
-                for (int iT0hit = 0; iT0hit < PmtS_id->size(); iT0hit++)
+                for (int iT0hit = 0; iT0hit < R380_id->size(); iT0hit++)
                 {
-                    T0photon.id.push_back(PmtS_id->at(iT0hit));
-                    T0photon.t.push_back(PmtS_t->at(iT0hit));
-                    T0photon.x.push_back(PmtS_x->at(iT0hit));
-                    T0photon.y.push_back(PmtS_y->at(iT0hit));
-                    T0photon.z.push_back(PmtS_z->at(iT0hit));
-                    T0photon.TOP.push_back(PmtS_TOP->at(iT0hit));
+                    T0photon.id.push_back(R380_id->at(iT0hit));
+                    T0photon.t.push_back(R380_t->at(iT0hit));
+                    T0photon.x.push_back(R380_x->at(iT0hit));
+                    T0photon.y.push_back(R380_y->at(iT0hit));
+                    T0photon.z.push_back(R380_z->at(iT0hit));
+                    T0photon.TOP.push_back(R380_TOP->at(iT0hit));
                 }
             }
             if (theID == 200)
