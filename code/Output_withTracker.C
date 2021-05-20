@@ -436,6 +436,13 @@ double remainder(double A, int r)
     int n = int(A) / r;
     return A - n * r;
 }
+void swap(double &a, double &b)
+{
+    double temp=0;
+    temp = a;
+    a = b;
+    b = temp;
+}
 //double RebuildTrack(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
 double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
 {
@@ -455,10 +462,9 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
     double detpos= detPosX[T0];
-    //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     double Ax0, Ay0, Az0;
     double px, py, pz;
-    double swap;
+    //double swap;
     if (ID == 1 || ID == 3)
     {
         Az0 = -1 * (ID - 2) * 90;
@@ -476,9 +482,10 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         px = InPx;
         py = InPz;
         pz = -1 * (ID - 3) * InPy;
-        swap = Iny;
-        Iny = Inz;
-        Inz = swap;
+        swap(Iny,Inz);
+        //swap = Iny;
+        //Iny = Inz;
+        //Inz = swap;
     }
     double thetaC = TMath::ACos(1 / np);
     double theta = TMath::ACos(pz/TMath::Sqrt(px*px+py*py+pz*pz)); //angle between momentum direction of mu and z axis;
@@ -496,6 +503,9 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     //Ax = Inx + dx - detpos;
     Ax = dx;
     Ay = Iny + dy;
+if (ID == 2 || ID == 4) swap(Ay,Az);
+    cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
+    cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
     //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
     //return sqrt(dx * dx + dy * dy + dz * dz);
     return sqrt(Ax * Ax + Ay * Ay + Az * Az);
@@ -1852,8 +1862,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             if (fdata->T0elefittot[j] > 0&&fdata->T0elefittime[0][j]<2.5)
             {
                 //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
-                //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
-                reTrack = sqrt(fdata->T0detRBy*fdata->T0detRBy+fdata->T0detRBz*fdata->T0detRBz);
+                reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
+                //reTrack = sqrt(fdata->T0detRBy*fdata->T0detRBy+fdata->T0detRBz*fdata->T0detRBz);
 
                 //cout<<"reTrack:"<<reTrack<<endl;
                 reTrackSum += reTrack;
