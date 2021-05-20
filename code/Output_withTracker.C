@@ -13,6 +13,7 @@
 #include "TVector3.h"
 #include "TFile.h"
 #include "CRsysRBData.h"
+#include <map>
 using namespace std;
 
 TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
@@ -23,17 +24,17 @@ double possigma = 200e-3; //unit:mm Tracker postion resolution
 
 //** hist parameters
 double tL = -2.;
-double tR = 2.;
+double tR = 3.;
 double AL = 0;
-//double AR = 600;
 double AR = 300;
+//double AR = 300;
 double uL = -1e3;
 double uR = 0;
 int bint = (tR - tL) / 0.5e-3;
 int binu = (uR - uL) / 30;
 //int rbA = 10;
-int rbA = 5;
-int rbt = 12;
+int rbA = 10;
+int rbt = 4;
 int rbu = 1;
 
 // ** build data structure
@@ -159,7 +160,22 @@ enum
     PS0id = 300,
     PS1id = 301,
 } DetectorID;
-char detName[8][10] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
+enum
+{
+    MM0 = 0,
+    MM1 = 1,
+    MM2 = 2,
+    MM3 = 3,
+    T0 = 4,
+    FTOF = 5,
+    PS0 = 6,
+    PS1 = 7,
+} DetectorIndex;
+//char detName[8][10] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
+string detName[8] = {"MM0", "MM1", "MM2", "MM3", "T0", "FTOF", "PS0", "PS1"};
+
+
+double detPosX[8] = {582, 538, -120, -164, 320, 26,694, -478};
 int TrackerN = 4;
 int TriggerN = 2;
 
@@ -438,7 +454,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         return sqrt(Ox * Ox + Oy * Oy + Oz * Oz);
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
-
+    double detpos= detPosX[T0];
     //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     double Ax0, Ay0, Az0;
     double px, py, pz;
@@ -446,7 +462,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     if (ID == 1 || ID == 3)
     {
         Az0 = -1 * (ID - 2) * 90;
-        Ax0 = 0;
+        Ax0 = detpos;
         Ay0 = 0;
         px = InPx;
         py = InPy;
@@ -455,7 +471,7 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     if (ID == 2 || ID == 4)
     {
         Az0 = -1 * (ID - 3) * 90;
-        Ax0 = 0;
+        Ax0 = detpos;
         Ay0 = 0;
         px = InPx;
         py = InPz;
@@ -471,12 +487,17 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     Az = Az0;
     double dx, dy, dz;
     dz = Az0 - Inz;
+    //return TMath::Abs(dz/TMath::Cos(theta - thetaC));
+
     double Rdxdy;
     Rdxdy = dz * TMath::Tan(theta - thetaC);
     dx = Rdxdy / sqrt(px * px + py * py) * px;
     dy = Rdxdy / sqrt(px * px + py * py) * py;
-    Ax = Inx + dx;
+    //Ax = Inx + dx - detpos;
+    Ax = dx;
     Ay = Iny + dy;
+    //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
+    //return sqrt(dx * dx + dy * dy + dz * dz);
     return sqrt(Ax * Ax + Ay * Ay + Az * Az);
 
     //return -1;
@@ -1811,8 +1832,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     {
         //data = CRsysRBData();
         t->GetEntry(i);
-        //if (fdata->T0detRBy == -999 || fdata->CRRBtheta == -999)
-        //    continue;
+        if (fdata->T0detRBy == -999 || fdata->CRRBtheta == -999)
+            continue;
         //return;
         validcnt++;
         reTrackSum = 0;
@@ -1827,7 +1848,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         TVector3 Mufitdir(-1*fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
         for (int j = 0; j < fdata->T0eleid.size(); j++)
         {
-            if (fdata->T0elefittot[j] > 0)
+            if (fdata->T0elefittot[j] > 0&&fdata->T0elefittime[0][j]<2.5)
             {
                 reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
 
@@ -1848,15 +1869,16 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         //cout<<"id size="<<fdata->T0eleid.size()<<endl;
         //cout<<"PMTcounter="<<PMTcounter<<endl;
         //if(T0time[1]!=0&&T0time[3]!=0){
-        if (PMTcounter == 4)
+        if (PMTcounter==4)
         {
             //return;
-            //Timestamp = T0time[1]-T0time[3];
-            //Timestampcor = T0timecor[1]-T0timecor[3];
-             //meanreTrack =  T0reTrack[3];
+            //Timestamp = T0time[0]-T0time[2];
+            //Timestampcor = T0timecor[0];
+            //meanreTrack =  T0reTrack[0];
             //meanreTrack =  T0reTrack[0];
             Timestamp = PMTtime / PMTcounter;
             Timestampcor = PMTtimecor / PMTcounter;
+            //meanreTrack = T0reTrack[0];
             meanreTrack = reTrackSum / PMTcounter;
             //cout<<"PMTcounter:"<<PMTcounter<<endl;
             //cout<<"Timestamp:"<<Timestamp<<endl;
@@ -1868,7 +1890,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             //if (PMTcounter ==2)
             //{
             //TT.push_back(Timestampcor);
-            TT.push_back(Timestampcor);
+            TT.push_back(Timestamp);
             //AA.push_back(reTrack);
             AA.push_back(meanreTrack);
             out << TT.back() << "\t" << AA.back() << endl;
