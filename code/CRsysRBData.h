@@ -20,13 +20,15 @@ public:
     double T0detRBz;
 
     // *** T0 rebuild signal
-    vector<int> T0eleid; // mV
-    vector<double> T0elethrd; // mV
-    vector<double> T0eleU;    //amplitude
-    vector<double> T0eletot;
-    vector<double> T0elethtime[2]; // 0-of leading edge, 1-of falling edge
-    vector<double> T0elefittot;
-    vector<double> T0elefittime[2];
+    int T0eleid[4];      // mV
+    double T0elethrd[4]; // mV
+    double T0eleU[4];    //amplitude
+    double T0eletot[4];
+    double T0elethtime1[4]; // 0-of leading edge, 1-of falling edge
+    double T0elethtime2[4]; // 0-of leading edge, 1-of falling edge
+    double T0elefittot[4];
+    double T0elefittime1[4];
+    double T0elefittime2[4];
 
     // *** FTOF hitted by muon
     double FTOFdetRBx;
@@ -34,13 +36,15 @@ public:
     double FTOFdetRBz;
 
     // *** FTOF rebuild signal
-    vector<int> FTOFeleid; // mV
-    vector<double> FTOFelethrd; // mV
-    vector<double> FTOFeleU;    //amplitude
-    vector<double> FTOFeletot;
-    vector<double> FTOFelethtime[2]; // 0-of leading edge, 1-of falling edge
-    vector<double> FTOFelefittot;
-    vector<double> FTOFelefittime[2];
+    int FTOFeleid[128];      // mV
+    double FTOFelethrd[128]; // mV
+    double FTOFeleU[128];    //amplitude
+    double FTOFeletot[128];
+    double FTOFelethtime1[128]; // 0-of leading edge, 1-of falling edge
+    double FTOFelethtime2[128]; // 0-of leading edge, 1-of falling edge
+    double FTOFelefittot[128];
+    double FTOFelefittime1[128];
+    double FTOFelefittime2[128];
 
     //for CR
 
@@ -59,32 +63,36 @@ public:
         T0detRBz = -999;
 
         // *** T0 rebuild signal
-    vector<int>().swap(T0eleid); // mV
-    vector<double>().swap(T0elethrd); // mV
-    vector<double>().swap(T0eleU);    //amplitude
-    vector<double>().swap(T0eletot);
-    vector<double>().swap(T0elethtime[0]); // 0-of leading edge, 1-of falling edge
-    vector<double>().swap(T0elethtime[1]); // 0-of leading edge, 1-of falling edge
-    vector<double>().swap(T0elefittot);
-    vector<double>().swap(T0elefittime[0]);
-    vector<double>().swap(T0elefittime[1]);
+        for (int i = 0; i < 4; i++)
+        {
+            T0eleid[i] = -999;   // mV
+            T0elethrd[i] = -999; // mV
+            T0eleU[i] = -999;    //amplitude
+            T0eletot[i] = -999;
+            T0elethtime1[i] = -999; // 0-of leading edge, 1-of falling edge
+            T0elethtime2[i] = -999; // 0-of leading edge, 1-of falling edge
+            T0elefittot[i] = -999;
+            T0elefittime1[i] = -999;
+            T0elefittime2[i] = -999;
+        }
 
-        
+        for (int i = 0; i < 128; i++)
+        {
+
+            FTOFeleid[i] = -999;   // mV
+            FTOFelethrd[i] = -999; // mV
+            FTOFeleU[i] = -999;    //amplitude
+            FTOFeletot[i] = -999;
+            FTOFelethtime1[i] = -999; // 0-of leading edge, 1-of falling edge
+            FTOFelethtime2[i] = -999; // 0-of leading edge, 1-of falling edge
+            FTOFelefittot[i] = -999;
+            FTOFelefittime1[i] = -999;
+            FTOFelefittime2[i] = -999;
+        }
 
         FTOFdetRBx = -999;
         FTOFdetRBy = -999;
         FTOFdetRBz = -999;
-
-             // *** FTOF rebuild signal
-    vector<int>().swap(FTOFeleid); // mV
-    vector<double>().swap(FTOFelethrd); // mV
-    vector<double>().swap(FTOFeleU);    //amplitude
-    vector<double>().swap(FTOFeletot);
-    vector<double>().swap(FTOFelethtime[0]); // 0-of leading edge, 1-of falling edge
-    vector<double>().swap(FTOFelethtime[1]); // 0-of leading edge, 1-of falling edge
-    vector<double>().swap(FTOFelefittot);
-    vector<double>().swap(FTOFelefittime[0]);
-    vector<double>().swap(FTOFelefittime[1]);
 
         //for CR
 

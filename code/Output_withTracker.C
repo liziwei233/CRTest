@@ -65,37 +65,43 @@ struct CRTimeData
 // Ele time:id, thrd, U, tot,thtime[2],fittot,fittime[2]
 struct EleTimeData
 {
-    vector<int> id;      // channel id
-    vector<double> thrd; // mV
-    vector<double> U;    //amplitude
-    vector<double> tot;
-    vector<double> thtime[2]; // 0-of leading edge, 1-of falling edge
-    vector<double> fittot;
-    vector<double> fittime[2];
+    int id[128];      // mV
+    double thrd[128]; // mV
+    double U[128];    //amplitude
+    double tot[128];
+    double thtime1[128]; // 0-of leading edge, 1-of falling edge
+    double thtime2[128]; // 0-of leading edge, 1-of falling edge
+    double fittot[128];
+    double fittime1[128];
+    double fittime2[128];
     void Initial()
     {
-        vector<int>().swap(id);      // mV
-        vector<double>().swap(thrd); // mV
-        vector<double>().swap(U);    //amplitude
-        vector<double>().swap(tot);
-        vector<double>().swap(thtime[0]); // 0-of leading edge, 1-of falling edge
-        vector<double>().swap(thtime[1]); // 0-of leading edge, 1-of falling edge
-        vector<double>().swap(fittot);
-        vector<double>().swap(fittime[0]);
-        vector<double>().swap(fittime[1]);
+        for (int i = 0; i < 128; i++)
+        {
+
+            id[i] = -999;   // mV
+            thrd[i] = -999; // mV
+            U[i] = -999;    //amplitude
+            tot[i] = -999;
+            thtime1[i] = -999; // 0-of leading edge, 1-of falling edge
+            thtime2[i] = -999; // 0-of leading edge, 1-of falling edge
+            fittot[i] = -999;
+            fittime1[i] = -999;
+            fittime2[i] = -999;
+        }
     }
     void Print()
     {
-        for (int i = 0; i < id.size(); i++)
+        for (int i = 0; i < 128; i++)
         {
-
+            if(id[i]==-999) continue;
             cout << "id=" << id[i] << endl;
             cout << "thrd=" << thrd[i] << endl;
             cout << "U=" << U[i] << endl;
             cout << "tot=" << tot[i] << endl;
-            cout << "thtime=" << thtime[0][i] << "," << thtime[1][i] << endl;
+            cout << "thtime=" << thtime1[i] << "," << thtime2[i] << endl;
             cout << "fittot=" << fittot[i] << endl;
-            cout << "fittime=" << fittime[0][i] << "," << fittime[1][i] << endl;
+            cout << "fittime=" << fittime1[i] << "," << fittime2[i] << endl;
         }
     }
 };
@@ -1656,8 +1662,8 @@ void RebuildData(TString input = "../build")
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
         }
 
-        //if (triggervec.size() == 2)
-        if (mu_DetID->size() >= TrackerN + 4)
+        if (triggervec.size() == 2)
+        //if (mu_DetID->size() >= TrackerN + 4)
         {
             T0photonvec.push_back(T0photon);
             FTOFphotonvec.push_back(FTOFphoton);
@@ -1705,7 +1711,7 @@ void RebuildData(TString input = "../build")
             data.FTOFdety = FTOFpos.y;
             data.FTOFdetz = FTOFpos.z;
             data.FTOFdett = FTOFpos.t;
-            for (int iMM = 0; iMM < 4; iMM++)
+            for (int iMM = 0; iMM < Trackerpos->size(); iMM++)
             {
 
                 data.Trackerdetx[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).x;
@@ -1723,25 +1729,31 @@ void RebuildData(TString input = "../build")
             data.T0detRBy = RBT0pos.y;
             data.T0detRBz = RBT0pos.z;
 
-            data.T0eleid = T0Ele.id;
-            data.T0elethrd = T0Ele.thrd;
-            data.T0eleU = T0Ele.U;
-            data.T0eletot = T0Ele.tot;
-            data.T0elethtime[0] = T0Ele.thtime[0];
-            data.T0elethtime[1] = T0Ele.thtime[1];
-            data.T0elefittot = T0Ele.fittot;
-            data.T0elefittime[0] = T0Ele.fittime[0];
-            data.T0elefittime[1] = T0Ele.fittime[1];
+            for(int i =0; i<4; i++){
 
-            data.FTOFeleid = FTOFEle.id;
-            data.FTOFelethrd = FTOFEle.thrd;
-            data.FTOFeleU = FTOFEle.U;
-            data.FTOFeletot = FTOFEle.tot;
-            data.FTOFelethtime[0] = FTOFEle.thtime[0];
-            data.FTOFelethtime[1] = FTOFEle.thtime[1];
-            data.FTOFelefittot = FTOFEle.fittot;
-            data.FTOFelefittime[0] = FTOFEle.fittime[0];
-            data.FTOFelefittime[1] = FTOFEle.fittime[1];
+            data.T0eleid[i] = T0Ele.id[i];
+            data.T0elethrd[i] = T0Ele.thrd[i];
+            data.T0eleU[i] = T0Ele.U[i];
+            data.T0eletot[i] = T0Ele.tot[i];
+            data.T0elethtime1[i] = T0Ele.thtime1[i];
+            data.T0elethtime2[i] = T0Ele.thtime2[i];
+            data.T0elefittot[i] = T0Ele.fittot[i];
+            data.T0elefittime1[i] = T0Ele.fittime1[i];
+            data.T0elefittime2[i] = T0Ele.fittime2[i];
+            }
+for(int i =0; i<128; i++){
+
+            data.FTOFeleid[i] = FTOFEle.id[i];
+            data.FTOFelethrd[i] = FTOFEle.thrd[i];
+            data.FTOFeleU[i] = FTOFEle.U[i];
+            data.FTOFeletot[i] = FTOFEle.tot[i];
+            data.FTOFelethtime1[i] = FTOFEle.thtime1[i];
+            data.FTOFelethtime2[i] = FTOFEle.thtime2[i];
+            data.FTOFelefittot[i] = FTOFEle.fittot[i];
+            data.FTOFelefittime1[i] = FTOFEle.fittime1[i];
+            data.FTOFelefittime2[i] = FTOFEle.fittime2[i];
+            }
+            
 
             data.CRRBpx = RBMudata.px;
             data.CRRBpy = RBMudata.py;
@@ -1846,9 +1858,10 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         PMTcounter = 0;
         TVector3 T0fitpos(fdata->T0detRBx, fdata->T0detRBy, fdata->T0detRBz);
         TVector3 Mufitdir(-1*fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
-        for (int j = 0; j < fdata->T0eleid.size(); j++)
+        for (int j = 0; j < 4; j++)
         {
-            if (fdata->T0elefittot[j] > 0&&fdata->T0elefittime[0][j]<2.5)
+            //if (fdata->T0elefittot[j] > 0&&fdata->T0elefittime[0][j]<2.5)
+            if (fdata->T0elefittot[j] > 0)
             {
                 reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
 
@@ -1858,10 +1871,10 @@ void RebuildT0(TString input = "../data.root", int force = 0)
                 // * substract start time
                 //PMTtime += T0Eledata[j].thtime[0]-T0posvec[i].t ;
                 //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0posvec[i].t ;
-                T0time[fdata->T0eleid[j]] = fdata->T0elefittime[0][j];
-                PMTtime += fdata->T0elefittime[0][j] - fdata->T0dett;
-                PMTtimecor += fdata->T0elefittime[0][j] - fdata->T0dett - reTrack / 298 * 1.5;
-                T0timecor[fdata->T0eleid[j]] = fdata->T0elefittime[0][j] - reTrack / 298 * 1.5;
+                T0time[fdata->T0eleid[j]] = fdata->T0elefittime1[j];
+                PMTtime += fdata->T0elefittime1[j] - fdata->T0dett;
+                PMTtimecor += fdata->T0elefittime1[j] - fdata->T0dett - reTrack / 298 * 1.5;
+                T0timecor[fdata->T0eleid[j]] = fdata->T0elefittime1[j] - reTrack / 298 * 1.5;
                 PMTcounter++;
                 //hPMTID->Fill(fdata->T0eleid[j]);
             }
@@ -1869,17 +1882,17 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         //cout<<"id size="<<fdata->T0eleid.size()<<endl;
         //cout<<"PMTcounter="<<PMTcounter<<endl;
         //if(T0time[1]!=0&&T0time[3]!=0){
-        if (PMTcounter==4)
+        if (T0time[0]!=0&&T0time[1]!=0&&T0time[2]!=0)
         {
             //return;
-            //Timestamp = T0time[0]-T0time[2];
-            //Timestampcor = T0timecor[0];
+            Timestamp = T0time[0]-T0time[2];
+            Timestampcor = T0timecor[0];
+            meanreTrack =  T0reTrack[0];
             //meanreTrack =  T0reTrack[0];
-            //meanreTrack =  T0reTrack[0];
-            Timestamp = PMTtime / PMTcounter;
-            Timestampcor = PMTtimecor / PMTcounter;
+            //Timestamp = PMTtime / PMTcounter;
+            //Timestampcor = PMTtimecor / PMTcounter;
             //meanreTrack = T0reTrack[0];
-            meanreTrack = reTrackSum / PMTcounter;
+            //meanreTrack = reTrackSum / PMTcounter;
             //cout<<"PMTcounter:"<<PMTcounter<<endl;
             //cout<<"Timestamp:"<<Timestamp<<endl;
             //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
@@ -2048,15 +2061,15 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
         }
         fittot = fittime[1] - fittime[0];
 
-        T0Eledata.id.push_back(s);
-        T0Eledata.thrd.push_back(thrd);
-        T0Eledata.U.push_back(U);
-        T0Eledata.tot.push_back(tot);
-        T0Eledata.fittot.push_back(fittot);
-        T0Eledata.fittime[0].push_back(fittime[0]);
-        T0Eledata.fittime[1].push_back(fittime[1]);
-        T0Eledata.thtime[0].push_back(thtime[0]);
-        T0Eledata.thtime[1].push_back(thtime[1]);
+        T0Eledata.id[s] = s;
+        T0Eledata.thrd[s] = thrd;
+        T0Eledata.U[s] = U;
+        T0Eledata.tot[s] = tot;
+        T0Eledata.fittot[s] = fittot;
+        T0Eledata.fittime1[s] = fittime[0];
+        T0Eledata.fittime2[s] = fittime[1];
+        T0Eledata.thtime1[s] = thtime[0];
+        T0Eledata.thtime2[s] = thtime[1];
     }
 };
 //double RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, TVector3 &fitpos)

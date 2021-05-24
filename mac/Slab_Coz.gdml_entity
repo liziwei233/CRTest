@@ -41,7 +41,7 @@
         <volumeref ref="R10754_anode" />
         <position unit="mm" x="-R10754_sensor_T/2+SOZ+R10754_window_T+R10754_anode_T/2" />
         <position unit="mm"
-        y="-R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*anodey[ianode+1]" />
+        y="-1*(-R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*anodey[ianode+1])" />
         <position unit="mm"
         z="-R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*anodez[ianode+1]" />
       </physvol>
@@ -79,7 +79,7 @@
       
 
       <position unit="mm" x="FTOF_detectorX/2-R10754_sensor_T/2" />
-      <position unit="mm" y="-(R10754_sensorN-1)/2*(R10754_sensor_L+R10754_interval_L)+(R10754_sensor_L+R10754_interval_L)*iR10754_sensor" />
+      <position unit="mm" y="-1*(-(R10754_sensorN-1)/2*(R10754_sensor_L+R10754_interval_L)+(R10754_sensor_L+R10754_interval_L)*iR10754_sensor)" />
       <position unit="mm" z="FTOF_mediumZ/2-R10754_sensor_L/2" />
     </physvol>
 

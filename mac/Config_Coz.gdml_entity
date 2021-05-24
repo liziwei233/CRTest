@@ -130,7 +130,7 @@
 <matrix name="anodey" coldim="1" values="0 0 0 0 1 1 1 1 2 2 2 2 3 3 3 3" />
 <matrix name="anodez" coldim="1" values="0 1 2 3 0 1 2 3 0 1 2 3 0 1 2 3" />
 <variable name="iR10754_sensor" value="0" />
-<constant name="R10754_sensorN" value="8" />
+<constant name="R10754_sensorN" value="6" />
 
 
 <variable name="iSiPM" value="0" />
