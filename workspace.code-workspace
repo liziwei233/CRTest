@@ -9,6 +9,7 @@
 			"*.gdml_entity": "html",
 			"*.mac": "shellscript",
 			"*.gdml": "html",
+			"*.txt": "makefile",
 			"Output.C": "cpp",
 			"iostream": "cpp",
 			"MultiTiersOutputfun_SiPM.C": "cpp",
@@ -101,7 +102,8 @@
 			"DircSep.C": "cpp",
 			"DircRecAlg.C": "cpp",
 			"branch_element": "cpp",
-			"file": "cpp"
+			"file": "cpp",
+			"MultiTiers_TACor_sep.C": "cpp"
 		}
 	}
 }

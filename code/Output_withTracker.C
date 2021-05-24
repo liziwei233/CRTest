@@ -192,7 +192,7 @@ Double_t response(Double_t x, Double_t par[7]);
 TF1 *pol3fit(TGraph *g, float U_RL, float U_RR);
 //double RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma);
 void RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, CRPosData &RBT0pos, CRPosData &RBFTOFpos, CRMuData &RBMudata);
-void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30);
+void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30, double RL= -2e-9, double RR=13e-9);
 
 // ** declaration of number of channels **
 //
@@ -442,6 +442,13 @@ double remainder(double A, int r)
     int n = int(A) / r;
     return A - n * r;
 }
+void swap(double &a, double &b)
+{
+    double temp=0;
+    temp = a;
+    a = b;
+    b = temp;
+}
 //double RebuildTrack(double np, double Inx, double Iny, double Inz, double Px, double Py, double Pz, int ID = 1)
 double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
 {
@@ -461,10 +468,9 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         //cout << "A1z: " << A1z<<"\t"<<Inz<<"\t"<<pz<<"\t"<<px<<"\t"<<Inx << endl;
         */
     double detpos= detPosX[T0];
-    //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     double Ax0, Ay0, Az0;
     double px, py, pz;
-    double swap;
+    //double swap;
     if (ID == 1 || ID == 3)
     {
         Az0 = -1 * (ID - 2) * 90;
@@ -482,9 +488,10 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
         px = InPx;
         py = InPz;
         pz = -1 * (ID - 3) * InPy;
-        swap = Iny;
-        Iny = Inz;
-        Inz = swap;
+        swap(Iny,Inz);
+        //swap = Iny;
+        //Iny = Inz;
+        //Inz = swap;
     }
     double thetaC = TMath::ACos(1 / np);
     double theta = TMath::ACos(pz/TMath::Sqrt(px*px+py*py+pz*pz)); //angle between momentum direction of mu and z axis;
@@ -502,6 +509,9 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     //Ax = Inx + dx - detpos;
     Ax = dx;
     Ay = Iny + dy;
+if (ID == 2 || ID == 4) swap(Ay,Az);
+    cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
+    cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
     //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
     //return sqrt(dx * dx + dy * dy + dz * dz);
     return sqrt(Ax * Ax + Ay * Ay + Az * Az);
@@ -1542,7 +1552,6 @@ void RebuildData(TString input = "../build")
     t1->SetBranchAddress("mu.pz", &mu_pz, &b_mu_pz);
     t1->SetBranchAddress("mu.DetID", &mu_DetID, &b_mu_DetID);
 
-    rootname = GetFilename(rootlist.at(0));
 
     CRTimeData T0photon;
     CRTimeData FTOFphoton;
@@ -1682,7 +1691,8 @@ void RebuildData(TString input = "../build")
             T0Ele.Initial();
             RebuildSensorSignal(T0photon, T0Ele, 4, "CFD", 0.2);
             //return;
-            //RebuildSensorSignal(FTOFphoton, FTOFEle,4,"CFD",0.2);
+            //FTOFEle.Initial();
+            //RebuildSensorSignal(FTOFphoton, FTOFEle,128,"CFD",0.2,0,25e-9);
             data.RBInitial();
             data.T0photonid = T0photon.id;
             data.T0photonE = T0photon.photonE;
@@ -1764,6 +1774,7 @@ for(int i =0; i<128; i++){
     }
     f2->cd();
     t2->Write();
+    f2->Close();
     cout << "The process is over,THANK YOU!" << endl;
 }
 #if 1
@@ -1863,7 +1874,9 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             //if (fdata->T0elefittot[j] > 0&&fdata->T0elefittime[0][j]<2.5)
             if (fdata->T0elefittot[j] > 0)
             {
+                //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
                 reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
+                //reTrack = sqrt(fdata->T0detRBy*fdata->T0detRBy+fdata->T0detRBz*fdata->T0detRBz);
 
                 //cout<<"reTrack:"<<reTrack<<endl;
                 reTrackSum += reTrack;
@@ -1980,7 +1993,7 @@ void ReadRBResults(TString input = "../build")
     f2->GetObject("hthetaerr", hthetaerr);
     Drawhist(input);
 }
-void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30)
+void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer = 4, TString ParType = "FIX", double fac = -30, double RL= -2e-9, double RR=13e-9)
 {
     //cout << "\t>> Parameter list:" << endl;
     const int T = Nlayer;
@@ -1988,13 +2001,14 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
     vector<double> tts[T];
 
     double ttssigma = 20e-12;
-    const int range = 400; // 25ps/sample
-    double RL = -2e-9;
-    double RR = 8e-9;
+    //double RL = -2e-9;
+    //double RR = 13e-9;
+    const int range = (RR-RL)/25e-12; // 25ps/sample
+    //const int range = 600; // 25ps/sample
 
     //double thrd = -30; //Umax = -28.94mV
-    double x[range] = {0};
-    double y[range] = {0};
+    double x[range]; 
+    double y[range];
     int N = T0photon.t.size();
     for (int s = 0; s < T; s++)
     {
@@ -2038,6 +2052,7 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
             thrd = fac * U;
         for (int q = 1; q < range; q++)
         {
+            if(x[q]<=-1) continue;
             if (y[q] <= thrd && y[q - 1] > thrd)
             {
                 thtimepos[0] = q;
@@ -2049,14 +2064,17 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
                 thtime[1] = x[q];
             }
         }
+        //cout<<"thtime[0]="<<thtime[0]<<endl;
+        //cout<<"thtime[1]="<<thtime[1]<<endl;
         tot = thtime[1] - thtime[0];
         for (int i = 0; i < 2; i++)
         {
 
             TGraph *g = new TGraph(range, x, y);
             g->Draw();
-            TF1 *fit = pol3fit(g, x[thtimepos[i]] - 60e-3, x[thtimepos[i]] + 80e-3); //[-60ps, 80ps]
+            TF1 *fit = pol3fit(g, thtime[i] - 60e-3, thtime[i] + 80e-3); //[-60ps, 80ps]
             fittime[i] = fit->GetX(thrd);
+            //cout<<"fit pos="<<x[thtimepos[i]] - 60e-3<<"\t"<<x[thtimepos[i]] + 80e-3<<", thrd="<<thrd<<", fitx="<<fittime[i]<<endl;
             g->Clear();
         }
         fittot = fittime[1] - fittime[0];
