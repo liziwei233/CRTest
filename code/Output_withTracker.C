@@ -510,11 +510,11 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     Ax = dx;
     Ay = Iny + dy;
 if (ID == 2 || ID == 4) swap(Ay,Az);
-    cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
-    cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
+    //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
-    //return sqrt(dx * dx + dy * dy + dz * dz);
-    return sqrt(Ax * Ax + Ay * Ay + Az * Az);
+    //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
+    return sqrt(dx * dx + dy * dy + dz * dz);
+    //return sqrt(Ax * Ax + Ay * Ay + Az * Az);
 
     //return -1;
 }
@@ -1810,7 +1810,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     }
     if (flag)
     {
-        TAcorrection(filepath, 4, TT, AA);
+        TAcorrection(filepath, 6, TT, AA);
         return;
     }
     ofstream out(buff);
@@ -1913,8 +1913,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             //cout<<"meanreTrack:"<<meanreTrack<<endl;
             //hNPMT->Fill(PMTcounter);
             //h2dPMT->Fill(PMTcounter, Timestamp);
-            //if (PMTcounter ==2)
-            //{
+            if (abs(Timestamp)<0.75)
+            {
             //TT.push_back(Timestampcor);
             TT.push_back(Timestamp);
             //AA.push_back(reTrack);
@@ -1926,6 +1926,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             hdy->Fill(fdata->T0dety - fdata->T0detRBy);
             hdz->Fill(fdata->T0detz - fdata->T0detRBz);
             hpos->Fill(fdata->T0detRBy, fdata->T0detRBz);
+            }
             // return;
         }
     }
@@ -1948,7 +1949,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     // ---------draw track vs TR --------//
     //
 
-    TAcorrection(filepath, 4, TT, AA);
+    TAcorrection(filepath, 6, TT, AA);
 
 #if 0
     for (int i = 0; i < Trackerposvec.size(); i++)
