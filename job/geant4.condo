@@ -13,14 +13,14 @@ EXE = g4exe.sh
 
 N_JOBS = 500
 
-OUT_DIR = /home/lizw/work/condor_output
+OUT_DIR = /home/lizw/datadir/condor_output
 
 initialdir = /home/lizw/work/CRTest/job
 
 datadir = /home/lizw/work/CRTest/build
 
 #RUNname = CRYSysVer1_SIMU
-RUNname = /home/lizw/datadir/rawdata/G4/output/CRTestresults/V2_withSO
+RUNname = /home/lizw/work/CRTest/CRTestresults/V2_6MCP_withSO
 
 Universe = vanilla
 
