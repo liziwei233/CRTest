@@ -1868,6 +1868,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         meanreTrack = 0;
         memset(T0time, 0, sizeof(T0time));
         memset(T0timecor, 0, sizeof(T0timecor));
+        memset(T0reTrack, 0, sizeof(T0reTrack));
         PMTcounter = 0;
         TVector3 T0fitpos(fdata->T0detRBx, fdata->T0detRBy, fdata->T0detRBz);
         TVector3 Mufitdir(-1*fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
