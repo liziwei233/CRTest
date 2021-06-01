@@ -13,13 +13,15 @@
 #include "TVector3.h"
 #include "TFile.h"
 #include "CRsysRBData.h"
+#include "DtofRec.h"
+
 #include <map>
 using namespace std;
-
+using namespace TMath;
 TH1D *hr = new TH1D("hr", "hr", 2000, -0.1e-9, 0.1e-9);
 
 //** CRSystem parameters
-TRandom3 r;
+TRandom3 ran;
 double possigma = 200e-3; //unit:mm Tracker postion resolution
 
 //** hist parameters
@@ -293,7 +295,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
     double Trecept = 500e-12; //waiting the photons hit
     double Treject = 500e-12; //recover time,during this time any photons are rejected.
     //double ttssigma = 20e-12;
-    //tts = r.Gaus(0,10.6e-12);
+    //tts = ran.Gaus(0,10.6e-12);
     //
     //----MCP R10754------
     //------------------------------
@@ -325,7 +327,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
             {
                 //r.SetSeed(n);
                 //r.SetSeed(0);
-                //tts = r.Gaus(0, ttssigma); //TTS of MCP-R3805U
+                //tts = ran.Gaus(0, ttssigma); //TTS of MCP-R3805U
                 //hr->Fill(tts);
                 //cout<<"tts= "<<tts<<endl;
                 val += response(x - tts.at(n) - par.at(n), SPEpar);
@@ -338,7 +340,7 @@ Double_t outputfunc(Double_t x, vector<double> par, vector<double> tts)
             {
                 Tmark = par.at(n);
                 //r.SetSeed(0);
-                //tts = r.Gaus(0, ttssigma); //TTS of MCP-R3805U
+                //tts = ran.Gaus(0, ttssigma); //TTS of MCP-R3805U
                 //hr->Fill(tts);
                 //cout<<"tts= "<<tts<<endl;
                 val += response(x - tts.at(n) - par.at(n), SPEpar);
@@ -401,7 +403,7 @@ void GetTrackerAngle(int N, double *TrackerX, double *TrackerY, double *TrackerZ
         for (int j = 0; j < N; j++)
         {
             //cout<<"x"<<p[0][j]<<",yz"<<i<<","<<p[1+i][j]<<endl;
-            g->SetPoint(j, p[0][j], p[1 + i][j] + r.Gaus(0, possigma));
+            g->SetPoint(j, p[0][j], p[1 + i][j] + ran.Gaus(0, possigma));
         }
         // fit
         g->Fit("pol1", "q");
@@ -510,11 +512,11 @@ double RebuildTrack(double np, TVector3 Inpos, TVector3 Indir, int ID = 1)
     Ax = dx;
     Ay = Iny + dy;
 if (ID == 2 || ID == 4) swap(Ay,Az);
-    cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
-    cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
+    //cout << "Input: " <<ID<<"\t"<< Inx << "\t" << Iny << "\t" << Inz << "\t" << InPx << "\t" << InPy << "\t" << InPz << endl;
     //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
-    //return sqrt(dx * dx + dy * dy + dz * dz);
-    return sqrt(Ax * Ax + Ay * Ay + Az * Az);
+    //cout<<"Hit pos="<<Ax<<", "<<Ay<<", "<<Az<<endl;
+    return sqrt(dx * dx + dy * dy + dz * dz);
+    //return sqrt(Ax * Ax + Ay * Ay + Az * Az);
 
     //return -1;
 }
@@ -1810,7 +1812,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     }
     if (flag)
     {
-        TAcorrection(filepath, 4, TT, AA);
+        TAcorrection(filepath, 6, TT, AA);
         return;
     }
     ofstream out(buff);
@@ -1847,8 +1849,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     int N = t->GetEntriesFast();
     cout << "Total trigger events is: " << N << endl;
 
-    t->GetEntry(0);
-    cout << "fdata->T0detRBy=" << fdata->T0detRBy << "\t fdata->CRRBtheta=" << fdata->CRRBtheta << endl;
+    //t->GetEntry(0);
+    //cout << "fdata->T0detRBy=" << fdata->T0detRBy << "\t fdata->CRRBtheta=" << fdata->CRRBtheta << endl;
     //return;
     for (int i = 0; i < N; i++)
     //for (int i = 0; i < 2; i++)
@@ -1913,8 +1915,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             //cout<<"meanreTrack:"<<meanreTrack<<endl;
             //hNPMT->Fill(PMTcounter);
             //h2dPMT->Fill(PMTcounter, Timestamp);
-            //if (PMTcounter ==2)
-            //{
+            if (abs(Timestamp)<0.75)
+            {
             //TT.push_back(Timestampcor);
             TT.push_back(Timestamp);
             //AA.push_back(reTrack);
@@ -1926,6 +1928,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             hdy->Fill(fdata->T0dety - fdata->T0detRBy);
             hdz->Fill(fdata->T0detz - fdata->T0detRBz);
             hpos->Fill(fdata->T0detRBy, fdata->T0detRBz);
+            }
             // return;
         }
     }
@@ -1948,7 +1951,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     // ---------draw track vs TR --------//
     //
 
-    TAcorrection(filepath, 4, TT, AA);
+    TAcorrection(filepath, 6, TT, AA);
 
 #if 0
     for (int i = 0; i < Trackerposvec.size(); i++)
@@ -1981,6 +1984,23 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     //Drawhist(filepath);
 }
 #endif
+
+void RebuildDTOF(string input = "../data.root", int force = 0){
+    gStyle->SetOptFit(111);
+
+
+    string filepath;
+    string rootname;
+    rootname = GetFilename(input);
+    filepath = GetFilepath(input);
+    string output = filepath+"/DircRec.root";
+
+    cout<<"Input  file: "<<input <<endl;
+  cout<<"Output file: "<<output<<endl;
+  DtofRec* dtop = new DtofRec(input, output);
+  dtop->Loop();
+    TAcorrection(filepath, 6, dtop->TT, dtop->AA);
+}
 
 void ReadRBResults(TString input = "../build")
 {
@@ -2019,7 +2039,7 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
                 double temp = T0photon.t[i] * 1e-9;
 
                 par[s].push_back(temp);
-                tts[s].push_back(r.Gaus(0, ttssigma));
+                tts[s].push_back(ran.Gaus(0, ttssigma));
             }
         }
         if (!par[s].size())
@@ -2125,14 +2145,14 @@ void RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, CRPosData &RB
             if (i == 0)
             {
 
-                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].y + r.Gaus(0, possigma));
-                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].y + ran.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << ran.Gaus(0, possigma)<<endl;
             }
             else
             {
-                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].z + r.Gaus(0, possigma));
-                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
-                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, Trackerpos[j].x, Trackerpos[j].z + ran.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << ran.Gaus(0, possigma)<<endl;
+                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + ran.Gaus(0, possigma)<<endl;
             }
         }
         // fit
@@ -2217,14 +2237,14 @@ void RebuildCRAngle2(int N, double *TrackerX, double *TrackerY, double *TrackerZ
             if (i == 0)
             {
 
-                g->SetPoint(j, TrackerX[j], TrackerY[j] + r.Gaus(0, possigma));
-                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, TrackerX[j], TrackerY[j] + ran.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",y="<<Trackerpos[j].y<<",error=" << ran.Gaus(0, possigma)<<endl;
             }
             else
             {
-                g->SetPoint(j, TrackerX[j], TrackerZ[j] + r.Gaus(0, possigma));
-                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << r.Gaus(0, possigma)<<endl;
-                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + r.Gaus(0, possigma)<<endl;
+                g->SetPoint(j, TrackerX[j], TrackerZ[j] + ran.Gaus(0, possigma));
+                //cout<<"x="<<Trackerpos[j].x<<",z="<<Trackerpos[j].z<<",error=" << ran.Gaus(0, possigma)<<endl;
+                //cout<<"x"<<Trackerpos[j].x<<",z"<<i<<","<<Trackerpos[j].z + ran.Gaus(0, possigma)<<endl;
             }
         }
         // fit
@@ -2546,7 +2566,7 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
         vector<vector<double>>(T).swap(tts);
 
         //for(int i = certain; i < certain+1; i++){
-        //par[i]=r.Gaus(2.4e-9,0.5e-9);
+        //par[i]=ran.Gaus(2.4e-9,0.5e-9);
         //par[i]=4e-9;
         t1->GetEntry(iEvent);
         if (!IncidX->empty() && !hitT->empty())
@@ -2611,9 +2631,9 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
                     else if (IncidID->at(i) >= 0 && IncidID->at(i) < 4)
                     {
                         TrackerX[Trackercounter] = IncidX->at(i);
-                        //TrackerY[Trackercounter] = IncidY->at(i) + r.Gaus(0, possigma);
+                        //TrackerY[Trackercounter] = IncidY->at(i) + ran.Gaus(0, possigma);
                         TrackerY[Trackercounter] = IncidY->at(i);
-                        //TrackerZ[Trackercounter] = IncidZ->at(i) + r.Gaus(0, possigma);
+                        //TrackerZ[Trackercounter] = IncidZ->at(i) + ran.Gaus(0, possigma);
                         TrackerZ[Trackercounter] = IncidZ->at(i);
                         Trackercounter++;
                     }
@@ -2639,7 +2659,7 @@ void CalculateTR(TString input = "../build", double fac = 0.2, const char *ParTy
                             //r.SetSeed(time(NULL)*processN+k);
                             vecTOP[iT].push_back((*TOPT)[k]);
                             par[iT].push_back(temp);
-                            tts[iT].push_back(r.Gaus(0, ttssigma));
+                            tts[iT].push_back(ran.Gaus(0, ttssigma));
                             if (iEvent == N - 1)
                                 h[iT]->Fill(temp * 1e9);
                         }

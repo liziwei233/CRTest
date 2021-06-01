@@ -103,7 +103,11 @@
 			"DircRecAlg.C": "cpp",
 			"branch_element": "cpp",
 			"file": "cpp",
-			"MultiTiers_TACor_sep.C": "cpp"
+			"MultiTiers_TACor_sep.C": "cpp",
+			"DircRecSvc copy.C": "cpp",
+			"DtofRec.C": "cpp",
+			"CRdata.C": "cpp",
+			"style_parser": "cpp"
 		}
 	}
 }
