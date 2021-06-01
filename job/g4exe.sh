@@ -4,7 +4,7 @@ echo " CWD: " $PWD
 echo " ENV: "
 source /home/lizw/.bashrc
 path=$1
-NAME=${path}/../results/$2
+NAME=$2
 gdmlname=$3
 macname=$4
 process=$5
