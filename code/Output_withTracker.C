@@ -13,7 +13,7 @@
 #include "TVector3.h"
 #include "TFile.h"
 #include "CRsysRBData.h"
-#include "DtofRec.h"
+//#include "DtofRec.h"
 
 #include <map>
 using namespace std;
@@ -1577,7 +1577,7 @@ void RebuildData(TString input = "../build")
     vector<CRPosData> FTOFposvec;
 
     CRsysRBData data;
-    cout << "> progress check <" << endl;
+    //cout << "> progress check <" << endl;
     //t2->Branch("T0photonvec", T0photonvec);
     //t2->Branch("FTOFphotonvec", FTOFphotonvec);
     //t2->Branch("Mudatavec", Mudatavec);
@@ -1691,10 +1691,10 @@ void RebuildData(TString input = "../build")
             RebuildCRAngle(*Trackerpos, possigma, RBT0pos, RBFTOFpos, RBMudata);
 
             T0Ele.Initial();
-            RebuildSensorSignal(T0photon, T0Ele, 4, "CFD", 0.2);
+            RebuildSensorSignal(T0photon, T0Ele, 4, "FIX", -7);
             //return;
-            //FTOFEle.Initial();
-            //RebuildSensorSignal(FTOFphoton, FTOFEle,128,"CFD",0.2,0,25e-9);
+            FTOFEle.Initial();
+            RebuildSensorSignal(FTOFphoton, FTOFEle,128,"FIX",-3.5,0,25e-9);
             data.RBInitial();
             data.T0photonid = T0photon.id;
             data.T0photonE = T0photon.photonE;
@@ -1984,7 +1984,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     //Drawhist(filepath);
 }
 #endif
-
+#if 0
 void RebuildDTOF(string input = "../data.root", int force = 0){
     gStyle->SetOptFit(111);
 
@@ -2001,7 +2001,7 @@ void RebuildDTOF(string input = "../data.root", int force = 0){
   dtop->Loop();
     TAcorrection(filepath, 6, dtop->TT, dtop->AA);
 }
-
+#endif
 void ReadRBResults(TString input = "../build")
 {
     vector<TString> fList;
