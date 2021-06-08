@@ -71,6 +71,11 @@
 <variable name="TriggerX" value="30" />
 <variable name="TriggerY" value="200" />
 <variable name="TriggerZ" value="200" />
+<variable name="TriggerLGX1" value="30" />
+<variable name="TriggerLGX2" value="50" />
+<variable name="TriggerLGY1" value="200" />
+<variable name="TriggerLGY2" value="80" />
+<variable name="TriggerLGZ" value="85" />
 
 <!-- PMT Configuration,R is radius
     <variable name="pmtZ" value="0.1"/>
@@ -78,7 +83,7 @@
 
 <!-- Placement -->
 <position name="detectorPos" unit="mm" x="0" y="0" z="0" />
-<position name="unionPos" unit="mm" x="0" y="0" z="T0_lightguideZ/2" />
+<position name="unionPos" unit="mm" x="0" y="0" z="TriggerZ/2+TriggerLGZ/2" />
 <rotation name="rot" unit="deg" x="90" y="" z="" />
 
 <!--<constant name="detectorN" value="4" />
