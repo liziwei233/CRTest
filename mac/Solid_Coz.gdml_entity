@@ -10,7 +10,13 @@
 <box lunit="mm" name="TrackerS" x="TrackerX" y="TrackerY" z="TrackerZ" />
 
 <!-- Trigger -->
-<box lunit="mm" name="TriggerS" x="TriggerX" y="TriggerY" z="TriggerZ" />
+<box lunit="mm" name="box" x="TriggerX" y="TriggerY" z="TriggerZ" />
+<trd lunit="mm" name = "trd" x1="TriggerLGX1" x2="TriggerLGX2" y1="TriggerLGY1" y2="TriggerLGY2" z="TriggerLGZ" />
+  <union name="TriggerS" > 
+    <first ref="box" /> 
+    <second ref="trd"/> 
+    <positionref ref="unionPos" /> 
+  </union>
 
 <!-- TODO -->
 <!-- T0Detector -->
