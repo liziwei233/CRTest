@@ -70,6 +70,7 @@
           <volumeref ref="Tracker" />
 
           <!--<position unit="mm" x="445+TrackerX/2+(TrackerX+0.1)*iTracker" />-->
+          <position unit="mm" z="5" />
           <position unit="mm" x="DetPosX[1+iTracker]" />
         </physvol>
       </loop>

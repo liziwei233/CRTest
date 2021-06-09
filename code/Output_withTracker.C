@@ -2074,6 +2074,11 @@ void RebuildData(TString input = "../build")
                 data.T0elefittime1[i] = T0Ele.fittime1[i];
                 data.T0elefittime2[i] = T0Ele.fittime2[i];
             }
+
+            data.FTOFdetRBx = RBFTOFpos.x;
+            data.FTOFdetRBy = RBFTOFpos.y;
+            data.FTOFdetRBz = RBFTOFpos.z;
+
             for (int i = 0; i < 128; i++)
             {
 

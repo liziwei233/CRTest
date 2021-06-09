@@ -107,7 +107,9 @@
 			"DircRecSvc copy.C": "cpp",
 			"DtofRec.C": "cpp",
 			"CRdata.C": "cpp",
-			"style_parser": "cpp"
+			"style_parser": "cpp",
+			"TACor.C": "cpp",
+			"Outputfun_MCP_sample.C": "cpp"
 		}
 	}
 }
