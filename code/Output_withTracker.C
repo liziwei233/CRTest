@@ -141,6 +141,7 @@ struct CRMuData
     double py;
     double pz;
     double theta;
+    double phi;
     void Print()
     {
         cout << "E,p(x,y,z),theta: " << muE << ",p(" << px << "," << py << "," << pz << "),theta" << theta << endl;
@@ -1991,6 +1992,7 @@ void RebuildData(TString input = "../build")
             Mudata.pz = mu_pz->at(ihitdet);
             //cout<<"px, py, pz"<<mu_px->at(0)<<","<<mu_py->at(0)<<","<<mu_pz->at(0)<<endl;
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
+            Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py)*Mudata.py/abs(Mudata.py);
         }
 
         if (triggervec.size() == 2)
@@ -2056,6 +2058,7 @@ void RebuildData(TString input = "../build")
             data.CRpy = Mudata.py;
             data.CRpz = Mudata.pz;
             data.CRtheta = Mudata.theta;
+            data.CRphi = Mudata.phi;
 
             data.T0detRBx = RBT0pos.x;
             data.T0detRBy = RBT0pos.y;
@@ -2522,13 +2525,15 @@ void RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, CRPosData &RB
     v1.SetZ(delta[2]);
     theta = TMath::ACos(v1.x() / v1.Mag());
     phi = TMath::ACos(v1.z() / TMath::Sqrt(v1.z() * v1.z() + v1.y() * v1.y()));
+    if (v1.y() < 0)
+        phi = -1 * (phi);
 
     RBMudata.px = -1 * delta[0];
     RBMudata.py = -1 * delta[1];
     RBMudata.pz = -1 * delta[2];
     RBMudata.theta = theta;
-    if (v1.y() < 0)
-        phi = -1 * (phi);
+    RBMudata.phi = phi;
+
     //cout<<"theta,phi="<<theta<<"\t"<<phi<<endl;
 
     //cout<<"theta="<<theta<<endl;

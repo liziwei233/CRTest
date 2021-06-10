@@ -52,6 +52,7 @@ public:
     double CRRBpy;
     double CRRBpz;
     double CRRBtheta;
+    double CRRBphi;
 
     void RBInitial()
     {
@@ -100,6 +101,7 @@ public:
         CRRBpy = -999;
         CRRBpz = -999;
         CRRBtheta = -999;
+        CRRBphi = -999;
     }
 };
 
