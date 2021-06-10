@@ -11,7 +11,7 @@ EXE = g4exe.sh
 
 #N_EVENT = 1 multiplay 8
 
-N_JOBS = 500
+N_JOBS = 200
 
 OUT_DIR = /home/lizw/datadir/condor_output
 
@@ -20,7 +20,7 @@ initialdir = /home/lizw/work/CRTest/job
 datadir = /home/lizw/work/CRTest/build
 
 #RUNname = CRYSysVer1_SIMU
-RUNname = /home/lizw/work/CRTest/CRTestresults/V2_6MCP_withSO
+RUNname = /home/lizw/work/CRTest/CRTestresults/V3_6MCP_withSO_Trigger1+30mm
 
 Universe = vanilla
 

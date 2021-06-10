@@ -1624,7 +1624,70 @@ void Drawhist(TString path)
     la->Draw();
     cc->SaveAs(Form("%s/Rebuildyzpos.png", path.Data()));
 }
-
+void DrawTrackerpos(TString input = "../data.root", int force = 0){
+    TH1D* hy[4];
+    TH1D* hz[4];
+    TH2D* hyz[4];
+    for(int i =0; i<4; i++)
+    {
+        hy[i] = new TH1D(Form("hy%d",i),"",200,-150,150);
+        hz[i] = new TH1D(Form("hz%d",i),"",200,-150,150);
+        hyz[i] = new TH2D(Form("hyz%d",i),"",200,-150,150,200,-150,150);
+    }
+     TString filepath;
+    TString rootname;
+    rootname = GetFilename(input);
+    filepath = GetFilepath(input);
+    cout << "Read rootfile: " << input.Data() << endl;
+    TFile *f = new TFile(input.Data(), "READ");
+    TTree *t = (TTree *)f->Get("data");
+    //t->SetMakeClass(1);
+    CRsysRBData *fdata;
+    fdata = new CRsysRBData();
+    TBranch *b_data;
+    t->SetBranchAddress("data", &fdata, &b_data);
+    int N = t->GetEntriesFast();
+    cout << "Total trigger events is: " << N << endl;
+     for (int i = 0; i < N; i++)
+    //for (int i = 0; i < 2; i++)
+    {
+        //data = CRsysRBData();
+        t->GetEntry(i);
+        if (fdata->CRRBtheta == -999)
+            continue;
+        for(int i =0 ;i<4;i++)
+        {
+            
+            if(fdata->Trackerdetz[i]!=-999) hz[i]->Fill(fdata->Trackerdetz[i]);
+            if(fdata->Trackerdety[i]!=-999) hy[i]->Fill(fdata->Trackerdety[i]);
+            if(fdata->Trackerdety[i]!=-999&&fdata->Trackerdetz[i]!=-999) hyz[i]->Fill(fdata->Trackerdety[i],fdata->Trackerdetz[i]);
+        }
+    }
+    int zhistcontentmen = hz[0]->Integral()/(hz[0]->FindBin(75)-hz[0]->FindBin(-75));
+    int yhistcontentmen = hy[0]->Integral()/(hy[0]->FindBin(75)-hy[0]->FindBin(-75));
+    hz[0]->SetBinContent(hz[0]->FindFirstBinAbove(zhistcontentmen),0);
+    hz[0]->SetBinContent(hz[0]->FindLastBinAbove(1),0);
+    hy[0]->SetBinContent(hy[0]->FindFirstBinAbove(yhistcontentmen),0);
+    hy[0]->SetBinContent(hy[0]->FindLastBinAbove(1),0);
+    TCanvas *c = cdC(200,1500,1000);
+    c->Divide(4,3);
+    for(int i = 0; i<4; i++){
+        c->cd(1+i);
+        SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
+        
+        DrawMyHist(hy[i],"Y","Counts");
+        hy[i]->Draw();
+        c->cd(5+i);
+        SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
+        DrawMyHist(hz[i],"Z","Counts");
+        hz[i]->Draw();
+        c->cd(9+i);
+        SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
+        DrawMy2dHist(hyz[i],"y","z");
+        hyz[i]->Draw("colz");
+    }
+    c->SaveAs(Form("%s/Trackerpos.png",filepath.Data()));
+}
 void TAcorrection(TString path, int iter, vector<double> TT, vector<double> AA)
 {
     ht->Reset();
@@ -1992,7 +2055,7 @@ void RebuildData(TString input = "../build")
             Mudata.pz = mu_pz->at(ihitdet);
             //cout<<"px, py, pz"<<mu_px->at(0)<<","<<mu_py->at(0)<<","<<mu_pz->at(0)<<endl;
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
-            Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py)*Mudata.py/abs(Mudata.py);
+            Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py))*Mudata.py/abs(Mudata.py);
         }
 
         if (triggervec.size() == 2)

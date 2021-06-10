@@ -59,6 +59,7 @@ public:
     double CRpy;
     double CRpz;
     double CRtheta;
+    double CRphi;
 
     void Initial()
     {
