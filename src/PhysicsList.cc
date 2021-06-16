@@ -5,6 +5,8 @@
 
 #include "PhysicsList.hh"
 
+#include "MyHadronInelasticPhysics.hh"
+#include "MyHadronElasticPhysics.hh"
 #include "G4EmStandardPhysics.hh"
 #include "G4EmStandardPhysics_option1.hh"
 #include "G4EmStandardPhysics_option2.hh"
@@ -37,6 +39,11 @@ PhysicsList::PhysicsList()
 
 	fDecayPhys = new G4DecayPhysics;
 	RegisterPhysics(fDecayPhys);
+
+	// Hadron Physics
+  RegisterPhysics(new MyHadronInelasticPhysics("hInelastic QGSP_BERT",1));
+  RegisterPhysics(new MyHadronElasticPhysics(0));
+
 
 	fLimiterPhys = new G4StepLimiterPhysics;
 	RegisterPhysics(fLimiterPhys);

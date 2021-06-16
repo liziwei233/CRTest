@@ -12,6 +12,7 @@ MuonRecorder* MuonRecorder::fgInstance = NULL;
 MuonRecorder::MuonRecorder()
 	: VirtualRecorder()
 {
+	fName = new std::vector<string>;
 	fCount = new std::vector<int>;
 	fID = new std::vector<int>;
 	fEk = new std::vector<double>;
@@ -27,6 +28,7 @@ MuonRecorder::MuonRecorder()
 }
 
 MuonRecorder::~MuonRecorder(){
+	fName->clear();delete fName;
 	fCount->clear();delete fCount;
 	fID->clear();delete fID;
 	fEk->clear();delete fEk;
@@ -49,6 +51,7 @@ MuonRecorder* MuonRecorder::Instance(){
 
 void MuonRecorder::Reset()
 {
+	std::vector<string>().swap(*fName);
 	std::vector<int>().swap(*fCount);
 	std::vector<int>().swap(*fID);
 	std::vector<double>().swap(*fEk);
@@ -69,6 +72,7 @@ void MuonRecorder::CreateEntry(
 	fFirstColID = 
 		rootData->CreateNtupleIColumn(ntupleID, "mu.Count", *fCount);
 	rootData->CreateNtupleIColumn(ntupleID, "mu.ID", *fID);
+	//rootData->CreateNtupleSColumn(ntupleID, "mu.Name", *fName);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.t", *fTime);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.x", *fX);
@@ -92,7 +96,7 @@ G4bool MuonRecorder::Record(const G4Track* theMuon){
 	fID->push_back(theMuon->GetTrackID() );
 	fEk->push_back(theMuon->GetKineticEnergy() / GeV );
 	fTime->push_back(theMuon->GetGlobalTime() / ns );
-
+	fName->push_back(theMuon->GetParticleDefinition()->GetParticleName());
 	G4ThreeVector pos = theMuon->GetPosition();
 	fX->push_back(pos.x() / mm );
 	fY->push_back(pos.y() / mm );

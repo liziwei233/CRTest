@@ -26,7 +26,7 @@
 #include "G4Event.hh"
 #include "G4VProcess.hh"
 
-#include<vector>
+#include <vector>
 #include "globals.hh"
 #include "G4SystemOfUnits.hh"
 

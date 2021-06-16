@@ -80,7 +80,7 @@
 
       <position unit="mm" x="FTOF_detectorX/2-R10754_sensor_T/2" />
       <position unit="mm" y="-1*(-(R10754_sensorN-1)/2*(R10754_sensor_L+R10754_interval_L)+(R10754_sensor_L+R10754_interval_L)*iR10754_sensor)" />
-      <position unit="mm" z="FTOF_mediumZ/2-R10754_sensor_L/2" />
+      <position unit="mm" z="FTOF_mediumZ/2-R10754_sensor_L/2-18" />
     </physvol>
 
     

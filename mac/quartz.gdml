@@ -198,19 +198,19 @@
   </auxiliary>
 -->
 
-<auxiliary auxtype="Skin" auxvalue="FTOF_skin_surf">
-  <auxiliary auxtype="SurfaceName" auxvalue="FTOF_skin_surf" />
-  <auxiliary auxtype="LVname" auxvalue="FTOF_medium" />
-  <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
-</auxiliary>
 
 <auxiliary auxtype="Border" auxvalue="R3809_photocath_border_surf">
   <auxiliary auxtype="SurfaceName" auxvalue="R3809_photocath_border_surf" />
   <auxiliary auxtype="PVname" auxvalue="R3809_window_PV" />
   <auxiliary auxtype="PVname" auxvalue="R3809_anode_PV" />
   <auxiliary auxtype="Material" auxvalue="OpBorder_3805U" />
-  </auxiliary>
-  
+</auxiliary>
+
+<auxiliary auxtype="Skin" auxvalue="FTOF_skin_surf">
+  <auxiliary auxtype="SurfaceName" auxvalue="FTOF_skin_surf" />
+  <auxiliary auxtype="LVname" auxvalue="FTOF_medium" />
+  <auxiliary auxtype="Material" auxvalue="OpWrapper_Quartz" />
+</auxiliary>
   
 
   

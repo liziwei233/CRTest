@@ -49,6 +49,7 @@ void PmtSD::Initialize(G4HCofThisEvent *hce)
 	std::vector<double>().swap(*fHitPY);
 	std::vector<double>().swap(*fHitPZ);
 	std::vector<int>().swap(*fHitID);
+	std::vector<int>().swap(*fMomID);
 	
 
 
@@ -81,7 +82,7 @@ G4bool PmtSD::ProcessHits(G4Step *theStep, G4TouchableHistory *)
 	fTOPTime->push_back(theParticle->GetLocalTime());
 
 	fHitID->push_back(theTrack->GetTrackID());
-
+	fMomID->push_back(theTrack->GetParentID());
 	G4ThreeVector pos = theParticle->GetPosition();
 	fHitX->push_back(pos.x());
 	fHitY->push_back(pos.y());
@@ -125,6 +126,7 @@ void PmtSD::CreateEntry(
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".py"), *fHitPY);
 	rootData->CreateNtupleDColumn(ntupleID, fname.replace(4,10,".pz"), *fHitPZ);
 	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".trackID"), *fHitID);
+	rootData->CreateNtupleIColumn(ntupleID, fname.replace(4,10,".parentID"), *fMomID);
 }
 
 void PmtSD::FillEntry(

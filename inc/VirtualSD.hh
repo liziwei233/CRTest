@@ -54,6 +54,7 @@ protected:
 	std::vector<double>* fHitPY;
 	std::vector<double>* fHitPZ;
 	std::vector<int>* fHitID;
+	std::vector<int>* fMomID;
 
 public:
 	virtual int GetNoVolumes(){return fNvolume;};

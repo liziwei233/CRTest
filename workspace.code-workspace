@@ -109,7 +109,22 @@
 			"CRdata.C": "cpp",
 			"style_parser": "cpp",
 			"TACor.C": "cpp",
-			"Outputfun_MCP_sample.C": "cpp"
+			"Outputfun_MCP_sample.C": "cpp",
+			"base_histo": "cpp",
+			"h1": "cpp",
+			"h2": "cpp",
+			"h3": "cpp",
+			"p1": "cpp",
+			"p2": "cpp",
+			"bbox_action": "cpp",
+			"event_action": "cpp",
+			"get_matrix_action": "cpp",
+			"matrix_action": "cpp",
+			"pick_action": "cpp",
+			"search_action": "cpp",
+			"visible_action": "cpp",
+			"info": "cpp",
+			"element": "cpp"
 		}
 	}
 }

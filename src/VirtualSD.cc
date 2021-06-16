@@ -9,7 +9,7 @@ VirtualSD::VirtualSD(G4String name)
 	:G4VSensitiveDetector(name),fNvolume(0),fNphysvol(NULL),
 	fHitCopyNo(NULL),fHitEk(NULL), fHitTime(NULL), fTOPTime(NULL), 
 	fHitX(NULL),fHitY(NULL),fHitZ(NULL),
-	fHitPX(NULL),fHitPY(NULL),fHitPZ(NULL),fHitID(NULL)
+	fHitPX(NULL),fHitPY(NULL),fHitPZ(NULL),fHitID(NULL),fMomID(NULL)
 {
 	// TODO : #ifdef CRTest_SD_MORE
 	fHitCopyNo = new std::vector<int>;
@@ -23,6 +23,7 @@ VirtualSD::VirtualSD(G4String name)
 	fHitPY= new std::vector<double>;
 	fHitPZ= new std::vector<double>;
 	fHitID= new std::vector<int>;
+	fMomID= new std::vector<int>;
 }
 
 VirtualSD::~VirtualSD(){
@@ -39,6 +40,7 @@ VirtualSD::~VirtualSD(){
 	delete fHitPY;
 	delete fHitPZ;
 	delete fHitID;
+	delete fMomID;
 }
 //the number of replicas in each hierarchy
 void VirtualSD::CalculateNoPhysvols(const G4StepPoint* thePoint){

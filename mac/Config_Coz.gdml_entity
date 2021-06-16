@@ -63,7 +63,7 @@
 
 
 <!-- Tracker Configuration -->
-<variable name="TrackerX" value="25" />
+<variable name="TrackerX" value="3" />
 <variable name="TrackerY" value="150" />
 <variable name="TrackerZ" value="150" />
 
