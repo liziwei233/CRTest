@@ -47,7 +47,7 @@ void EventAction::EndOfEventAction(const G4Event *anEvent)
 {
     OpRecorder* Recorder = OpRecorder::Instance();
     G4cout << "[+] INFO - Optical Process Track & Record - by EventAction." << G4endl;
-    Recorder->Print();
+    //Recorder->Print();
     if (MuonRecorder::Instance()->flag[300]&&MuonRecorder::Instance()->flag[301])
 	{
 
@@ -55,9 +55,9 @@ void EventAction::EndOfEventAction(const G4Event *anEvent)
     /*
     for(int i =0; i<MuonRecorder::Instance()->fName->size();i++)
             cout<<"particle name:"<<MuonRecorder::Instance()->fName->at(i)<<",ID="<<MuonRecorder::Instance()->fID->at(i);
+    */
     }
     cout<<endl;
-    */
     G4cout << "[-] INFO - Event " << anEvent->GetEventID()
            << " ends. - by EventAction" << G4endl;
 }

@@ -124,7 +124,11 @@
 			"search_action": "cpp",
 			"visible_action": "cpp",
 			"info": "cpp",
-			"element": "cpp"
+			"element": "cpp",
+			"allocator": "cpp",
+			"hplot": "cpp",
+			"basket": "cpp",
+			"line": "cpp"
 		}
 	}
 }

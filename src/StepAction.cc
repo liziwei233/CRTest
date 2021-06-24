@@ -52,8 +52,9 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         return;
 
     const G4TrackVector *secondary = aStep->GetSecondary();
+    if (thePostPoint->GetStepStatus() == fGeomBoundary)
     // for Muon (primary track)
-    if (theTrack->GetParentID() == 0 && thePostPoint->GetStepStatus() == fGeomBoundary)
+    //if (theTrack->GetParentID() == 0 && thePostPoint->GetStepStatus() == fGeomBoundary)
     {
 
         if (thePostPV->GetName() == "Tracker_PV" )
@@ -99,6 +100,8 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         return;
     }
 
+
+#if 0
     //  for Optical
     if (theTrack->GetParticleDefinition() !=
         G4OpticalPhoton::OpticalPhotonDefinition())
@@ -180,6 +183,7 @@ void StepAction::UserSteppingAction(const G4Step *aStep)
         }
         */
     }
+#endif
     //Analysis::Instance()->FillOpPhotonTrackForEvent(theTrack, type);
 }
 

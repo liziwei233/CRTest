@@ -6,8 +6,27 @@
 <!-- World -->
 <box lunit="mm" name="worldS" x="worldX" y="worldY" z="worldZ" />
 
+
+<!-- AlPlane -->
+<box lunit="mm" name="AlPlaneS" x="AlPlaneX" y="AlPlaneY" z="AlPlaneZ" />
+
 <!-- Tracker -->
 <box lunit="mm" name="TrackerS" x="TrackerX" y="TrackerY" z="TrackerZ" />
+ <!--Tracker Module-->
+ <box name="TrackerModule_inS" aunit="radian" lunit="mm" x="TrackerModuleX-2*TrackerModuleT" y="TrackerModuleY-2*TrackerModuleT" z="TrackerModuleZ-2*TrackerModuleT"/>
+ <box name="TrackerModule_exS" aunit="radian" lunit="mm" x="TrackerModuleX" y="TrackerModuleY" z="TrackerModuleZ"/>
+ <subtraction name="TrackerModuleS" > 
+   <first ref="TrackerModule_exS" /> 
+   <second ref="TrackerModule_inS"/> 
+ </subtraction>
+<!--AGET Albox-->
+<box name="AGETAlbox_inS" aunit="radian" lunit="mm" x="AGETAlboxX-2*AGETAlboxT" y="AGETAlboxY-2*AGETAlboxT" z="AGETAlboxZ-2*AGETAlboxT"/>
+<box name="AGETAlbox_exS" aunit="radian" lunit="mm" x="AGETAlboxX" y="AGETAlboxY" z="AGETAlboxZ"/>
+<subtraction name="AGETAlboxS" > 
+  <first ref="AGETAlbox_exS" /> 
+  <second ref="AGETAlbox_inS"/> 
+</subtraction>
+
 
 <!-- Trigger -->
 <box lunit="mm" name="box" x="TriggerX" y="TriggerY" z="TriggerZ" />

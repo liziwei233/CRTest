@@ -37,7 +37,7 @@ void ActionRegister::Build() const
     //theRunManager->SetUserAction(new PrimaryGeneratorAction(""));
     SetUserAction(new RunAction);
     SetUserAction(new EventAction);
-    SetUserAction(new StackAction);
-	SetUserAction(new TrackingAction);
+    //SetUserAction(new StackAction);
+	//SetUserAction(new TrackingAction);
 	SetUserAction(new StepAction);
 }

@@ -39,12 +39,16 @@ public:
 	std::map<int, bool> flag; 
 	std::vector<string>* fName;
 	std::vector<int>* fID;
+	std::vector<int>* fMomID;
+	std::map<string, int> particletype;
+	
 
 private:
 	static MuonRecorder* fgInstance;
 
 private: // Muon Track Information
 	std::vector<int>* fCount;
+	std::vector<int>* fType;
 	std::vector<double>* fEk;
 	std::vector<double>* fTime;
 	std::vector<double>* fX;

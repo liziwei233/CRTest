@@ -14,7 +14,9 @@ MuonRecorder::MuonRecorder()
 {
 	fName = new std::vector<string>;
 	fCount = new std::vector<int>;
+	fType = new std::vector<int>;
 	fID = new std::vector<int>;
+	fMomID = new std::vector<int>;
 	fEk = new std::vector<double>;
 	fTime = new std::vector<double>;
 	fX = new std::vector<double>;
@@ -25,12 +27,27 @@ MuonRecorder::MuonRecorder()
 	fPZ = new std::vector<double>;
 
 	fDetID = new std::vector<int>;
+
+particletype.insert(pair<string, int>("mu-",1));
+particletype.insert(pair<string, int>("mu+",2));
+particletype.insert(pair<string, int>("e-",3));
+particletype.insert(pair<string, int>("e+",4));
+particletype.insert(pair<string, int>("gamma",5));
+particletype.insert(pair<string, int>("neutron",6));
+particletype.insert(pair<string, int>("kaon+",7));
+particletype.insert(pair<string, int>("kaon-",8));
+particletype.insert(pair<string, int>("kaon0",9));
+particletype.insert(pair<string, int>("pi+",10));
+particletype.insert(pair<string, int>("pi-",11));
+particletype.insert(pair<string, int>("pi0",12));
 }
 
 MuonRecorder::~MuonRecorder(){
 	fName->clear();delete fName;
 	fCount->clear();delete fCount;
+	fType->clear();delete fType;
 	fID->clear();delete fID;
+	fMomID->clear();delete fMomID;
 	fEk->clear();delete fEk;
 	fTime->clear();delete fTime;
 	fX->clear();delete fX;
@@ -53,7 +70,9 @@ void MuonRecorder::Reset()
 {
 	std::vector<string>().swap(*fName);
 	std::vector<int>().swap(*fCount);
+	std::vector<int>().swap(*fType);
 	std::vector<int>().swap(*fID);
+	std::vector<int>().swap(*fMomID);
 	std::vector<double>().swap(*fEk);
 	std::vector<double>().swap(*fTime);
 	std::vector<double>().swap(*fX );
@@ -71,7 +90,9 @@ void MuonRecorder::CreateEntry(
 {
 	fFirstColID = 
 		rootData->CreateNtupleIColumn(ntupleID, "mu.Count", *fCount);
-	rootData->CreateNtupleIColumn(ntupleID, "mu.ID", *fID);
+		rootData->CreateNtupleIColumn(ntupleID, "mu.Type", *fType);
+	rootData->CreateNtupleIColumn(ntupleID, "mu.trackID", *fID);
+	rootData->CreateNtupleIColumn(ntupleID, "mu.parentID", *fMomID);
 	//rootData->CreateNtupleSColumn(ntupleID, "mu.Name", *fName);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.E", *fEk);
 	rootData->CreateNtupleDColumn(ntupleID, "mu.t", *fTime);
@@ -89,14 +110,16 @@ void MuonRecorder::FillEntry(G4int,G4RootAnalysisManager*)
 {}
 
 G4bool MuonRecorder::Record(const G4Track* theMuon){
-	if(theMuon->GetParentID() != 0)
-		return false;
+	//if(theMuon->GetParentID() != 0)
+	//	return false;
 	//if(fCount->size()>=1) return false;
 	fCount->push_back(0);
 	fID->push_back(theMuon->GetTrackID() );
+	fMomID->push_back(theMuon->GetParentID() );
 	fEk->push_back(theMuon->GetKineticEnergy() / GeV );
 	fTime->push_back(theMuon->GetGlobalTime() / ns );
 	fName->push_back(theMuon->GetParticleDefinition()->GetParticleName());
+	fType->push_back(particletype[fName->back()]);
 	G4ThreeVector pos = theMuon->GetPosition();
 	fX->push_back(pos.x() / mm );
 	fY->push_back(pos.y() / mm );

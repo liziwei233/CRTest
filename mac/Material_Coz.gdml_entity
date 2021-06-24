@@ -26,6 +26,15 @@
    <atom value="127.60" />
   </element>
 
+
+  <material formula=" " name="CFRP" >
+		<D value="1.7" />
+		<fraction n="0.04" ref="Nitrogen" />
+		<fraction n="0.95" ref="Carbon" />
+		<fraction n="0.01" ref="Hydrogen" />
+		<property name="RINDEX" ref="EJ200_RINDEX"/>
+  </material> 
+
   <material formula=" " name="AIR" >
 		<D value="0.00129" />
 		<fraction n="0.7" ref="Nitrogen" />

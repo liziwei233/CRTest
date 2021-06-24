@@ -41,13 +41,26 @@
   </volume>
 -->
     <volume name="Tracker">
-      <materialref ref="G4_Al" />
+      <materialref ref="CFRP" />
       <solidref ref="TrackerS" />
     </volume>
+    <volume name="TrackerModule">
+      <materialref ref="G4_Al" />
+      <solidref ref="TrackerModuleS" />
+    </volume>
+    <volume name="AGETAlbox">
+      <materialref ref="G4_Al" />
+      <solidref ref="AGETAlboxS" />
+    </volume>
+
 
     <volume name="Trigger">
       <materialref ref="Trigger_PS" />
       <solidref ref="TriggerS" />
+    </volume>
+    <volume name="AlPlane">
+      <materialref ref="G4_Al" />
+      <solidref ref="AlPlaneS" />
     </volume>
 
 
@@ -57,7 +70,13 @@
       
 
       
+      <loop for="iAlPlane" to="AlPlaneN-1" step="1">
+        <physvol copynumber="iAlPlane">
+          <volumeref ref="AlPlane" />
 
+          <position unit="mm" x="AlPlanePosX[1+iAlPlane]-AlPlaneX/2" />
+        </physvol>
+      </loop>
 
       <physvol copynumber="0">
         <volumeref ref="Trigger" />
@@ -76,6 +95,29 @@
           <position unit="mm" x="DetPosX[1+iTracker]" />
         </physvol>
       </loop>
+
+      <physvol copynumber="0">
+        <volumeref ref="TrackerModule" />
+        <!--<position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[1]/2+DetPosX[2]/2" />
+      </physvol>
+      <physvol copynumber="0">
+        <volumeref ref="AGETAlbox" />
+        <!--<position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[1]/2+DetPosX[2]/2+AGETAlboxX/2+TrackerModuleX/2" />
+      </physvol>
+
+      <physvol copynumber="1">
+        <volumeref ref="TrackerModule" />
+        <!--<position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[3]/2+DetPosX[4]/2" />
+      </physvol>
+      <physvol copynumber="1">
+        <volumeref ref="AGETAlbox" />
+        <!--<position unit="mm" x="340+FTOF_freespaceT+FTOF_detectorX/2" />-->
+        <position unit="mm" x="DetPosX[3]/2+DetPosX[4]/2+AGETAlboxX/2+TrackerModuleX/2" />
+      </physvol>
+
 
       <physvol copynumber="0">
         <volumeref ref="FTOF_detector" />

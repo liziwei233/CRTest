@@ -9,6 +9,10 @@
 
 <!-- Public parameter-->
 <variable name="SOZ" value="0.01" />
+<!-- others -->
+<variable name="AlPlaneX" value="5" />
+<variable name="AlPlaneY" value="1000" />
+<variable name="AlPlaneZ" value="1000" />
 
 <!-- FTOF Detector Configuration -->
 <variable name="FTOF_mediumX" value="10" />
@@ -16,6 +20,8 @@
 <variable name="FTOF_mediumY2" value="533" />
 <variable name="FTOF_mediumZ" value="454" />
 
+
+<variable name="R10754_sensor_offset" value="18" />
 <variable name="R10754_sensor_T" value="20" />
 <variable name="R10754_anode_T" value="5" />
 <variable name="R10754_window_T" value="1.5" />
@@ -29,7 +35,7 @@
 <variable name="FTOF_shieldY" value="800" />
 <variable name="FTOF_shieldZ" value="600" />
 <variable name="FTOF_shieldT" value="2" />
-<variable name="FTOF_freespaceT" value="20" />
+<variable name="FTOF_freespaceT" value="10" />
 
 <variable name="FTOF_detectorX" value="FTOF_mediumX+R10754_sensor_T+0.01" />
 <variable name="FTOF_detectorY1" value="FTOF_mediumY1+0.01" />
@@ -66,6 +72,16 @@
 <variable name="TrackerX" value="3" />
 <variable name="TrackerY" value="150" />
 <variable name="TrackerZ" value="150" />
+<variable name="TrackerModuleX" value="100" />
+<variable name="TrackerModuleY" value="400" />
+<variable name="TrackerModuleZ" value="400" />
+<variable name="TrackerModuleT" value="1" />
+<variable name="Tracker_freespaceT" value="0" />
+<variable name="AGETAlboxX" value="30" />
+<variable name="AGETAlboxY" value="150" />
+<variable name="AGETAlboxZ" value="200" />
+<variable name="AGETAlboxT" value="3" />
+
 
 <!-- Trigger Configuration -->
 <variable name="TriggerX" value="30" />
@@ -92,7 +108,7 @@
 
 
 <!-- World Configuration-->
-<variable name="worldX" value="500+FTOF_shieldX*20" />
+<variable name="worldX" value="500+FTOF_shieldX*10" />
 <variable name="worldY" value="FTOF_shieldY*4" />
 <variable name="worldZ" value="FTOF_shieldZ*4" />
 <!--
@@ -111,10 +127,14 @@
 
 <!-- Others-->
 <matrix name="DetPosX" coldim="1" values="582 538 -120 -164 320 26 694 -478" />
+<matrix name="AlPlanePosX" coldim="1" values="657 507 280 0 -195 -370 -515" />
 <matrix name="MMzbias" coldim="1" values="0 0 0 0" />
 <variable name="Tri1zbias" value="30" />
 <variable name="Tri2zbias" value="0" />
 
+<!-- Al Plane -->
+<variable name="iAlPlane" value="0" />
+<constant name="AlPlaneN" value="7" />
 <!-- 1-4 of Tracker, 5-T0,6-FTOF,7-8 of Trigger -->
 
 <variable name="iDetector" value="0" />

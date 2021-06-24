@@ -10,16 +10,20 @@ DtofRec::DtofRec(string in, string out, TTree *tree) : CRdata(in, out, tree),
   NpMax = 1.48779, Np = 1.46979, Ng = 1.51404;
   MaxReflection = 2;
 
-  SectorNu = 12;
-  interval = 10, PhotonDetW = 27.5, CathodeW = 5.5; // mm
-  double angle = Pi() / 2. - Pi() / SectorNu;
-  QuartzR1 = 560. / Sin(angle) - interval / Cos(angle) * Tan(angle / 2);
-  QuartzR2 = 1050. - interval / Cos(angle) / Tan(angle / 2);
-  R = QuartzR2 * Sin(angle) - PhotonDetW / 2.;
-  //PhotonDetNu = int((R/Tan(angle)*2.-PhotonDetW/Tan(angle))/PhotonDetW);
-  //Gap = (R/Tan(angle)*2.-PhotonDetW/Tan(angle)-PhotonDetW*PhotonDetNu)/PhotonDetNu;
-  PhotonDetNu = 6;
-  Gap = 5;
+SectorNu  = 12;
+  sensorN=6;
+  QuartzY1 = 295; 
+  QuartzY2 = 533;
+  QuartzX = 10;
+  QuartzZ = 454;
+  MCPPMToffset = 18;
+  R10754_sensor_L = 27.6;
+  R10754_sensor_edge_L = 2.5;
+  R10754_anode_L = 5.28;
+  R10754_anode_interval_L = 0.3;
+  R10754_interval_L = 5;
+  
+  
 }
 
 DtofRec::~DtofRec()
@@ -42,12 +46,18 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i)
     return;
   if (a == left)
   {
+    // dot and  line cross
     double angle, angleD, x1, y1, x2, y2, tmpX, tmpY;
     angle = Pi() / 2. - Pi() / SectorNu;
-    x1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) - QuartzR1 * Cos(angle) * Sin(Pi() / 4.);
-    y1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) + QuartzR1 * Cos(angle) * Cos(Pi() / 4.);
-    x2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) - QuartzR2 * Cos(angle) * Sin(Pi() / 4.);
-    y2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) + QuartzR2 * Cos(angle) * Cos(Pi() / 4.);
+    //x1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) - QuartzR1 * Cos(angle) * Sin(Pi() / 4.);
+    //y1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) + QuartzR1 * Cos(angle) * Cos(Pi() / 4.);
+    //x2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) - QuartzR2 * Cos(angle) * Sin(Pi() / 4.);
+    //y2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) + QuartzR2 * Cos(angle) * Cos(Pi() / 4.);
+    x1 = QuartzY1/2;
+    y1 = QuartzZ/2;
+    x2 = QuartzY2/2;
+    y2 = -QuartzZ/2;
+
     A = y1 - y2;
     B = x2 - x1;
     C = x1 * y2 - x2 * y1;
@@ -57,23 +67,28 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i)
     Py = tmpY;
 
     angle = Pi() / 4. + Pi() / SectorNu;
-    if (Dx > 0)
+    if (Dy > 0)
       angleD = ATan(Dy / Dx);
-    if (Dx < 0)
+    if (Dy < 0)
       angleD = Pi() + ATan(Dy / Dx);
     tmpX = Sqrt(Dx * Dx + Dy * Dy) * Cos(2. * angle - angleD);
     tmpY = Sqrt(Dx * Dx + Dy * Dy) * Sin(2. * angle - angleD);
     Dx = tmpX;
     Dy = tmpY;
   }
+  //* TODO
   if (a == right)
   {
     double angle, angleD, x1, y1, x2, y2, tmpX, tmpY;
     angle = Pi() / 2. - Pi() / SectorNu;
-    x1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) + QuartzR1 * Cos(angle) * Sin(Pi() / 4.);
-    y1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) - QuartzR1 * Cos(angle) * Cos(Pi() / 4.);
-    x2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) + QuartzR2 * Cos(angle) * Sin(Pi() / 4.);
-    y2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) - QuartzR2 * Cos(angle) * Cos(Pi() / 4.);
+    //x1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) + QuartzR1 * Cos(angle) * Sin(Pi() / 4.);
+    //y1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) - QuartzR1 * Cos(angle) * Cos(Pi() / 4.);
+    //x2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) + QuartzR2 * Cos(angle) * Sin(Pi() / 4.);
+    //y2 = (QuartzR2 * Sin(angle) + interval / Cos(angle)) * Sin(Pi() / 4.) - QuartzR2 * Cos(angle) * Cos(Pi() / 4.);
+    x1 = -QuartzY1/2;
+    y1 = QuartzZ/2;
+    x2 = -QuartzY2/2;
+    y2 = -QuartzZ/2;
     A = y1 - y2;
     B = x2 - x1;
     C = x1 * y2 - x2 * y1;
@@ -83,9 +98,9 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i)
     Py = tmpY;
 
     angle = Pi() / 4. - Pi() / SectorNu;
-    if (Dx > 0)
+    if (Dy > 0)
       angleD = ATan(Dy / Dx);
-    if (Dx < 0)
+    if (Dy < 0)
       angleD = Pi() + ATan(Dy / Dx);
     tmpX = Sqrt(Dx * Dx + Dy * Dy) * Cos(2. * angle - angleD);
     tmpY = Sqrt(Dx * Dx + Dy * Dy) * Sin(2. * angle - angleD);
@@ -112,12 +127,12 @@ void DtofRec::Clear()
 void DtofRec::SetTrackHit()
 {
   //T0 = fRandom->Gaus(0,0.04);
-  // TODO
+  // TODO: simulation to lab
   Dx = CRRBpy;
-  Dy = CRRBpz;
-  Dz = CRRBpx;
+  Dy = -CRRBpz;
+  Dz = -CRRBpx;
   Px = FTOFdetRBy;
-  Py = FTOFdetRBz;
+  Py = -FTOFdetRBz;
 
   //Pz = FTOFdetRBz;
   //Dx = TrackDx->at(0);
@@ -145,12 +160,21 @@ void DtofRec::SetPhotonHit(int i)
 
 void DtofRec::RecHitPos()
 {
+
   int PhotonDetID = ChX / 4;
+  double posX0 = -R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*(ChX%4);
+  double posY0 = -R10754_sensor_L/2+R10754_sensor_edge_L+R10754_anode_interval_L+R10754_anode_L/2+(R10754_anode_interval_L+R10754_anode_L)*ChY;
+
+  double  HitX = posX0 -1*(sensorN/2-0.5)*(R10754_sensor_L+R10754_interval_L)+(R10754_sensor_L+R10754_interval_L)*PhotonDetID;
+  double HitY = posY0 + QuartzZ/2-R10754_sensor_L/2-MCPPMToffset;
+  
+  /*
   double posX0 = (R + interval / Cos(Pi() / 2. - Pi() / SectorNu)) * Cos(Pi() / 4.);
   double posY0 = (R + interval / Cos(Pi() / 2. - Pi() / SectorNu)) * Sin(Pi() / 4.);
   double PDW = -(PhotonDetW + Gap) * (PhotonDetNu - 1) / 2. + (PhotonDetW + Gap) * PhotonDetID;
   HitX = posX0 + (PDW + CathodeW * (ChX % 4 - 1.5)) * Sin(Pi() / 4.) + CathodeW * (ChY - 1.5) * Cos(Pi() / 4.);
   HitY = posY0 - (PDW + CathodeW * (ChX % 4 - 1.5)) * Cos(Pi() / 4.) + CathodeW * (ChY - 1.5) * Sin(Pi() / 4.);
+  */
 }
 void DtofRec::RecTOF(lightpath a, double beta, int num = 1)
 {
@@ -231,15 +255,15 @@ void DtofRec::Loop()
     return;
   Long64_t nentries = fChain->GetEntriesFast();
 
-  double FT[128];
-  double TL[128];
+  double FT[16*sensorN];
+  double TL[16*sensorN];
   TT.clear();
   AA.clear();
   for (Long64_t tentry = 0; tentry < nentries; tentry++)
   {
     fChain->GetEntry(tentry);
     int ctr = 0;
-    for (int i = 0; i < 128; i++)
+    for (int i = 0; i < 16*sensorN; i++)
     {
 
       if (FTOFeletot[i] < 0)
@@ -249,7 +273,7 @@ void DtofRec::Loop()
       FT[i] = BestFlightTime;
       TL[i] = BestPropLength;
     };
-    TT.push_back(Mean(128, FT));
-    AA.push_back(Mean(128, TL));
+    TT.push_back(Mean(16*sensorN, FT));
+    AA.push_back(Mean(16*sensorN, TL));
   }
 }
