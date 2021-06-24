@@ -61,7 +61,7 @@ class DtofRec:public CRdata{
     double TL[128];
     double HitXpos[128];
     double HitYpos[128];
-
+    double SimuFT;
 
     /// parameters
     double QuartzY1,QuartzY2,QuartzX,QuartzZ;
@@ -122,6 +122,8 @@ void DtofRec::InitialOutput(){
   ot->Branch("TrackLength",TL,"TrackLength[128]/D");
   ot->Branch("HitX",HitXpos,"HitX[128]/D");
   ot->Branch("HitY",HitYpos,"HitY[128]/D");
+  ot->Branch("SimuFT",&SimuFT,"SimuFT/D");
+  ot->Branch("FTOFphotonTOP",&FTOFphotonTOP);
 }
 DtofRec::lightpath DtofRec::Mirror(DtofRec::lightpath a)
 {
@@ -381,6 +383,7 @@ void DtofRec::Loop()
     memset(TL,0,sizeof(TL));
     memset(HitXpos,0,sizeof(HitXpos));
     memset(HitYpos,0,sizeof(HitYpos));
+    SimuFT = FTOFdett- T0dett;
     SetTrackHit();
     for (int i = 0; i < 16*sensorN; i++)
     {
