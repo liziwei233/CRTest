@@ -54,6 +54,8 @@ public:
     double Trackerdett[4];
 
     //for CR
+    int CRType;
+    int CRParentID;
     double CRE;
     double CRpx;
     double CRpy;
@@ -69,6 +71,8 @@ public:
         T0detz = -999;
         T0dett = -999;
         //for CR
+        CRType = -999;
+        CRParentID = -999;
         CRE = -999;
         CRpx = -999;
         CRpy = -999;

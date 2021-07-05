@@ -138,6 +138,8 @@ struct CRPosData
 struct CRMuData
 {
     double muE;
+    int muType;
+    int muParentID;
     double px;
     double py;
     double pz;
@@ -149,6 +151,8 @@ struct CRMuData
     }
     void Initial()
     {
+        muType = -999;
+        muParentID = -999;
         muE = -999;
         px = -999;
         py = -999;
@@ -687,7 +691,7 @@ void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
     fList.clear();
     if (filePath.EndsWith("/"))
         filePath.Remove(filePath.Length() - 1, 1);
-    FILE *fp = gSystem->OpenPipe("ls " + filePath + "/*" + filePattern, "r");
+    FILE *fp = gSystem->OpenPipe("ls -rt " + filePath + "/*" + filePattern, "r");
     if (!fp)
     {
         cout << "----> NO data files exists in " << filePath << "!" << endl;
@@ -697,8 +701,8 @@ void GetFileList(TString filePath, TString filePattern, vector<TString> &fList)
     while (fgets(line, sizeof(line), fp))
     {
         TString s(line);
-        if (s.Index(filePattern) == -1)
-            continue;
+        //if (s.Index(filePattern) == -1)
+        //    continue;
         fList.push_back(s.ReplaceAll("\n", ""));
     }
 };
@@ -817,7 +821,7 @@ void CalculateEff2(TString input = "../data.root")
     //TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOFMap.back().first + 1 - FTOFMap.front().first, FTOFMap.front().first, FTOFMap.back().first + 1);
     TH1I *hFTOFCHeff = new TH1I("hFTOFCHeff", "", FTOFCHNo.back() + 1 - FTOFCHNo.front(), FTOFCHNo.front(), FTOFCHNo.back() + 1);
 
-    TH2I *hpos = new TH2I("hpos", "hpos; x ;  y", 4*6, 0, 4*6, 4, 0, 4);
+    TH2I *hpos = new TH2I("hpos", "hpos; x ;  y", 4 * 6, 0, 4 * 6, 4, 0, 4);
 
     cout << "Read rootfile: " << input.Data() << endl;
     TFile *f = new TFile(input.Data(), "READ");
@@ -851,10 +855,10 @@ void CalculateEff2(TString input = "../data.root")
 
             if (fdata->T0eleU[iT0hit] == -999 || fdata->T0eleU[iT0hit] >= 0)
                 continue;
-               // if (SearchforID(iT0hit, T0CHNo))
-                 //   {
+            // if (SearchforID(iT0hit, T0CHNo))
+            //   {
             T0vec.push_back(iT0hit);
-                   // }
+            // }
         }
         for (int iFTOFhit = 0; iFTOFhit < 128; iFTOFhit++)
         {
@@ -1034,7 +1038,6 @@ void CalculateEff2(TString input = "../data.root")
     //** draw FTOF eff
     //*
     c = cdC(ccounter++);
-    
 
     double FTOFeff[FTOF_sensorN + 1];
     /*
@@ -1057,18 +1060,19 @@ void CalculateEff2(TString input = "../data.root")
     }
     */
     int noevent = hFTOFeff->GetBinContent(hFTOFeff->FindBin(0));
-    if(noevent <10){
+    if (noevent < 10)
+    {
         noevent = triggercounter - FTOFcounter;
-         hFTOFeff->SetBinContent(hFTOFeff->FindBin(0),noevent);
+        hFTOFeff->SetBinContent(hFTOFeff->FindBin(0), noevent);
     }
     DrawMyHist(hFTOFeff, "Num of fired Channel", "Counts", 1, 3);
     hFTOFeff->Draw();
     c->Update();
     SetEffstats(c, hFTOFeff, triggercounter, triggercounter, FTOFcounter);
-sprintf(buff, "Fired channels=%.1f",  hFTOFeff->GetMean());
+    sprintf(buff, "Fired channels=%.1f", hFTOFeff->GetMean());
 
-        la = DrawMyLatex(buff, 0.4, 0.4, 42, 0.06);
-        la->Draw("same");
+    la = DrawMyLatex(buff, 0.4, 0.4, 42, 0.06);
+    la->Draw("same");
 
     canvasname = filepath + "/FTOFeff.png";
     c->SaveAs(canvasname);
@@ -1097,20 +1101,21 @@ sprintf(buff, "Fired channels=%.1f",  hFTOFeff->GetMean());
         la->Draw("same");
     }
     */
-   double CHeffsum = 0;
-   int Cheffctr = 0;
-   cout<<"FTOF_sensorN="<<FTOF_sensorN<<endl;
-   for(int i =0; i<FTOF_sensorN;i++)
-   {
-FTOFCHeff[i] = hFTOFCHeff->GetBinContent( hFTOFCHeff->FindBin(i)) / triggercounter;
-if(FTOFCHeff[i]>0){
-    CHeffsum +=FTOFCHeff[i] ;
-    Cheffctr++;
-}
-   }
-        sprintf(buff, "Average Ratio=%.1f%%", CHeffsum/Cheffctr * 100);
-        la = DrawMyLatex(buff, 0.3, 0.3, 42, 0.06, 2);
-        la->Draw("same");
+    double CHeffsum = 0;
+    int Cheffctr = 0;
+    cout << "FTOF_sensorN=" << FTOF_sensorN << endl;
+    for (int i = 0; i < FTOF_sensorN; i++)
+    {
+        FTOFCHeff[i] = hFTOFCHeff->GetBinContent(hFTOFCHeff->FindBin(i)) / triggercounter;
+        if (FTOFCHeff[i] > 0)
+        {
+            CHeffsum += FTOFCHeff[i];
+            Cheffctr++;
+        }
+    }
+    sprintf(buff, "Average Ratio=%.1f%%", CHeffsum / Cheffctr * 100);
+    la = DrawMyLatex(buff, 0.3, 0.3, 42, 0.06, 2);
+    la->Draw("same");
     canvasname = filepath + "/FTOFCHeff.png";
     c->SaveAs(canvasname);
 
@@ -1654,17 +1659,18 @@ void Drawhist(TString path)
     la->Draw();
     cc->SaveAs(Form("%s/Rebuildyzpos.png", path.Data()));
 }
-void DrawTrackerpos(TString input = "../data.root", int force = 0){
-    TH1D* hy[4];
-    TH1D* hz[4];
-    TH2D* hyz[4];
-    for(int i =0; i<4; i++)
+void DrawTrackerpos(TString input = "../data.root", int force = 0)
+{
+    TH1D *hy[4];
+    TH1D *hz[4];
+    TH2D *hyz[4];
+    for (int i = 0; i < 4; i++)
     {
-        hy[i] = new TH1D(Form("hy%d",i),"",200,-150,150);
-        hz[i] = new TH1D(Form("hz%d",i),"",200,-150,150);
-        hyz[i] = new TH2D(Form("hyz%d",i),"",200,-150,150,200,-150,150);
+        hy[i] = new TH1D(Form("hy%d", i), "", 200, -150, 150);
+        hz[i] = new TH1D(Form("hz%d", i), "", 200, -150, 150);
+        hyz[i] = new TH2D(Form("hyz%d", i), "", 200, -150, 150, 200, -150, 150);
     }
-     TString filepath;
+    TString filepath;
     TString rootname;
     rootname = GetFilename(input);
     filepath = GetFilepath(input);
@@ -1678,59 +1684,67 @@ void DrawTrackerpos(TString input = "../data.root", int force = 0){
     t->SetBranchAddress("data", &fdata, &b_data);
     int N = t->GetEntriesFast();
     cout << "Total trigger events is: " << N << endl;
-     for (int i = 0; i < N; i++)
+    for (int i = 0; i < N; i++)
     //for (int i = 0; i < 2; i++)
     {
         //data = CRsysRBData();
         t->GetEntry(i);
         if (fdata->CRRBtheta == -999)
             continue;
-        for(int i =0 ;i<4;i++)
+        for (int i = 0; i < 4; i++)
         {
-            
-            if(fdata->Trackerdetz[i]!=-999) hz[i]->Fill(fdata->Trackerdetz[i]);
-            if(fdata->Trackerdety[i]!=-999) hy[i]->Fill(fdata->Trackerdety[i]);
-            if(fdata->Trackerdety[i]!=-999&&fdata->Trackerdetz[i]!=-999) hyz[i]->Fill(fdata->Trackerdety[i],fdata->Trackerdetz[i]);
+
+            if (fdata->Trackerdetz[i] != -999)
+                hz[i]->Fill(fdata->Trackerdetz[i]);
+            if (fdata->Trackerdety[i] != -999)
+                hy[i]->Fill(fdata->Trackerdety[i]);
+            if (fdata->Trackerdety[i] != -999 && fdata->Trackerdetz[i] != -999)
+                hyz[i]->Fill(fdata->Trackerdety[i], fdata->Trackerdetz[i]);
         }
     }
-    int zhistcontentmen = hz[0]->Integral()/(hz[0]->FindBin(75)-hz[0]->FindBin(-75));
-    int yhistcontentmen = hy[0]->Integral()/(hy[0]->FindBin(75)-hy[0]->FindBin(-75));
-    hz[0]->SetBinContent(hz[0]->FindFirstBinAbove(zhistcontentmen),0);
-    hz[0]->SetBinContent(hz[0]->FindLastBinAbove(1),0);
-    hy[0]->SetBinContent(hy[0]->FindFirstBinAbove(yhistcontentmen),0);
-    hy[0]->SetBinContent(hy[0]->FindLastBinAbove(1),0);
-    TCanvas *c = cdC(200,1500,1000);
-    c->Divide(4,3);
-    for(int i = 0; i<4; i++){
-        c->cd(1+i);
+    int zhistcontentmen = hz[0]->Integral() / (hz[0]->FindBin(75) - hz[0]->FindBin(-75));
+    int yhistcontentmen = hy[0]->Integral() / (hy[0]->FindBin(75) - hy[0]->FindBin(-75));
+    hz[0]->SetBinContent(hz[0]->FindFirstBinAbove(zhistcontentmen), 0);
+    hz[0]->SetBinContent(hz[0]->FindLastBinAbove(1), 0);
+    hy[0]->SetBinContent(hy[0]->FindFirstBinAbove(yhistcontentmen), 0);
+    hy[0]->SetBinContent(hy[0]->FindLastBinAbove(1), 0);
+    TCanvas *c = cdC(200, 1500, 1000);
+    c->Divide(4, 3);
+    for (int i = 0; i < 4; i++)
+    {
+        c->cd(1 + i);
         SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
-        
-        DrawMyHist(hy[i],"Y","Counts");
+
+        DrawMyHist(hy[i], "Y", "Counts");
         hy[i]->Draw();
-        c->cd(5+i);
+        c->cd(5 + i);
         SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
-        DrawMyHist(hz[i],"Z","Counts");
+        DrawMyHist(hz[i], "Z", "Counts");
         hz[i]->Draw();
-        c->cd(9+i);
+        c->cd(9 + i);
         SetMyPad(gPad, 0.16, 0.1, 0.1, 0.16);
-        DrawMy2dHist(hyz[i],"y","z");
+        DrawMy2dHist(hyz[i], "y", "z");
         hyz[i]->Draw("colz");
     }
-    c->SaveAs(Form("%s/Trackerpos.png",filepath.Data()));
+    c->SaveAs(Form("%s/Trackerpos.png", filepath.Data()));
 }
 vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<double> AA, int rbt = 10, int rbA = 12, double initialtL = -2e3, double initialtR = 3e3, double initialAL = -300, double initialAR = 300)
 {
-    if(TT.size()<1||AA.size()<1) {
-    cout<<" - input data is empty , check please - "<<endl;    
-    return TT;
+    if (TT.size() < 100 || AA.size() < 100)
+    {
+        cout << " - input data is empty , check please - " << endl;
+        return TT;
     }
-    bint = (initialtR - initialtL) / 0.5e-3;
+    ofstream op(Form("%s.dat", name.Data()));
+    cout << "Create datfile: " << Form("%s.dat", name.Data()) << endl;
+
+    bint = (initialtR - initialtL) / 1e-3;
     cout << "bint: " << bint << endl;
     cout << "tL, tR: " << initialtL << "\t" << initialtR << endl;
-    ht = new TH1D("ht", ";Time (ns);Counts", bint, initialtL, initialtR);
-    htcor = new TH1D("htcor", ";Time (ns);Counts", bint, initialtL, initialtR);
-    hL = new TH1D("hL", ";reTrack (mm);Counts", 3e3, initialAL, initialAR);
-    hLT = new TH2D("hLT", ";reTrack;TR (ns)", 3e3, initialAL, initialAR, bint, initialtL, initialtR);
+    ht = new TH1D("ht", ";Time (ns);Counts", bint / rbt / 4, initialtL, initialtR);
+    htcor = new TH1D("htcor", ";Time (ns);Counts", bint / rbt / 4, initialtL, initialtR);
+    hL = new TH1D("hL", ";reTrack (mm);Counts", 3e3 / rbA / 4, initialAL, initialAR);
+    hLT = new TH2D("hLT", ";reTrack;TR (ns)", 3e3 / rbA / 2, initialAL, initialAR, bint, initialtL, initialtR);
 
     TCanvas *cc;
     int CNum = 0;
@@ -1757,7 +1771,7 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
             //if (Amean - 3 * Asigma <= 0)
             //    fitAT = profilefit(hLT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, 0.1, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s-1));
             //else
-            fitAT = profilefit(hLT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, Form("%s_%d", name.Data(), s - 1));
+            fitAT = profilefit(hLT, 1, 1, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, Amean - 3 * Asigma, Amean + 3 * Asigma, Form("%s_%d", name.Data(), s - 1));
             if (!fitAT)
             {
                 cout << " the profilefit is failed! " << endl;
@@ -1795,7 +1809,7 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
         {
             //DrawMyHist(hL, "", "", 1, 3);
             hL->Draw();
-            fitA = gausfit(hL, 100, 3, 3, rbA * 4, initialAL, initialAR);
+            fitA = gausfit(hL, 100, 3, 3, 1, initialAL, initialAR);
             //return;
             if (!fitA)
             {
@@ -1814,7 +1828,7 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
         cc->Clear();
         //DrawMyHist(ht, "", "", 1, 3);
         ht->Draw();
-        fitT = gausfit(ht, 100, 2, 2, rbt * 4, fTL, fTR);
+        fitT = gausfit(ht, 100, 2, 2, 1, fTL, fTR);
         //fitT = gausfit(ht, 0.1, 3, 3, rbt * 20, fTL, fTR);
         if (!fitT)
         {
@@ -1824,9 +1838,9 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
         //fitT = (TF1 *)htfit->GetFunction("fitU");
         Tmean = fitT->GetParameter(1);
         Tsigma = fitT->GetParameter(2);
-
+        op << s << "\t" << Tmean << "\t" << Tsigma << "\t" << fitT->GetParError(2) << "\t" << ht->GetStdDev() << endl;
         ht->SetNdivisions(505);
-        sprintf(buff, "#sigma=%.0fps", Tsigma*1e3);
+        sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
         TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
         l->Draw();
         cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
@@ -1846,6 +1860,18 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
         //la = DrawMyLatex(buff, 0.2, 0.4);
         cc->SaveAs(Form("%s_hAT%d.png", name.Data(), s));
     }
+
+    op.close();
+    //delete ht;
+    //delete htcor;
+    //delete hL;
+    //delete hLT;
+    //delete cc;
+    //delete htfit;
+    //delete hAfit;
+    //delete fitT;
+    //delete fitA;
+    //delete fitAT;
     for (int i = 0; i < AA.size(); i++)
     {
         Tcor.push_back(Treserve[i]);
@@ -1898,10 +1924,10 @@ vector<double> TA2correction(TString name, int iter, vector<double> TT, vector<d
             if (s != 0 || h != 0)
             {
                 if (Amean - 3 * Asigma <= 0)
-                //    fitAT = profilefit(hAT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, 0.1, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s-1));
-                //else
-                
-                fitAT = profilefit(hAT[(h + 2 - 1) % 2], rbA * 2, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, AL, AR, Form("%s_ch%dprofile%d", name.Data(), (h + 2 - 1) % 2, s - 1));
+                    //    fitAT = profilefit(hAT, rbA, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, 0.1, Amean + 3 * Asigma, Form("%s/%d", path.Data(), s-1));
+                    //else
+
+                    fitAT = profilefit(hAT[(h + 2 - 1) % 2], rbA * 2, rbt * 4, Tmean - 6 * Tsigma, Tmean + 6 * Tsigma, AL, AR, Form("%s_ch%dprofile%d", name.Data(), (h + 2 - 1) % 2, s - 1));
                 if (!fitAT)
                 {
                     cout << " the profilefit is failed! " << endl;
@@ -1948,15 +1974,16 @@ vector<double> TA2correction(TString name, int iter, vector<double> TT, vector<d
                     cout << "the hAfit hist is NULL " << endl;
                     //return Tcor;
                     Amean = hA[h]->GetMean();
-                Asigma = hA[h]->GetRMS();
+                    Asigma = hA[h]->GetRMS();
                 }
                 //fitA = (TF1 *)hAfit->GetFunction("fitU");
-                else{
+                else
+                {
                     Amean = fitA->GetParameter(1);
-                Asigma = fitA->GetParameter(2);
+                    Asigma = fitA->GetParameter(2);
                 }
-                AL = Amean - 3 * Asigma<initialAL? initialAL: Amean - 3 * Asigma;
-                AR = Amean + 3 * Asigma>initialAR? initialAR: Amean + 3 * Asigma;
+                AL = Amean - 3 * Asigma < initialAL ? initialAL : Amean - 3 * Asigma;
+                AR = Amean + 3 * Asigma > initialAR ? initialAR : Amean + 3 * Asigma;
 
                 cout << "Amean=" << Amean << ",\tAsigma=" << Asigma << endl;
                 cc->SaveAs(Form("%sch%dtot.png", name.Data(), h));
@@ -1979,7 +2006,7 @@ vector<double> TA2correction(TString name, int iter, vector<double> TT, vector<d
             Tsigma = fitT->GetParameter(2);
 
             ht->SetNdivisions(505);
-            sprintf(buff, "#sigma=%.0fps", Tsigma*1e3);
+            sprintf(buff, "#sigma=%.0fps", Tsigma * 1e3);
             TLatex *l = DrawMyLatex(buff, 0.2, 0.5);
             l->Draw();
             cout << "Tmean=" << Tmean << ",\tTsigma=" << Tsigma << endl;
@@ -2052,6 +2079,7 @@ void RebuildData(TString input = "../build")
     vector<double> *R380_py = 0;
     vector<double> *R380_pz = 0;
     vector<int> *R380_trackID = 0;
+    vector<int> *R380_parentID = 0;
     vector<int> *R107_count = 0;
     vector<int> *R107_id = 0;
     vector<double> *R107_E = 0;
@@ -2064,8 +2092,11 @@ void RebuildData(TString input = "../build")
     vector<double> *R107_py = 0;
     vector<double> *R107_pz = 0;
     vector<int> *R107_trackID = 0;
+    vector<int> *R107_parentID = 0;
     vector<int> *mu_Count = 0;
-    vector<int> *mu_ID = 0;
+    vector<int> *mu_Type = 0;
+    vector<int> *mu_trackID = 0;
+    vector<int> *mu_parentID = 0;
     vector<double> *mu_E = 0;
     vector<double> *mu_t = 0;
     vector<double> *mu_x = 0;
@@ -2077,42 +2108,47 @@ void RebuildData(TString input = "../build")
     vector<int> *mu_DetID = 0;
 
     // List of branches
-    TBranch *b_R380_count;   //!
-    TBranch *b_R380_id;      //!
-    TBranch *b_R380_E;       //!
-    TBranch *b_R380_t;       //!
-    TBranch *b_R380_TOP;     //!
-    TBranch *b_R380_x;       //!
-    TBranch *b_R380_y;       //!
-    TBranch *b_R380_z;       //!
-    TBranch *b_R380_px;      //!
-    TBranch *b_R380_py;      //!
-    TBranch *b_R380_pz;      //!
-    TBranch *b_R380_trackID; //!
-    TBranch *b_R107_count;   //!
-    TBranch *b_R107_id;      //!
-    TBranch *b_R107_E;       //!
-    TBranch *b_R107_t;       //!
-    TBranch *b_R107_TOP;     //!
-    TBranch *b_R107_x;       //!
-    TBranch *b_R107_y;       //!
-    TBranch *b_R107_z;       //!
-    TBranch *b_R107_px;      //!
-    TBranch *b_R107_py;      //!
-    TBranch *b_R107_pz;      //!
-    TBranch *b_R107_trackID; //!
-    TBranch *b_mu_Count;     //!
-    TBranch *b_mu_ID;        //!
-    TBranch *b_mu_E;         //!
-    TBranch *b_mu_t;         //!
-    TBranch *b_mu_x;         //!
-    TBranch *b_mu_y;         //!
-    TBranch *b_mu_z;         //!
-    TBranch *b_mu_px;        //!
-    TBranch *b_mu_py;        //!
-    TBranch *b_mu_pz;        //!
-    TBranch *b_mu_DetID;     //!
+    TBranch *b_R380_count;    //!
+    TBranch *b_R380_id;       //!
+    TBranch *b_R380_E;        //!
+    TBranch *b_R380_t;        //!
+    TBranch *b_R380_TOP;      //!
+    TBranch *b_R380_x;        //!
+    TBranch *b_R380_y;        //!
+    TBranch *b_R380_z;        //!
+    TBranch *b_R380_px;       //!
+    TBranch *b_R380_py;       //!
+    TBranch *b_R380_pz;       //!
+    TBranch *b_R380_trackID;  //!
+    TBranch *b_R380_parentID; //!
+    TBranch *b_R107_count;    //!
+    TBranch *b_R107_id;       //!
+    TBranch *b_R107_E;        //!
+    TBranch *b_R107_t;        //!
+    TBranch *b_R107_TOP;      //!
+    TBranch *b_R107_x;        //!
+    TBranch *b_R107_y;        //!
+    TBranch *b_R107_z;        //!
+    TBranch *b_R107_px;       //!
+    TBranch *b_R107_py;       //!
+    TBranch *b_R107_pz;       //!
+    TBranch *b_R107_trackID;  //!
+    TBranch *b_R107_parentID; //!
+    TBranch *b_mu_Count;      //!
+    TBranch *b_mu_Type;       //!
+    TBranch *b_mu_trackID;    //!
+    TBranch *b_mu_parentID;   //!
+    TBranch *b_mu_E;          //!
+    TBranch *b_mu_t;          //!
+    TBranch *b_mu_x;          //!
+    TBranch *b_mu_y;          //!
+    TBranch *b_mu_z;          //!
+    TBranch *b_mu_px;         //!
+    TBranch *b_mu_py;         //!
+    TBranch *b_mu_pz;         //!
+    TBranch *b_mu_DetID;      //!
     t1->SetMakeClass(1);
+
     t1->SetBranchAddress("R380.count", &R380_count, &b_R380_count);
     t1->SetBranchAddress("R380.id", &R380_id, &b_R380_id);
     t1->SetBranchAddress("R380.E", &R380_E, &b_R380_E);
@@ -2125,6 +2161,7 @@ void RebuildData(TString input = "../build")
     t1->SetBranchAddress("R380.py", &R380_py, &b_R380_py);
     t1->SetBranchAddress("R380.pz", &R380_pz, &b_R380_pz);
     t1->SetBranchAddress("R380.trackID", &R380_trackID, &b_R380_trackID);
+    t1->SetBranchAddress("R380.parentID", &R380_parentID, &b_R380_parentID);
     t1->SetBranchAddress("R107.count", &R107_count, &b_R107_count);
     t1->SetBranchAddress("R107.id", &R107_id, &b_R107_id);
     t1->SetBranchAddress("R107.E", &R107_E, &b_R107_E);
@@ -2137,8 +2174,11 @@ void RebuildData(TString input = "../build")
     t1->SetBranchAddress("R107.py", &R107_py, &b_R107_py);
     t1->SetBranchAddress("R107.pz", &R107_pz, &b_R107_pz);
     t1->SetBranchAddress("R107.trackID", &R107_trackID, &b_R107_trackID);
+    t1->SetBranchAddress("R107.parentID", &R107_parentID, &b_R107_parentID);
     t1->SetBranchAddress("mu.Count", &mu_Count, &b_mu_Count);
-    t1->SetBranchAddress("mu.ID", &mu_ID, &b_mu_ID);
+    t1->SetBranchAddress("mu.Type", &mu_Type, &b_mu_Type);
+    t1->SetBranchAddress("mu.trackID", &mu_trackID, &b_mu_trackID);
+    t1->SetBranchAddress("mu.parentID", &mu_parentID, &b_mu_parentID);
     t1->SetBranchAddress("mu.E", &mu_E, &b_mu_E);
     t1->SetBranchAddress("mu.t", &mu_t, &b_mu_t);
     t1->SetBranchAddress("mu.x", &mu_x, &b_mu_x);
@@ -2260,12 +2300,14 @@ void RebuildData(TString input = "../build")
             }
 
             Mudata.muE = mu_E->at(ihitdet);
+            Mudata.muType = mu_Type->at(ihitdet);
+            Mudata.muParentID = mu_parentID->at(ihitdet);
             Mudata.px = mu_px->at(ihitdet);
             Mudata.py = mu_py->at(ihitdet);
             Mudata.pz = mu_pz->at(ihitdet);
             //cout<<"px, py, pz"<<mu_px->at(0)<<","<<mu_py->at(0)<<","<<mu_pz->at(0)<<endl;
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
-            Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py))*Mudata.py/abs(Mudata.py);
+            Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py)) * Mudata.py / abs(Mudata.py);
         }
 
         if (triggervec.size() == 2)
@@ -2289,7 +2331,7 @@ void RebuildData(TString input = "../build")
             RebuildSensorSignal(T0photon, T0Ele, 4, "FIX", -3.5);
             //return;
             FTOFEle.Initial();
-            RebuildSensorSignal(FTOFphoton, FTOFEle,128,"FIX",-7,0,25e-9);
+            RebuildSensorSignal(FTOFphoton, FTOFEle, 128, "FIX", -7, 0, 25e-9);
             data.RBInitial();
             data.T0photonid = T0photon.id;
             data.T0photonE = T0photon.photonE;
@@ -2326,6 +2368,9 @@ void RebuildData(TString input = "../build")
                 data.Trackerdetz[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).z;
                 data.Trackerdett[Trackerpos->at(iMM).id] = Trackerpos->at(iMM).t;
             }
+            data.CRE = Mudata.muE;
+            data.CRType = Mudata.muType;
+            data.CRParentID = Mudata.muParentID;
             data.CRE = Mudata.muE;
             data.CRpx = Mudata.px;
             data.CRpy = Mudata.py;
@@ -2445,11 +2490,11 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     TFile *f = new TFile(input.Data(), "READ");
     TTree *t = (TTree *)f->Get("data");
     //t->SetMakeClass(1);
+    vector<CRsysRBData> datavec;
     CRsysRBData *fdata;
     fdata = new CRsysRBData();
     TBranch *b_data;
     t->SetBranchAddress("data", &fdata, &b_data);
-
 
     sprintf(buff, "%s/%sT0RBdata.root", filepath.Data(), rootname.Data());
     TFile *f2 = new TFile(buff, "RECREATE");
@@ -2472,110 +2517,129 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         t->GetEntry(i);
         if (fdata->T0detRBy == -999 || fdata->CRRBtheta == -999)
             continue;
-        //return;
-        validcnt++;
-        reTrackSum = 0;
-        PMTtime = 0;
-
-        PMTtimecor = 0;
-        meanreTrack = 0;
-        memset(T0time, 0, sizeof(T0time));
-        memset(T0timecor, 0, sizeof(T0timecor));
-        memset(T0reTrack, 0, sizeof(T0reTrack));
-        memset(T0tot, 0, sizeof(T0tot));
-        PMTcounter = 0;
-        TVector3 T0fitpos(fdata->T0detRBx, fdata->T0detRBy, fdata->T0detRBz);
-        TVector3 Mufitdir(-1 * fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
-        for (int j = 0; j < 4; j++)
-        {
-            if (fdata->T0elefittot[j] > 0&&fdata->CRRBtheta>0)
-            {
-                //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
-                reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
-                //reTrack = sqrt(fdata->T0detRBy*fdata->T0detRBy+fdata->T0detRBz*fdata->T0detRBz);
-
-                //cout<<"reTrack:"<<reTrack<<endl;
-                reTrackSum += reTrack;
-                T0reTrack[fdata->T0eleid[j]] = reTrack;
-                // * substract start time
-                //PMTtime += T0Eledata[j].thtime[0]-T0posvec[i].t ;
-                //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0posvec[i].t ;
-                T0time[fdata->T0eleid[j]] = fdata->T0elefittime1[j];
-                PMTtime += fdata->T0elefittime1[j];
-                PMTtimecor += fdata->T0elefittime1[j] - reTrack / 298 * 1.5;
-                T0timecor[fdata->T0eleid[j]] = fdata->T0elefittime1[j] - reTrack / 298 * 1.5;
-                T0tot[fdata->T0eleid[j]]=fdata->T0elefittime2[j]-fdata->T0elefittime1[j];
-                PMTcounter++;
-                //hPMTID->Fill(fdata->T0eleid[j]);
-            }
-        }
-        t2->Fill();
-        //cout<<"id size="<<fdata->T0eleid.size()<<endl;
-        //cout<<"PMTcounter="<<PMTcounter<<endl;
-        //if(T0time[1]!=0&&T0time[3]!=0){
-        if (T0time[0] != 0 && T0time[2] != 0 )
-        {
-            //return;
-            Timestamp = T0time[0] - T0time[2];
-            Timestampcor = T0timecor[0];
-            meanreTrack = T0reTrack[0] - T0reTrack[2];
-            //meanreTrack =  T0reTrack[0];
-            //Timestamp = PMTtime / PMTcounter;
-            //Timestampcor = PMTtimecor / PMTcounter;
-            //meanreTrack = T0reTrack[0];
-            //meanreTrack = reTrackSum / PMTcounter;
-            //cout<<"PMTcounter:"<<PMTcounter<<endl;
-            //cout<<"Timestamp:"<<Timestamp<<endl;
-            //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
-            //cout<<"Timestampcor:"<<Timestampcor<<endl;
-            //cout<<"meanreTrack:"<<meanreTrack<<endl;
-            //hNPMT->Fill(PMTcounter);
-            //h2dPMT->Fill(PMTcounter, Timestamp);
-            if (abs(Timestamp)<0.75)
-            //if (T0time[0] < 2.5&&T0time[2]<2.5)
-            {
-                //TT.push_back(Timestampcor);
-                TT.push_back(Timestamp);
-                //AA.push_back(reTrack);
-                AA.push_back(meanreTrack);
-                tot1.push_back(T0tot[0]);
-                tot2.push_back(T0tot[2]);
-                out << TT.back() << "\t" << AA.back() << endl;
-                ht->Fill(Timestamp);
-                hL->Fill(meanreTrack);
-                htcor->Fill(Timestampcor);
-                hdy->Fill(fdata->T0dety - fdata->T0detRBy);
-                hdz->Fill(fdata->T0detz - fdata->T0detRBz);
-                hpos->Fill(fdata->T0detRBy, fdata->T0detRBz);
-            }
-            // return;
-        }
+        datavec.push_back(*fdata);
     }
-    f2->WriteTObject(t2);
-    TCanvas *cht = cdC(100);
-    DrawMyHist(ht, "", "", 1, 3);
-    ht->Draw();
-    //fitA = (TF1 *)hAfit->GetFunction("fitU");
+    if (datavec.size() < 1)
+        return;
+    //vector<double> Ecut = {0, 0.05, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 4, 5, 10, 100};
+    vector<double> Ecut = {1,1000};
 
-    cht->SaveAs(Form("%s/ht.png", filepath.Data()));
+    //for(int s= 0 ;s<1; s++){
+    for (int s = 0; s < Ecut.size() - 1; s++)
+    {
 
-    TCanvas *chL = cdC(101);
-    DrawMyHist(hL, "", "", 1, 3);
-    hL->Draw();
-    //fitA = (TF1 *)hAfit->GetFunction("fitU");
+        TString cutname = Form("Ecut%gto%g", Ecut[s], Ecut[s + 1]);
+        cout << cutname << endl;
+        for (int i = 0; i < datavec.size(); i++)
+        {
+            if (datavec[i].CRE < Ecut[s] || datavec[i].CRE > Ecut[s + 1])
+                continue;
+            if(abs(datavec[i].T0detRBy)>50||abs(datavec[i].T0detRBz)>50) continue;
+            //return;
+            validcnt++;
+            reTrackSum = 0;
+            PMTtime = 0;
 
-    chL->SaveAs(Form("%s/htrack.png", filepath.Data()));
+            PMTtimecor = 0;
+            meanreTrack = 0;
+            memset(T0time, 0, sizeof(T0time));
+            memset(T0timecor, 0, sizeof(T0timecor));
+            memset(T0reTrack, 0, sizeof(T0reTrack));
+            memset(T0tot, 0, sizeof(T0tot));
+            PMTcounter = 0;
+            TVector3 T0fitpos(datavec[i].T0detRBx, datavec[i].T0detRBy, datavec[i].T0detRBz);
+            TVector3 Mufitdir(-1 * datavec[i].CRRBpx, datavec[i].CRRBpy, datavec[i].CRRBpz);
+            for (int j = 0; j < 4; j++)
+            {
+                if (datavec[i].T0elefittot[j] > 0 && datavec[i].CRRBtheta > 0)
+                {
+                    //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, datavec[i].T0eleid[j] + 1);
+                    reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, datavec[i].T0eleid[j] + 1);
+                    //reTrack = sqrt(datavec[i].T0detRBy*datavec[i].T0detRBy+datavec[i].T0detRBz*datavec[i].T0detRBz);
 
-    cout << "valid events: " << validcnt << endl;
-    //
-    // ---------draw track vs TR --------//
-    //
-TString name;
-    vector<double> Tcor;
+                    //cout<<"reTrack:"<<reTrack<<endl;
+                    reTrackSum += reTrack;
+                    T0reTrack[datavec[i].T0eleid[j]] = reTrack;
+                    // * substract start time
+                    //PMTtime += T0Eledata[j].thtime[0]-T0posvec[i].t ;
+                    //PMTtimecor += T0Eledata[j].thtime[0] - reTrack / 298 * 1.5 - T0posvec[i].t ;
+                    T0time[datavec[i].T0eleid[j]] = datavec[i].T0elefittime1[j];
+                    PMTtime += datavec[i].T0elefittime1[j];
+                    PMTtimecor += datavec[i].T0elefittime1[j] - reTrack / 298 * 1.5;
+                    T0timecor[datavec[i].T0eleid[j]] = datavec[i].T0elefittime1[j] - reTrack / 298 * 1.5;
+                    T0tot[datavec[i].T0eleid[j]] = datavec[i].T0elefittime2[j] - datavec[i].T0elefittime1[j];
+                    PMTcounter++;
+                    //hPMTID->Fill(datavec[i].T0eleid[j]);
+                }
+            }
+            t2->Fill();
+            //cout<<"id size="<<datavec[i].T0eleid.size()<<endl;
+            //cout<<"PMTcounter="<<PMTcounter<<endl;
+            //if(T0time[1]!=0&&T0time[3]!=0){
+            if (T0time[0] != 0 && T0time[2] != 0 && T0time[1] != 0 && T0time[3] != 0)
+            {
+                //return;
+                Timestamp = (T0time[0] + T0time[1] + T0time[2] + T0time[3])/4;
+                Timestampcor = T0timecor[0];
+                meanreTrack = (T0reTrack[0] + T0reTrack[1] + T0reTrack[2] + T0reTrack[3])/4;
+                //meanreTrack =  T0reTrack[0];
+                //Timestamp = PMTtime / PMTcounter;
+                //Timestampcor = PMTtimecor / PMTcounter;
+                //meanreTrack = T0reTrack[0];
+                //meanreTrack = reTrackSum / PMTcounter;
+                //cout<<"PMTcounter:"<<PMTcounter<<endl;
+                //cout<<"Timestamp:"<<Timestamp<<endl;
+                //cout<<"PMTtimecor:"<<PMTtimecor<<endl;
+                //cout<<"Timestampcor:"<<Timestampcor<<endl;
+                //cout<<"meanreTrack:"<<meanreTrack<<endl;
+                //hNPMT->Fill(PMTcounter);
+                //h2dPMT->Fill(PMTcounter, Timestamp);
+                //if (abs(Timestamp)<0.75)
+                if (T0time[0] < 2.5 && T0time[1] < 2.5&& T0time[2] < 2.5&& T0time[3] < 2.5)
+                {
+                    //TT.push_back(Timestampcor);
+                    TT.push_back(Timestamp);
+                    //AA.push_back(reTrack);
+                    AA.push_back(meanreTrack);
+                    tot1.push_back(T0tot[0]);
+                    tot2.push_back(T0tot[2]);
+                    out << TT.back() << "\t" << AA.back() << endl;
+                    ht->Fill(Timestamp);
+                    hL->Fill(meanreTrack);
+                    htcor->Fill(Timestampcor);
+                    hdy->Fill(datavec[i].T0dety - datavec[i].T0detRBy);
+                    hdz->Fill(datavec[i].T0detz - datavec[i].T0detRBz);
+                    hpos->Fill(datavec[i].T0detRBy, datavec[i].T0detRBz);
+                }
+                // return;
+            }
+        }
+        f2->WriteTObject(t2);
+        TCanvas *cht = cdC(100);
+        DrawMyHist(ht, "", "", 1, 3);
+        ht->Draw();
+        //fitA = (TF1 *)hAfit->GetFunction("fitU");
 
-    name = filepath + "/TimeTrack";
-    Tcor = TAcorrection(name, 6, TT, AA, 20, 20, -2, 3, -300, 300);
-    name = filepath + "/TimeTOT";
+        cht->SaveAs(Form("%s/ht_%s.png", filepath.Data(), cutname.Data()));
+
+        TCanvas *chL = cdC(101);
+        DrawMyHist(hL, "", "", 1, 3);
+        hL->Draw();
+        //fitA = (TF1 *)hAfit->GetFunction("fitU");
+
+        chL->SaveAs(Form("%s/htrack_%s.png", filepath.Data(), cutname.Data()));
+
+        cout << "valid events: " << validcnt << endl;
+        //
+        // ---------draw track vs TR --------//
+        //
+        TString name;
+        vector<double> Tcor;
+
+        name = filepath + "/TimeTrack_" + cutname;
+        Tcor = TAcorrection(name, 3, TT, AA, 2, 1, -2, 3, 0, 300);
+        name = filepath + "/TimeTOT_" + cutname;
+    }
     //Tcor = TA2correction(name, 3, Tcor, tot1, tot2, 10, 10, -2, 2, 0.4,0.6);
     //TAcorrection(filepath, 6, TT, AA);
 
@@ -2610,54 +2674,143 @@ TString name;
     //Drawhist(filepath);
 }
 #endif
-
-void RecHitPos(int n=96)
+void DrawT0TR(TString fileDir, double left, double right)
 {
-    TH2D *pos = new TH2D("pos","",300,-150,150,300,-300,0);
-    for(int i =0; i<n;i++){
+    vector<double> Ecut = {0, 0.05, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 4, 5, 10, 100};
+    vector<double> Stdvec;
+    vector<double> TRvec;
+    vector<double> TRsigmavec;
+    vector<double> TROriginvec;
+    vector<double> TRsigmaOriginvec;
+    vector<double> Evec;
+    vector<TString> datList;
+    //GetFileList(fileDir, Form("TACor*.dat", s + 1), datList); //for FTOF
+    GetFileList(fileDir, "TimeTrack_E*.dat", datList); //for FTOF
+    if (datList.size() == 0)
+        return;
+    vector<double> bufferTR;
+    vector<double> bufferTRsigma;
+    vector<double> bufferMean;
+    int iter = -999;
+    double Mean = -999;
+    double TR = -999;
+    double TRsigma = -999;
+    double Std = -999;
+    for (int i = 0; i < (int)datList.size(); i++)
+    {
+        cout << "Read datfile: " << datList[i] << endl;
+        ifstream in(Form("%s", datList[i].Data()));
+        int ctr = 0;
+        //while (in && !in.eof() && ctr < 15)
+        bufferTR.clear();
+        bufferTRsigma.clear();
+        bufferMean.clear();
+        while (in && !in.eof())
+        {
+            in >> iter >> Mean >> TR >> TRsigma >> Std;
+            //if (thvec.size() < 1)
+            //    thvec.push_back(th);
+            //if (th != thvec.back())
+            bufferMean.push_back(Mean);
+            bufferTR.push_back(TR);
+            bufferTRsigma.push_back(TRsigma);
+        }
+        int minpos = 0;
+        for (int j = 0; j < bufferTR.size(); j++)
+        {
+            if (bufferTR[minpos] > bufferTR[j])
+                minpos = j;
+        }
+        Stdvec.push_back(Std*1e3);
+        TROriginvec.push_back(bufferTR[0]*1e3);
+        TRsigmaOriginvec.push_back(bufferTRsigma[0]*1e3);
+        TRvec.push_back(bufferTR[minpos]*1e3);
+        TRsigmavec.push_back(bufferTRsigma[minpos]*1e3);
+        if (Ecut.size() > i + 1)
+            Evec.push_back(Ecut[i] / 2 + Ecut[i + 1] / 2);
+        cout<<Evec.back()<<"\t"<<TRvec.back()<<"\t"<<TROriginvec.back()<<Stdvec.back()<<endl;
+        in.close();
+    }
+    TGraphErrors *g;
+    TGraphErrors *gO;
+    TGraphErrors *gS;
+    TCanvas *c = cdC(10);
+    c->SetLogx();
+    Color_t color[13] = {1, kRed + 3, kRed, kOrange + 2, kYellow - 3, kSpring - 1, kGreen + 3, kCyan + 1, kBlue, kViolet + 2, kMagenta - 4, kPink - 9, kGray + 2};
+    Style_t MStyle[8] = {20, 21, 22, 23, 29, 41, 47, 34};
+    TLegend *leg;
+    leg = DrawMyLeg(0.7, 0.7, 0.9, 0.9);
+    //leg->SetNColumns(4);
 
-  int  sensorN=6;
-  double QuartzY1 = 295; 
-  double QuartzY2 = 533;
-  double QuartzX = 10;
-  double QuartzZ = 454;
-  double MCPPMToffset = 18;
-  double R10754_sensor_L = 27.6;
-  double R10754_sensor_edge_L = 2.5;
-  double R10754_anode_L = 5.28;
-  double R10754_anode_interval_L = 0.3;
-  double R10754_interval_L = 5;
-    int ChX = i / 4;
-  int ChY = i % 4;
-  int PhotonDetID = ChX / 4;
-  double posX0 = R10754_sensor_L/2-R10754_sensor_edge_L-R10754_anode_interval_L-R10754_anode_L/2-(R10754_anode_interval_L+R10754_anode_L)*(ChX%4);
-  double posY0 = R10754_sensor_L/2-R10754_sensor_edge_L -R10754_anode_interval_L-R10754_anode_L/2-(R10754_anode_interval_L+R10754_anode_L)*ChY;
+    g = new TGraphErrors(Evec.size(), &Evec[0], &TRvec[0], 0, &TRsigmavec[0]);
+    gO = new TGraphErrors(Evec.size(), &Evec[0], &TROriginvec[0], 0, &TRsigmaOriginvec[0]);
+    gS = new TGraphErrors(Evec.size(), &Evec[0], &Stdvec[0], 0, 0);
 
-    cout<<"anode pos(x,y):"<<posX0<<"\t"<<posY0<<endl;
-  double  HitX = posX0 +(sensorN/2-0.5)*(R10754_sensor_L+R10754_interval_L)-(R10754_sensor_L+R10754_interval_L)*PhotonDetID;
-  double HitY = posY0 - QuartzZ/2 + R10754_sensor_L/2+MCPPMToffset;
-    pos->Fill(HitX,HitY);
-    cout<<"pos(x,y):"<<HitX<<"\t"<<HitY<<endl;
+    DrawMyGraph(gO, "KineticEnergy (GeV)", "TR (ps)", 1, MStyle[1], color[0], color[0]);
+    DrawMyGraph(g, "KineticEnergy (GeV)", "TR (ps)", 1, MStyle[0], color[0 + 2], color[0 + 2]);
+    DrawMyGraph(gS, "KineticEnergy (GeV)", "TR (ps)", 1, MStyle[2], color[0 + 5], color[0 + 5]);
+
+    g->Draw("AP");
+    g->GetYaxis()->SetRangeUser(left, right);
+    
+    gO->Draw("Psame");
+    //gS->Draw("Psame");
+
+    leg->AddEntry(g, "TR (cor)", "lp");
+    //leg->AddEntry(gO, "TR", "lp");
+    //leg->AddEntry(gS, "Std", "lp");
+    //in<<th<<"\t"<<i<<"\t"<<fit->GetParameter(1)<<"\t"<<fit->GetParameter(2)<<"\t"<<hTR[i]->Integral(hTR[i]->FindBin(fitRL),hTR[i]->FindBin(fitRR))<<"\t"<<RecordTriggers<<endl;
+
+    //leg->Draw("same");
+    c->SaveAs(Form("%s/TRcurve.png", fileDir.Data()));
+}
+void RecHitPos(int n = 96)
+{
+    TH2D *pos = new TH2D("pos", "", 300, -150, 150, 300, -300, 0);
+    for (int i = 0; i < n; i++)
+    {
+
+        int sensorN = 6;
+        double QuartzY1 = 295;
+        double QuartzY2 = 533;
+        double QuartzX = 10;
+        double QuartzZ = 454;
+        double MCPPMToffset = 18;
+        double R10754_sensor_L = 27.6;
+        double R10754_sensor_edge_L = 2.5;
+        double R10754_anode_L = 5.28;
+        double R10754_anode_interval_L = 0.3;
+        double R10754_interval_L = 5;
+        int ChX = i / 4;
+        int ChY = i % 4;
+        int PhotonDetID = ChX / 4;
+        double posX0 = R10754_sensor_L / 2 - R10754_sensor_edge_L - R10754_anode_interval_L - R10754_anode_L / 2 - (R10754_anode_interval_L + R10754_anode_L) * (ChX % 4);
+        double posY0 = R10754_sensor_L / 2 - R10754_sensor_edge_L - R10754_anode_interval_L - R10754_anode_L / 2 - (R10754_anode_interval_L + R10754_anode_L) * ChY;
+
+        cout << "anode pos(x,y):" << posX0 << "\t" << posY0 << endl;
+        double HitX = posX0 + (sensorN / 2 - 0.5) * (R10754_sensor_L + R10754_interval_L) - (R10754_sensor_L + R10754_interval_L) * PhotonDetID;
+        double HitY = posY0 - QuartzZ / 2 + R10754_sensor_L / 2 + MCPPMToffset;
+        pos->Fill(HitX, HitY);
+        cout << "pos(x,y):" << HitX << "\t" << HitY << endl;
     }
     pos->SetMarkerStyle(8);
     pos->Draw();
-
 }
 #if 1
-void RebuildDTOF(string input = "../data.root", int force = 0){
+void RebuildDTOF(string input = "../data.root", int force = 0)
+{
     gStyle->SetOptFit(111);
-
 
     string filepath;
     string rootname;
     rootname = GetFilename(input);
     filepath = GetFilepath(input);
-    string output = filepath+"/DircRec.root";
+    string output = filepath + "/DircRec.root";
 
-    cout<<"Input  file: "<<input <<endl;
-  cout<<"Output file: "<<output<<endl;
-  DtofRec* dtop = new DtofRec(input, output);
-  dtop->Loop();
+    cout << "Input  file: " << input << endl;
+    cout << "Output file: " << output << endl;
+    DtofRec *dtop = new DtofRec(input, output);
+    dtop->Loop();
     //TAcorrection(filepath, 6, dtop->TT, dtop->AA);
 }
 #endif
