@@ -18,6 +18,7 @@ public:
           TTree *tree = 0);
   ~DtofRec();
   void InitialOutput();
+  void InitialRefcounter();
   enum lightpath
   {
     direct,
@@ -28,7 +29,7 @@ public:
   lightpath Mirror(lightpath);
 
   /// ReConstruction
-  void MirrorTransformation(lightpath, int, int);
+  void MirrorTransformation(lightpath, bool);
   void RecHitPos();
   void RecTOF(double);
   void Reconstruction(double);
@@ -38,7 +39,7 @@ public:
   void SetTrackHit();
   void SetPhotonHit(int i);
   void Simu2Lab(double &x, double &y, double &z);
-
+  double GetRemainder(double, double);
   void Loop();
   /// LUT
   LUT LUT_n;
@@ -66,20 +67,36 @@ public:
   std::vector<double> RecDircZ;
   std::vector<double> RecPropLength;
   std::vector<double> RecFlightTime;
+  double HyFlightTime;
   double BestPropLength;
   double BestFlightTime;
+  vector<double> TOFvec;
+  vector<double> LOPvec;
+  vector<double> TOPvec;
+  vector<double> trueTOPvec;
+  vector<int> chidvec;
+  vector<int> Xvec;
+  vector<int> Yvec;
   vector<double> TT;
   vector<double> AA;
 
-  double FT[128];
-  double TL[128];
-  double TOP[128];
-  double HitXpos[128];
-  double HitYpos[128];
+  vector<double>* pTOFvec = &TOFvec;
+  vector<double>* pLOPvec = &LOPvec;
+  vector<double>* pTOPvec = &TOPvec;
+  vector<double>* ptrueTOPvec = &trueTOPvec;
+  vector<int>* pchidvec = &chidvec;
+  vector<int>* pXvec = &Xvec;
+  vector<int>* pYvec = &Yvec;
+
+  
   double SimuFT;
+  double RefFT;
   double MeanFT;
   double MeanTL;
-
+  int Dctr;
+  int Lctr;
+  int Rctr;
+  int Fctr;
   /// parameters
   double QuartzY1, QuartzY2, QuartzX, QuartzZ;
   double MCPPMToffset;
@@ -101,6 +118,7 @@ public:
   /// random number
   TRandom3 *fRandom;
   TTree *ot;
+  ofstream op;
 };
 
 DtofRec::DtofRec(string in, string out, TTree *tree) : CRdata(in, out, tree), LUT_n("LUT/n.txt", 400, 2)
@@ -132,19 +150,26 @@ DtofRec::~DtofRec()
 
 void DtofRec::InitialOutput()
 {
+  op.open("Rectoflog.dat");
   ot = new TTree("data", "restore Dtof rebuilded data  from G4");
-  ot->Branch("FlightTime", FT, "FlightTime[128]/D");
   ot->Branch("MeanFT", &MeanFT, "MeanFT/D");
-  ot->Branch("TrackLength", TL, "TrackLength[128]/D");
-  ot->Branch("TOP", TOP, "TOP[128]/D");
   ot->Branch("MeanTL", &MeanTL, "MeanTL/D");
-  ot->Branch("HitX", HitXpos, "HitX[128]/D");
-  ot->Branch("HitY", HitYpos, "HitY[128]/D");
   ot->Branch("SimuFT", &SimuFT, "SimuFT/D");
+  ot->Branch("RefFT", &HyFlightTime, "RefFT/D");
+  ot->Branch("Px", &Px, "Px/D");
+  ot->Branch("Py", &Py, "Py/D");
+  ot->Branch("Pz", &Pz, "Pz/D");
+
+  ot->Branch("TOF",pTOFvec);
+  ot->Branch("LOP",pLOPvec);
+  ot->Branch("TOP",pTOPvec);
+  ot->Branch("trueTOP",ptrueTOPvec);
+  ot->Branch("chid",pchidvec);
+  ot->Branch("Xvec",pXvec);
+  ot->Branch("Yvec",pYvec);
+
   ot->Branch("CRRBtheta", &CRRBtheta);
   ot->Branch("CRE", &CRE);
-  ot->Branch("FTOFphotonid", &FTOFphotonid);
-  ot->Branch("FTOFphotonTOP", &FTOFphotonTOP);
 }
 DtofRec::lightpath DtofRec::Mirror(DtofRec::lightpath a)
 {
@@ -156,12 +181,16 @@ DtofRec::lightpath DtofRec::Mirror(DtofRec::lightpath a)
     return direct;
 }
 
-void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i, int s)
+void DtofRec::MirrorTransformation(DtofRec::lightpath a, bool s)
 {
-  if (a == direct)
-    return;
+  if (a == direct )
+  {
+    Dctr++;
+    
+  }
   if (a == left)
   {
+    Lctr++;
     // dot and  line cross
     double angle, angleD, x1, y1, x2, y2, tmpX, tmpY;
     angle = Pi() / 2. - Pi() / SectorNu;
@@ -199,6 +228,7 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i, int s)
   //* TODO
   if (a == right)
   {
+    Rctr++;
     double angle, angleD, x1, y1, x2, y2, tmpX, tmpY;
     angle = Pi() / 2. - Pi() / SectorNu;
     //x1 = (QuartzR1 * Sin(angle) + interval / Cos(angle)) * Cos(Pi() / 4.) + QuartzR1 * Cos(angle) * Sin(Pi() / 4.);
@@ -233,6 +263,7 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i, int s)
   }
   if (a == front)
   {
+    Fctr++;
     double x1, y1, x2, y2, tmpX, tmpY;
     x1 = QuartzY1 / 2;
     y1 = -QuartzZ / 2;
@@ -251,12 +282,9 @@ void DtofRec::MirrorTransformation(DtofRec::lightpath a, int i, int s)
     Dx = Dx;
     Dy = -Dy;
   }
-  if (i > 1)
+  if (s)
   {
-    int lp = (a + 1 + s) % 4;
-    if (lp == 0)
-      lp++;
-    MirrorTransformation((enum lightpath)lp, i - 1, s);
+    MirrorTransformation(front, 0);
   }
 }
 
@@ -281,6 +309,17 @@ void DtofRec::Simu2Lab(double &x, double &y, double &z)
   y = TMatrixDRow(L, 0)(1);
   z = TMatrixDRow(L, 0)(2);
 }
+double DtofRec::GetRemainder(double D, double d){
+  int n = D/d;
+  return D-n*d;
+}
+void DtofRec::InitialRefcounter()
+{
+  Dctr=0;
+  Lctr=0;
+  Rctr=0;
+  Fctr=0;
+}
 void DtofRec::SetTrackHit()
 {
   //T0 = fRandom->Gaus(0,0.04);
@@ -298,13 +337,16 @@ void DtofRec::SetTrackHit()
   Dx = CRpx;
   Dy = CRpy;
   Dz = CRpz;
-  Simu2Lab(Dx, Dy, Dz);
-  Px = FTOFdetx;
-  Py = FTOFdety;
-  Pz = FTOFdetz;
-  Simu2Lab(Px, Py, Pz);
+  Px = FTOFdetx-QuartzX/2;
+  Py = FTOFdety-QuartzX/2/Dx*Dy;
+  Pz = FTOFdetz-QuartzX/2/Dx*Dz;
+  double T0Px = T0detx -QuartzX/2;
+  double T0Py = T0dety -QuartzX/2/Dx*Dy;
+  double T0Pz = T0detz -QuartzX/2/Dx*Dz;
+  FL = sqrt(Power(Px - T0Px, 2) + Power(Py - T0Py, 2) + Power(Pz - T0Pz, 2));
 
-  FL = sqrt(Power(FTOFdetRBx - T0detRBx, 2) + Power(FTOFdetRBy - T0detRBy, 2) + Power(FTOFdetRBz - T0detRBz, 2));
+  Simu2Lab(Dx, Dy, Dz);
+  Simu2Lab(Px, Py, Pz);
   double DieL = Sqrt(Dx * Dx + Dy * Dy + Dz * Dz);
   Dx = Dx / DieL;
   Dy = Dy / DieL;
@@ -312,17 +354,18 @@ void DtofRec::SetTrackHit()
   //cout << "Track diraction (Dx,Dy,Dz) = (" << Dx << "," << Dy << "," << Dz << ")" << endl;
   // cout << "Track hit position (Px,Py) = (" << Px << "," << Py << ")" << endl;
   //cout << "FL="<<FL<<endl;
+  InitialRefcounter();
 }
 
 void DtofRec::SetPhotonHit(int i)
 {
-  //TTS = fRandom->Gaus(0,0.07);
-  fID = FTOFeleid[i];
+  //fID = FTOFeleid[i];
+  //T = FTOFelefittime1[i] - T0dett; // T= TOF(T0-FTOF) + TOP
+  fID = FTOFphotonid[i];
+  T = FTOFphotont[i] - T0dett; // T= TOF(T0-FTOF) + TOP
   ChX = fID / 4;
   ChY = fID % 4;
-  T = FTOFelefittime1[i] - T0dett; // T= TOF(T0-FTOF) + TOP
-  //ChX = ChannelX->at(i);
-  //ChY = ChannelY->at(i);
+  //op<<"FID= "<<fID<<",("<<ChX<<","<<ChY<<")"<<endl;
   //T = GlobalTime->at(i)+TTS-T0;
   //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
 }
@@ -337,9 +380,8 @@ void DtofRec::RecHitPos()
   //cout << "anode pos(x,y):" << posX0 << "\t" << posY0 << endl;
   HitX = posX0 + (sensorN / 2 - 0.5) * (R10754_sensor_L + R10754_interval_L) - (R10754_sensor_L + R10754_interval_L) * PhotonDetID;
   HitY = posY0 - QuartzZ / 2 + R10754_sensor_L / 2 + MCPPMToffset;
+  op << "Hit pos (" << HitX << "," << HitY << ")" << endl;
   //cout << "Hit pos (" << HitX << "," << HitY << ")" << endl;
-  HitXpos[fID] = HitX;
-  HitYpos[fID] = HitY;
   /*
   double posX0 = (R + interval / Cos(Pi() / 2. - Pi() / SectorNu)) * Cos(Pi() / 4.);
   double posY0 = (R + interval / Cos(Pi() / 2. - Pi() / SectorNu)) * Sin(Pi() / 4.);
@@ -351,7 +393,7 @@ void DtofRec::RecHitPos()
 void DtofRec::RecTOF(double beta)
 {
   //MirrorTransformation(a, num);
-
+  
   int i = RecDeltaX.size();
   double CosThetaC = 1. / Np / beta;
   RecDeltaX.push_back(HitX - Px);
@@ -372,25 +414,50 @@ void DtofRec::RecTOF(double beta)
   double Delta = B * B - 4. * A * C;
   if (Delta >= 0)
   {
-    double Z1 = (-B + Sqrt(Delta)) / 2. / A, Z2 = (-B - Sqrt(Delta)) / 2. / A;
+    double Z1 = (-B + Sqrt(Delta)) / 2. / A;
+    double Z2 = (-B - Sqrt(Delta)) / 2. / A;
+    double L_Z1 = Abs(RecDeltaY[i] / RecDircY[i]*Z1);
+    double L_Z2 = Abs(RecDeltaY[i] / RecDircY[i]*Z2);
     int tag1 = 0, tag2 = 0;
-    if (Dx * RecDircX[i] + Dy * RecDircY[i] + Dz * Z1 < 0 &&
-        (Power(RecDircX[i], 2) + Power(RecDircY[i], 2)) / (Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Z1 * Z1) >= 0.95 / NpMax / NpMax)
+    double costheta1 =Dx * RecDircX[i] + Dy * RecDircY[i] + Dz * Z1;
+    double totalref1 = (Power(RecDircX[i], 2) + Power(RecDircY[i], 2)) / (Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Z1 * Z1)*NpMax*NpMax/0.95;
+    double costheta2 =Dx * RecDircX[i] + Dy * RecDircY[i] + Dz * Z2;
+    double totalref2 = (Power(RecDircX[i], 2) + Power(RecDircY[i], 2)) / (Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Z2 * Z2)*NpMax*NpMax/0.95;
+    double R1 = GetRemainder(L_Z1,2*QuartzX);
+    double R2 = GetRemainder(L_Z2,2*QuartzX);
+    //op<<"costheta :"<<costheta1<<"\t"<<costheta2<<endl;
+    //op<<"totalref :"<<totalref1<<"\t"<<totalref2<<endl;
+    //op<<"Remainder :"<<R1<<"\t"<<R2<<endl;
+    if (costheta1 > 0 
+    &&  totalref1 >= 1 
+    )
       tag1 = 1;
-    if (Dx * RecDircX[i] + Dy * RecDircY[i] + Dz * Z2 < 0 &&
-        (Power(RecDircX[i], 2) + Power(RecDircY[i], 2)) / (Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Z2 * Z2) >= 0.95 / NpMax / NpMax)
+    if (costheta2 > 0 
+    && totalref2 >= 1 
+    )
       tag2 = 1;
     if (tag1 || tag2)
     {
       if (tag1 && tag2)
+      {
+
         RecDircZ[i] = Abs(Z1) < Abs(Z2) ? Z1 : Z2;
+      }
       if (tag1 && !tag2)
-        RecDircZ[i] = Z1;
+       {
+
+       RecDircZ[i] = Z1;
+       } 
       if (tag2 && !tag1)
+       {
+
         RecDircZ[i] = Z2;
+       }
       RecPropLength[i] = Abs(RecDeltaY[i] * Sqrt(Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Power(RecDircZ[i], 2)) / RecDircY[i]);
       RecFlightTime[i] = T - RecPropLength[i] / TMath::C() * Ng * 1e6;
     }
+  //op<<Dctr<<"\t"<<Lctr<<"\t"<<Rctr<<"\t"<<Fctr<<"\t"<<tag1<<"\t"<<RecDircX[i]<<"\t"<<RecDircY[i]<<"\t"<<Z1<<"\t"<<RecDeltaX[i]<<"\t"<<RecDeltaY[i]<<"\t"<<L_Z1<<"\t"<< RecPropLength[i]<<"\t"<< RecFlightTime[i]<<"\t"<<SimuFT<<"\t"<<HyFlightTime<<endl;
+  //op<<Dctr<<"\t"<<Lctr<<"\t"<<Rctr<<"\t"<<Fctr<<"\t"<<tag2<<"\t"<<RecDircX[i]<<"\t"<<RecDircY[i]<<"\t"<<Z2<<"\t"<<RecDeltaX[i]<<"\t"<<RecDeltaY[i]<<"\t"<<L_Z2<<"\t"<< RecPropLength[i]<<"\t"<< RecFlightTime[i]<<"\t"<<SimuFT<<"\t"<<HyFlightTime<<endl;
   }
   //cout << "Rec photon Diraction=(" << RecDircX.back() << "," << RecDircY.back() << "," << RecDircZ.back() << ")" << endl
   //<< "RecPropLength=" << RecPropLength.back() << endl
@@ -406,24 +473,35 @@ void DtofRec::Reconstruction(double mass)
 {
   Clear();
   double beta = 1. / Sqrt(1 + Power(mass / PrimaryMomentum, 2));
-  double HyFlightTime = FL / TMath::C() / beta * 1e6;
+  HyFlightTime = FL / TMath::C() / beta * 1e6;
   //cout << "[+] | - Start Reconstruction " << endl;
   //cout<< "beta= "<<beta<<endl;
   RecHitPos();
-  RecTOF(beta);
-  for (int i = 1; i <= MaxReflection; i++)
-  {
-    for (int j = 1; j <= 3; j++)
-    {
-      for (int s = 0; s < i; s++)
-      {
+  //RecTOF(beta);
+  
 
-        MirrorTransformation((enum lightpath)j, i, s);
+    for (int j = 0; j < 3; j++)
+    {
+      for (int s = 0; s < 2; s++)
+      {
+        MirrorTransformation((enum lightpath)j, s);
         RecTOF(beta);
         SetTrackHit();
       }
     }
-  }
+
+    // mirror 2 time
+    for (int j = 1; j < 3; j++)
+    {
+      for (int s = 0; s < 2; s++)
+      {
+        MirrorTransformation((enum lightpath)j, 0);
+        MirrorTransformation(Mirror((enum lightpath)j), s);
+        RecTOF(beta);
+        SetTrackHit();
+      }
+    }
+  
 
   int tag = 0;
   for (int id = 0; id < (int)RecFlightTime.size(); id++)
@@ -434,6 +512,8 @@ void DtofRec::Reconstruction(double mass)
   }
   BestPropLength = RecPropLength[tag];
   BestFlightTime = RecFlightTime[tag];
+  //op<< BestPropLength<<"\t"<< BestFlightTime<<"\t"<<SimuFT<<"\t"<<HyFlightTime<<endl;
+
   //cout << "BestPropLength= " << BestPropLength<< endl
   //     << "BestFlightTime= " << BestFlightTime << endl;
 }
@@ -455,13 +535,17 @@ void DtofRec::Loop()
     fChain->GetEntry(tentry);
     if (CRRBtheta < 0)
       continue;
-    int ctr = 0;
-    memset(FT, 0, sizeof(FT));
-    memset(TL, 0, sizeof(TL));
-    memset(HitXpos, 0, sizeof(HitXpos));
-    memset(HitYpos, 0, sizeof(HitYpos));
+    
+    TOFvec.clear();
+    LOPvec.clear();
+    TOPvec.clear();
+    chidvec.clear();
+    trueTOPvec.clear();
+    Xvec.clear();
+    Yvec.clear();
     SimuFT = FTOFdett - T0dett;
     SetTrackHit();
+    /*
     for (int i = 0; i < 16 * sensorN; i++)
     {
 
@@ -472,16 +556,52 @@ void DtofRec::Loop()
       FT[i] = BestFlightTime;
       TL[i] = BestPropLength;
       TOP[i] = BestPropLength / TMath::C() * Ng * 1e6;
-      ctr++;
+      TOFvec.push_back(BestFlightTime);
+      LOPvec.push_back(BestPropLength);
+      chidvec.push_back(FTOFelechid[i]);
     };
-    if (ctr > 0)
+    */
+    int N = FTOFphotonid.size();
+      //op<<"Entry$= "<<tentry<<endl;
+    for (int i = 0; i < N; i++)
     {
-      MeanFT = Mean(16 * sensorN, FT) * 16 * sensorN / ctr;
-      MeanTL = Mean(16 * sensorN, TL) * 16 * sensorN / ctr;
-      TT.push_back(MeanFT);
-      AA.push_back(MeanTL);
-      ot->Fill();
-      exctr++;
+      //if (FTOFeletot[i] < 0)
+      //  continue;
+        
+      SetPhotonHit(i);
+      Reconstruction(Mass_Mu / 1e3);
+      TOFvec.push_back(BestFlightTime);
+      LOPvec.push_back(BestPropLength);
+      TOPvec.push_back(BestPropLength / TMath::C() * Ng * 1e6);
+      trueTOPvec.push_back(FTOFphotonTOP[i]);
+      chidvec.push_back(fID);
+      Xvec.push_back(ChX);
+      Yvec.push_back(ChY);
+    };
+    int cut = 0;
+    if (TOFvec.size() > cut)
+    {
+      sort(TOFvec.begin(), TOFvec.end());
+      double sum = 0, count = 0;
+      double sum2 = 0;
+      for (int i = cut / 2; i < TOFvec.size() - cut / 2; i++)
+      {
+        if (TOPvec.at(i) <=0.1)
+          continue;
+        if(abs(TOFvec.at(i)-HyFlightTime)>0.3) continue;
+        sum += TOFvec.at(i);
+        count += 1;
+        sum2 += LOPvec.at(i);
+      }
+      if (count != 0)
+      {
+        MeanFT = sum / count;
+        MeanTL = sum2 / count;
+        TT.push_back(MeanFT);
+        AA.push_back(MeanTL);
+        ot->Fill();
+        exctr++;
+      }
     }
   }
   fout->WriteTObject(ot);

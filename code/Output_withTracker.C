@@ -1814,7 +1814,7 @@ vector<double> TAcorrection(TString name, int iter, vector<double> TT, vector<do
         cc->Clear();
         //DrawMyHist(ht, "", "", 1, 3);
         ht->Draw();
-        fitT = gausfit(ht, 100, 1.5, 1.5, rbt * 4, fTL, fTR);
+        fitT = gausfit(ht, 100, 2, 2, rbt * 4, fTL, fTR);
         //fitT = gausfit(ht, 0.1, 3, 3, rbt * 20, fTL, fTR);
         if (!fitT)
         {
@@ -2488,7 +2488,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         TVector3 Mufitdir(-1 * fdata->CRRBpx, fdata->CRRBpy, fdata->CRRBpz);
         for (int j = 0; j < 4; j++)
         {
-            if (fdata->T0elefittot[j] > 0&&fdata->CRE>0.1)
+            if (fdata->T0elefittot[j] > 0&&fdata->CRRBtheta>0)
             {
                 //reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
                 reTrack = RebuildTrack(1.5, T0fitpos, Mufitdir, fdata->T0eleid[j] + 1);
@@ -2516,7 +2516,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         if (T0time[0] != 0 && T0time[2] != 0 )
         {
             //return;
-            Timestamp = abs(T0time[0] - T0time[2]);
+            Timestamp = T0time[0] - T0time[2];
             Timestampcor = T0timecor[0];
             meanreTrack = T0reTrack[0] - T0reTrack[2];
             //meanreTrack =  T0reTrack[0];
@@ -2531,7 +2531,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             //cout<<"meanreTrack:"<<meanreTrack<<endl;
             //hNPMT->Fill(PMTcounter);
             //h2dPMT->Fill(PMTcounter, Timestamp);
-            if (Timestamp<2&&Timestamp>1)
+            if (abs(Timestamp)<0.75)
             //if (T0time[0] < 2.5&&T0time[2]<2.5)
             {
                 //TT.push_back(Timestampcor);

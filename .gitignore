@@ -5,6 +5,7 @@
 build_backup/
 results/
 CRTestresults
+*.dat
 ######################
 ## Visual Studio Code
 ######################
