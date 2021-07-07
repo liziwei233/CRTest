@@ -29,6 +29,8 @@ public:
     double T0elefittot[4];
     double T0elefittime1[4];
     double T0elefittime2[4];
+    double T0fasttime[4];
+    double T0TOP[4];
 
     // *** FTOF hitted by muon
     double FTOFdetRBx;
@@ -45,6 +47,8 @@ public:
     double FTOFelefittot[128];
     double FTOFelefittime1[128];
     double FTOFelefittime2[128];
+    double FTOFfasttime[4];
+    double FTOFTOP[4];
 
     //for CR
 
@@ -75,6 +79,9 @@ public:
             T0elefittot[i] = -999;
             T0elefittime1[i] = -999;
             T0elefittime2[i] = -999;
+            T0fasttime[i] = -999;
+            T0TOP[i] = -999;
+
         }
 
         for (int i = 0; i < 128; i++)
@@ -89,6 +96,8 @@ public:
             FTOFelefittot[i] = -999;
             FTOFelefittime1[i] = -999;
             FTOFelefittime2[i] = -999;
+            FTOFfasttime[i] = -999;
+            FTOFTOP[i] = -999;
         }
 
         FTOFdetRBx = -999;

@@ -20,6 +20,9 @@ public:
     vector<double> T0photonx;
     vector<double> T0photony;
     vector<double> T0photonz;
+    vector<double> T0photonpx;
+    vector<double> T0photonpy;
+    vector<double> T0photonpz;
     vector<double> T0photont;
     
 
@@ -38,6 +41,9 @@ public:
     vector<double> FTOFphotonx;
     vector<double> FTOFphotony;
     vector<double> FTOFphotonz;
+    vector<double> FTOFphotonpx;
+    vector<double> FTOFphotonpy;
+    vector<double> FTOFphotonpz;
     vector<double> FTOFphotont;
 
     // *** FTOF hitted by muon
@@ -98,12 +104,18 @@ public:
         vector<double>().swap(FTOFphotonx);
         vector<double>().swap(FTOFphotony);
         vector<double>().swap(FTOFphotonz);
+        vector<double>().swap(FTOFphotonpx);
+        vector<double>().swap(FTOFphotonpy);
+        vector<double>().swap(FTOFphotonpz);
         vector<double>().swap(FTOFphotont);
         vector<double>().swap(T0photonE);
         vector<double>().swap(T0photonTOP);
         vector<double>().swap(T0photonx);
         vector<double>().swap(T0photony);
         vector<double>().swap(T0photonz);
+        vector<double>().swap(T0photonpx);
+        vector<double>().swap(T0photonpy);
+        vector<double>().swap(T0photonpz);
         vector<double>().swap(T0photont);
     }
 };

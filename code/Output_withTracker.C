@@ -15,6 +15,7 @@
 #include "CRsysRBData.h"
 #include "CRdata.h"
 #include "DtofRec.h"
+#include "T0Rec.h"
 
 #include <map>
 using namespace std;
@@ -52,6 +53,9 @@ struct CRTimeData
     vector<double> x;
     vector<double> y;
     vector<double> z;
+    vector<double> px;
+    vector<double> py;
+    vector<double> pz;
     vector<double> t;
     void Initial()
     {
@@ -61,6 +65,9 @@ struct CRTimeData
         x.clear();
         y.clear();
         z.clear();
+        px.clear();
+        py.clear();
+        pz.clear();
         t.clear();
     }
 };
@@ -77,6 +84,8 @@ struct EleTimeData
     double fittot[128];
     double fittime1[128];
     double fittime2[128];
+    double fasttime[128];
+    double TOP[128];
     void Initial()
     {
         for (int i = 0; i < 128; i++)
@@ -91,6 +100,8 @@ struct EleTimeData
             fittot[i] = -999;
             fittime1[i] = -999;
             fittime2[i] = -999;
+            fasttime[i] = -999;
+            TOP[i] = -999;
         }
     }
     void Print()
@@ -2226,7 +2237,7 @@ void RebuildData(TString input = "../build")
     cout << "Entries = " << N << endl;
     //N=100;
     vector<int> triggervec;
-    for (int iEvent = 0, pb = 0; iEvent < N; iEvent++)
+    for (int iEvent = 0, pb = 0; iEvent < 2; iEvent++)
     {
 
         T0photon.Initial();
@@ -2273,12 +2284,18 @@ void RebuildData(TString input = "../build")
                 for (int iT0hit = 0; iT0hit < R380_id->size(); iT0hit++)
                 {
                     T0photon.id.push_back(R380_id->at(iT0hit));
+                    T0photon.photonE.push_back(R380_E->at(iT0hit));
                     T0photon.t.push_back(R380_t->at(iT0hit));
                     T0photon.x.push_back(R380_x->at(iT0hit));
                     T0photon.y.push_back(R380_y->at(iT0hit));
                     T0photon.z.push_back(R380_z->at(iT0hit));
+                    T0photon.px.push_back(R380_px->at(iT0hit));
+                    T0photon.py.push_back(R380_py->at(iT0hit));
+                    T0photon.pz.push_back(R380_pz->at(iT0hit));
                     T0photon.TOP.push_back(R380_TOP->at(iT0hit));
                 }
+                cout << T0photon.id[0] << "\t" << T0photon.photonE[0] << "\t" << T0photon.TOP[0] << "\t" << T0photon.x[0] << "\t" << T0photon.y[0] << "\t" << T0photon.z[0] << "\t"
+                     << "\t" << T0photon.t[0] << "\t" << T0photon.px[0] << "\t" << T0photon.py[0] << "\t" << T0photon.pz[0] << endl;
             }
             if (theID == 200)
             {
@@ -2291,10 +2308,14 @@ void RebuildData(TString input = "../build")
                 for (int iFTOFhit = 0; iFTOFhit < R107_id->size(); iFTOFhit++)
                 {
                     FTOFphoton.id.push_back(R107_id->at(iFTOFhit));
+                    FTOFphoton.photonE.push_back(R107_E->at(iFTOFhit));
                     FTOFphoton.t.push_back(R107_t->at(iFTOFhit));
                     FTOFphoton.x.push_back(R107_x->at(iFTOFhit));
                     FTOFphoton.y.push_back(R107_y->at(iFTOFhit));
                     FTOFphoton.z.push_back(R107_z->at(iFTOFhit));
+                    FTOFphoton.px.push_back(R107_px->at(iFTOFhit));
+                    FTOFphoton.py.push_back(R107_py->at(iFTOFhit));
+                    FTOFphoton.pz.push_back(R107_pz->at(iFTOFhit));
                     FTOFphoton.TOP.push_back(R107_TOP->at(iFTOFhit));
                 }
             }
@@ -2309,13 +2330,21 @@ void RebuildData(TString input = "../build")
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
             Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py)) * Mudata.py / abs(Mudata.py);
         }
+        cout << "check" << endl;
 
         if (triggervec.size() == 2)
         //if (mu_DetID->size() >= TrackerN + 4)
         {
+            cout << "check" << endl;
+            //cout<<T0photon.id[0]<<"\t"<<T0photon.photonE[0]<<"\t"<<T0photon.TOP[0]<<"\t"<<T0photon.x[0]<<"\t"<<T0photon.y[0]<<"\t"<<T0photon.z[0]<<"\t"<<T0photon.px[0]<<"\t"<<T0photon.py[0]<<"\t"<<T0photon.pz[0]<<"\t"<<T0photon.t[0]<<endl;
+            cout << T0photonvec.size() << endl;
+            T0photonvec.clear();
+            //T0photonvec.clear();
             T0photonvec.push_back(T0photon);
-            FTOFphotonvec.push_back(FTOFphoton);
-            T0posvec.push_back(T0pos);
+            //T0posvec.push_back(T0pos);
+            cout << "check" << endl;
+            //FTOFphotonvec.push_back(FTOFphoton);
+            cout << "check" << endl;
             FTOFposvec.push_back(FTOFpos);
             Mudatavec.push_back(Mudata);
             Trackerposvec.push_back(*Trackerpos);
@@ -2325,13 +2354,17 @@ void RebuildData(TString input = "../build")
             RBT0pos.x = T0pos.x;
             RBFTOFpos.Initial();
             RBFTOFpos.x = FTOFpos.x;
+            cout << "check" << endl;
             RebuildCRAngle(*Trackerpos, possigma, RBT0pos, RBFTOFpos, RBMudata);
 
+            cout << "check" << endl;
             T0Ele.Initial();
             RebuildSensorSignal(T0photon, T0Ele, 4, "FIX", -3.5);
+            cout << "check" << endl;
             //return;
             FTOFEle.Initial();
             RebuildSensorSignal(FTOFphoton, FTOFEle, 128, "FIX", -7, 0, 25e-9);
+            cout << "check" << endl;
             data.RBInitial();
             data.T0photonid = T0photon.id;
             data.T0photonE = T0photon.photonE;
@@ -2339,6 +2372,9 @@ void RebuildData(TString input = "../build")
             data.T0photonx = T0photon.x;
             data.T0photony = T0photon.y;
             data.T0photonz = T0photon.z;
+            data.T0photonpx = T0photon.px;
+            data.T0photonpy = T0photon.py;
+            data.T0photonpz = T0photon.pz;
             data.T0photont = T0photon.t;
 
             data.T0detid = T0pos.id;
@@ -2353,6 +2389,9 @@ void RebuildData(TString input = "../build")
             data.FTOFphotonx = FTOFphoton.x;
             data.FTOFphotony = FTOFphoton.y;
             data.FTOFphotonz = FTOFphoton.z;
+            data.FTOFphotonpx = FTOFphoton.px;
+            data.FTOFphotonpy = FTOFphoton.py;
+            data.FTOFphotonpz = FTOFphoton.pz;
             data.FTOFphotont = FTOFphoton.t;
 
             data.FTOFdetid = FTOFpos.id;
@@ -2394,6 +2433,8 @@ void RebuildData(TString input = "../build")
                 data.T0elefittot[i] = T0Ele.fittot[i];
                 data.T0elefittime1[i] = T0Ele.fittime1[i];
                 data.T0elefittime2[i] = T0Ele.fittime2[i];
+                data.T0fasttime[i] = T0Ele.fasttime[i];
+                data.T0TOP[i] = T0Ele.TOP[i];
             }
 
             data.FTOFdetRBx = RBFTOFpos.x;
@@ -2412,6 +2453,8 @@ void RebuildData(TString input = "../build")
                 data.FTOFelefittot[i] = FTOFEle.fittot[i];
                 data.FTOFelefittime1[i] = FTOFEle.fittime1[i];
                 data.FTOFelefittime2[i] = FTOFEle.fittime2[i];
+                data.FTOFfasttime[i] = FTOFEle.fasttime[i];
+                data.FTOFTOP[i] = FTOFEle.TOP[i];
             }
 
             data.CRRBpx = RBMudata.px;
@@ -2522,7 +2565,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
     if (datavec.size() < 1)
         return;
     //vector<double> Ecut = {0, 0.05, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 4, 5, 10, 100};
-    vector<double> Ecut = {1,1000};
+    vector<double> Ecut = {1, 1000};
 
     //for(int s= 0 ;s<1; s++){
     for (int s = 0; s < Ecut.size() - 1; s++)
@@ -2534,7 +2577,8 @@ void RebuildT0(TString input = "../data.root", int force = 0)
         {
             if (datavec[i].CRE < Ecut[s] || datavec[i].CRE > Ecut[s + 1])
                 continue;
-            if(abs(datavec[i].T0detRBy)>50||abs(datavec[i].T0detRBz)>50) continue;
+            if (abs(datavec[i].T0detRBy) > 50 || abs(datavec[i].T0detRBz) > 50)
+                continue;
             //return;
             validcnt++;
             reTrackSum = 0;
@@ -2579,9 +2623,9 @@ void RebuildT0(TString input = "../data.root", int force = 0)
             if (T0time[0] != 0 && T0time[2] != 0 && T0time[1] != 0 && T0time[3] != 0)
             {
                 //return;
-                Timestamp = (T0time[0] + T0time[1] + T0time[2] + T0time[3])/4;
+                Timestamp = (T0time[0] + T0time[1] + T0time[2] + T0time[3]) / 4;
                 Timestampcor = T0timecor[0];
-                meanreTrack = (T0reTrack[0] + T0reTrack[1] + T0reTrack[2] + T0reTrack[3])/4;
+                meanreTrack = (T0reTrack[0] + T0reTrack[1] + T0reTrack[2] + T0reTrack[3]) / 4;
                 //meanreTrack =  T0reTrack[0];
                 //Timestamp = PMTtime / PMTcounter;
                 //Timestampcor = PMTtimecor / PMTcounter;
@@ -2595,7 +2639,7 @@ void RebuildT0(TString input = "../data.root", int force = 0)
                 //hNPMT->Fill(PMTcounter);
                 //h2dPMT->Fill(PMTcounter, Timestamp);
                 //if (abs(Timestamp)<0.75)
-                if (T0time[0] < 2.5 && T0time[1] < 2.5&& T0time[2] < 2.5&& T0time[3] < 2.5)
+                if (T0time[0] < 2.5 && T0time[1] < 2.5 && T0time[2] < 2.5 && T0time[3] < 2.5)
                 {
                     //TT.push_back(Timestampcor);
                     TT.push_back(Timestamp);
@@ -2721,14 +2765,14 @@ void DrawT0TR(TString fileDir, double left, double right)
             if (bufferTR[minpos] > bufferTR[j])
                 minpos = j;
         }
-        Stdvec.push_back(Std*1e3);
-        TROriginvec.push_back(bufferTR[0]*1e3);
-        TRsigmaOriginvec.push_back(bufferTRsigma[0]*1e3);
-        TRvec.push_back(bufferTR[minpos]*1e3);
-        TRsigmavec.push_back(bufferTRsigma[minpos]*1e3);
+        Stdvec.push_back(Std * 1e3);
+        TROriginvec.push_back(bufferTR[0] * 1e3);
+        TRsigmaOriginvec.push_back(bufferTRsigma[0] * 1e3);
+        TRvec.push_back(bufferTR[minpos] * 1e3);
+        TRsigmavec.push_back(bufferTRsigma[minpos] * 1e3);
         if (Ecut.size() > i + 1)
             Evec.push_back(Ecut[i] / 2 + Ecut[i + 1] / 2);
-        cout<<Evec.back()<<"\t"<<TRvec.back()<<"\t"<<TROriginvec.back()<<Stdvec.back()<<endl;
+        cout << Evec.back() << "\t" << TRvec.back() << "\t" << TROriginvec.back() << Stdvec.back() << endl;
         in.close();
     }
     TGraphErrors *g;
@@ -2752,7 +2796,7 @@ void DrawT0TR(TString fileDir, double left, double right)
 
     g->Draw("AP");
     g->GetYaxis()->SetRangeUser(left, right);
-    
+
     gO->Draw("Psame");
     //gS->Draw("Psame");
 
@@ -2813,6 +2857,22 @@ void RebuildDTOF(string input = "../data.root", int force = 0)
     dtop->Loop();
     //TAcorrection(filepath, 6, dtop->TT, dtop->AA);
 }
+void RebuildT02(string input = "../data.root")
+{
+    gStyle->SetOptFit(111);
+
+    string filepath;
+    string rootname;
+    rootname = GetFilename(input);
+    filepath = GetFilepath(input);
+    string output = filepath + "/RBT0.root";
+
+    cout << "Input  file: " << input << endl;
+    cout << "Output file: " << output << endl;
+    T0Rec *rb = new T0Rec(input, output);
+    rb->Loop();
+    //TAcorrection(filepath, 6, dtop->TT, dtop->AA);
+}
 #endif
 
 void ReadRBResults(TString input = "../build")
@@ -2832,6 +2892,7 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
     const int T = Nlayer;
     vector<double> par[T];
     vector<double> tts[T];
+    vector<double> top[T];
 
     double ttssigma = 20e-12;
     //double RL = -2e-9;
@@ -2853,12 +2914,25 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
 
                 par[s].push_back(temp);
                 tts[s].push_back(ran.Gaus(0, ttssigma));
+                top[s].push_back(T0photon.TOP[i]);
             }
         }
         if (!par[s].size())
             continue;
+        for (int kk = 1; kk < par[s].size() - 1; kk++)
+        {
+            for (int jj = 1; jj < par[s].size() - kk; jj++)
+            {
+                if (par[s][jj - 1] > par[s][jj])
+                {
 
-        sort(par[s].begin(), par[s].end());
+                    swap(par[s][jj - 1], par[s][jj]);
+                    swap(tts[s][jj - 1], tts[s][jj]);
+                    swap(top[s][jj - 1], top[s][jj]);
+                }
+            }
+        }
+        //sort(par[s].begin(), par[s].end());
 
         memset(x, 0, sizeof(x));
         memset(y, 0, sizeof(y));
@@ -2922,6 +2996,8 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
         T0Eledata.fittime2[s] = fittime[1];
         T0Eledata.thtime1[s] = thtime[0];
         T0Eledata.thtime2[s] = thtime[1];
+        T0Eledata.fasttime[s] = par[s][0] * 1e9;
+        T0Eledata.TOP[s] = top[s][0];
     }
 };
 //double RebuildCRAngle(vector<CRPosData> Trackerpos, double possigma, TVector3 &fitpos)
