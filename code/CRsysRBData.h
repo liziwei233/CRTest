@@ -47,8 +47,8 @@ public:
     double FTOFelefittot[128];
     double FTOFelefittime1[128];
     double FTOFelefittime2[128];
-    double FTOFfasttime[4];
-    double FTOFTOP[4];
+    double FTOFfasttime[128];
+    double FTOFTOP[128];
 
     //for CR
 

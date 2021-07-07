@@ -462,7 +462,7 @@ double remainder(double A, int r)
     int n = int(A) / r;
     return A - n * r;
 }
-void swap(double &a, double &b)
+void myswap(double &a, double &b)
 {
     double temp = 0;
     temp = a;
@@ -2237,7 +2237,7 @@ void RebuildData(TString input = "../build")
     cout << "Entries = " << N << endl;
     //N=100;
     vector<int> triggervec;
-    for (int iEvent = 0, pb = 0; iEvent < 2; iEvent++)
+    for (int iEvent = 0, pb = 0; iEvent < N; iEvent++)
     {
 
         T0photon.Initial();
@@ -2294,8 +2294,6 @@ void RebuildData(TString input = "../build")
                     T0photon.pz.push_back(R380_pz->at(iT0hit));
                     T0photon.TOP.push_back(R380_TOP->at(iT0hit));
                 }
-                cout << T0photon.id[0] << "\t" << T0photon.photonE[0] << "\t" << T0photon.TOP[0] << "\t" << T0photon.x[0] << "\t" << T0photon.y[0] << "\t" << T0photon.z[0] << "\t"
-                     << "\t" << T0photon.t[0] << "\t" << T0photon.px[0] << "\t" << T0photon.py[0] << "\t" << T0photon.pz[0] << endl;
             }
             if (theID == 200)
             {
@@ -2330,21 +2328,15 @@ void RebuildData(TString input = "../build")
             Mudata.theta = TMath::ACos(-1 * Mudata.px);
             Mudata.phi = TMath::ACos(Mudata.pz / TMath::Sqrt(Mudata.pz * Mudata.pz + Mudata.py * Mudata.py)) * Mudata.py / abs(Mudata.py);
         }
-        cout << "check" << endl;
 
         if (triggervec.size() == 2)
         //if (mu_DetID->size() >= TrackerN + 4)
         {
-            cout << "check" << endl;
             //cout<<T0photon.id[0]<<"\t"<<T0photon.photonE[0]<<"\t"<<T0photon.TOP[0]<<"\t"<<T0photon.x[0]<<"\t"<<T0photon.y[0]<<"\t"<<T0photon.z[0]<<"\t"<<T0photon.px[0]<<"\t"<<T0photon.py[0]<<"\t"<<T0photon.pz[0]<<"\t"<<T0photon.t[0]<<endl;
-            cout << T0photonvec.size() << endl;
-            T0photonvec.clear();
             //T0photonvec.clear();
             T0photonvec.push_back(T0photon);
-            //T0posvec.push_back(T0pos);
-            cout << "check" << endl;
-            //FTOFphotonvec.push_back(FTOFphoton);
-            cout << "check" << endl;
+            T0posvec.push_back(T0pos);
+            FTOFphotonvec.push_back(FTOFphoton);
             FTOFposvec.push_back(FTOFpos);
             Mudatavec.push_back(Mudata);
             Trackerposvec.push_back(*Trackerpos);
@@ -2354,17 +2346,14 @@ void RebuildData(TString input = "../build")
             RBT0pos.x = T0pos.x;
             RBFTOFpos.Initial();
             RBFTOFpos.x = FTOFpos.x;
-            cout << "check" << endl;
             RebuildCRAngle(*Trackerpos, possigma, RBT0pos, RBFTOFpos, RBMudata);
 
-            cout << "check" << endl;
             T0Ele.Initial();
             RebuildSensorSignal(T0photon, T0Ele, 4, "FIX", -3.5);
-            cout << "check" << endl;
+
             //return;
             FTOFEle.Initial();
             RebuildSensorSignal(FTOFphoton, FTOFEle, 128, "FIX", -7, 0, 25e-9);
-            cout << "check" << endl;
             data.RBInitial();
             data.T0photonid = T0photon.id;
             data.T0photonE = T0photon.photonE;
@@ -2904,6 +2893,7 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
     double x[range];
     double y[range];
     int N = T0photon.t.size();
+    //for (int s = 1; s < 2; s++)
     for (int s = 0; s < T; s++)
     {
         for (int i = 0; i < N; i++)
@@ -2919,19 +2909,20 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
         }
         if (!par[s].size())
             continue;
-        for (int kk = 1; kk < par[s].size() - 1; kk++)
+        for (int kk = 0; kk < par[s].size()-1; kk++)
         {
-            for (int jj = 1; jj < par[s].size() - kk; jj++)
+            for (int jj = 0; jj < par[s].size()-1 - kk; jj++)
             {
-                if (par[s][jj - 1] > par[s][jj])
+                if (par[s][jj] > par[s][jj+1])
                 {
-
-                    swap(par[s][jj - 1], par[s][jj]);
-                    swap(tts[s][jj - 1], tts[s][jj]);
-                    swap(top[s][jj - 1], top[s][jj]);
+                    
+                    myswap(par[s][jj], par[s][jj+1]);
+                    myswap(tts[s][jj], tts[s][jj+1]);
+                    myswap(top[s][jj], top[s][jj+1]);
                 }
             }
         }
+        
         //sort(par[s].begin(), par[s].end());
 
         memset(x, 0, sizeof(x));
@@ -2953,6 +2944,8 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
         double tot = 0;
         double fittime[2] = {0};
         double fittot = 0;
+        bool flag1=1;
+        bool flag2=1;
         if (strcmp(ParType, "FIX") == 0) //if the discriminate way is fix threshold discrim
             thrd = fac;
         else
@@ -2961,15 +2954,17 @@ void RebuildSensorSignal(CRTimeData T0photon, EleTimeData &T0Eledata, int Nlayer
         {
             if (x[q] <= -1)
                 continue;
-            if (y[q] <= thrd && y[q - 1] > thrd)
+            if (flag1&&y[q] <= thrd && y[q - 1] > thrd)
             {
                 thtimepos[0] = q;
                 thtime[0] = x[q];
+                flag1 = 0;
             }
-            if (y[q] >= thrd && y[q - 1] < thrd)
+            if (flag2&&y[q] >= thrd && y[q - 1] < thrd)
             {
                 thtimepos[1] = q;
                 thtime[1] = x[q];
+                flag2 = 0;
             }
         }
         //cout<<"thtime[0]="<<thtime[0]<<endl;

@@ -32,6 +32,9 @@ public :
    vector<double>  T0photonx;
    vector<double>  T0photony;
    vector<double>  T0photonz;
+   vector<double>  T0photonpx;
+   vector<double>  T0photonpy;
+   vector<double>  T0photonpz;
    vector<double>  T0photont;
    Int_t           T0detid;
    Double_t        T0detx;
@@ -44,6 +47,9 @@ public :
    vector<double>  FTOFphotonx;
    vector<double>  FTOFphotony;
    vector<double>  FTOFphotonz;
+   vector<double>  FTOFphotonpx;
+   vector<double>  FTOFphotonpy;
+   vector<double>  FTOFphotonpz;
    vector<double>  FTOFphotont;
    Int_t           FTOFdetid;
    Double_t        FTOFdetx;
@@ -54,11 +60,14 @@ public :
    Double_t        Trackerdety[4];
    Double_t        Trackerdetz[4];
    Double_t        Trackerdett[4];
+   Int_t           CRType;
+   Int_t           CRParentID;
    Double_t        CRE;
    Double_t        CRpx;
    Double_t        CRpy;
    Double_t        CRpz;
    Double_t        CRtheta;
+   Double_t        CRphi;
    Double_t        T0detRBx;
    Double_t        T0detRBy;
    Double_t        T0detRBz;
@@ -71,6 +80,8 @@ public :
    Double_t        T0elefittot[4];
    Double_t        T0elefittime1[4];
    Double_t        T0elefittime2[4];
+   Double_t        T0fasttime[4];
+   Double_t        T0TOP[4];
    Double_t        FTOFdetRBx;
    Double_t        FTOFdetRBy;
    Double_t        FTOFdetRBz;
@@ -83,10 +94,13 @@ public :
    Double_t        FTOFelefittot[128];
    Double_t        FTOFelefittime1[128];
    Double_t        FTOFelefittime2[128];
+   Double_t        FTOFfasttime[128];
+   Double_t        FTOFTOP[128];
    Double_t        CRRBpx;
    Double_t        CRRBpy;
    Double_t        CRRBpz;
    Double_t        CRRBtheta;
+   Double_t        CRRBphi;
 
    // List of branches
    TBranch        *b_data_T0photonid;   //!
@@ -95,6 +109,9 @@ public :
    TBranch        *b_data_T0photonx;   //!
    TBranch        *b_data_T0photony;   //!
    TBranch        *b_data_T0photonz;   //!
+   TBranch        *b_data_T0photonpx;   //!
+   TBranch        *b_data_T0photonpy;   //!
+   TBranch        *b_data_T0photonpz;   //!
    TBranch        *b_data_T0photont;   //!
    TBranch        *b_data_T0detid;   //!
    TBranch        *b_data_T0detx;   //!
@@ -107,6 +124,9 @@ public :
    TBranch        *b_data_FTOFphotonx;   //!
    TBranch        *b_data_FTOFphotony;   //!
    TBranch        *b_data_FTOFphotonz;   //!
+   TBranch        *b_data_FTOFphotonpx;   //!
+   TBranch        *b_data_FTOFphotonpy;   //!
+   TBranch        *b_data_FTOFphotonpz;   //!
    TBranch        *b_data_FTOFphotont;   //!
    TBranch        *b_data_FTOFdetid;   //!
    TBranch        *b_data_FTOFdetx;   //!
@@ -117,11 +137,14 @@ public :
    TBranch        *b_data_Trackerdety;   //!
    TBranch        *b_data_Trackerdetz;   //!
    TBranch        *b_data_Trackerdett;   //!
+   TBranch        *b_data_CRType;   //!
+   TBranch        *b_data_CRParentID;   //!
    TBranch        *b_data_CRE;   //!
    TBranch        *b_data_CRpx;   //!
    TBranch        *b_data_CRpy;   //!
    TBranch        *b_data_CRpz;   //!
    TBranch        *b_data_CRtheta;   //!
+   TBranch        *b_data_CRphi;   //!
    TBranch        *b_data_T0detRBx;   //!
    TBranch        *b_data_T0detRBy;   //!
    TBranch        *b_data_T0detRBz;   //!
@@ -134,6 +157,8 @@ public :
    TBranch        *b_data_T0elefittot;   //!
    TBranch        *b_data_T0elefittime1;   //!
    TBranch        *b_data_T0elefittime2;   //!
+   TBranch        *b_data_T0fasttime;   //!
+   TBranch        *b_data_T0TOP;   //!
    TBranch        *b_data_FTOFdetRBx;   //!
    TBranch        *b_data_FTOFdetRBy;   //!
    TBranch        *b_data_FTOFdetRBz;   //!
@@ -146,10 +171,13 @@ public :
    TBranch        *b_data_FTOFelefittot;   //!
    TBranch        *b_data_FTOFelefittime1;   //!
    TBranch        *b_data_FTOFelefittime2;   //!
+   TBranch        *b_data_FTOFfasttime;   //!
+   TBranch        *b_data_FTOFTOP;   //!
    TBranch        *b_data_CRRBpx;   //!
    TBranch        *b_data_CRRBpy;   //!
    TBranch        *b_data_CRRBpz;   //!
    TBranch        *b_data_CRRBtheta;   //!
+   TBranch        *b_data_CRRBphi;   //!
 
    CRdata(string in="data/DIRC.root",
         string out="result/DircRec.root",
@@ -229,6 +257,9 @@ void CRdata::Init(TTree *tree)
    fChain->SetBranchAddress("T0photonx", &T0photonx, &b_data_T0photonx);
    fChain->SetBranchAddress("T0photony", &T0photony, &b_data_T0photony);
    fChain->SetBranchAddress("T0photonz", &T0photonz, &b_data_T0photonz);
+   fChain->SetBranchAddress("T0photonpx", &T0photonpx, &b_data_T0photonpx);
+   fChain->SetBranchAddress("T0photonpy", &T0photonpy, &b_data_T0photonpy);
+   fChain->SetBranchAddress("T0photonpz", &T0photonpz, &b_data_T0photonpz);
    fChain->SetBranchAddress("T0photont", &T0photont, &b_data_T0photont);
    fChain->SetBranchAddress("T0detid", &T0detid, &b_data_T0detid);
    fChain->SetBranchAddress("T0detx", &T0detx, &b_data_T0detx);
@@ -241,6 +272,9 @@ void CRdata::Init(TTree *tree)
    fChain->SetBranchAddress("FTOFphotonx", &FTOFphotonx, &b_data_FTOFphotonx);
    fChain->SetBranchAddress("FTOFphotony", &FTOFphotony, &b_data_FTOFphotony);
    fChain->SetBranchAddress("FTOFphotonz", &FTOFphotonz, &b_data_FTOFphotonz);
+   fChain->SetBranchAddress("FTOFphotonpx", &FTOFphotonpx, &b_data_FTOFphotonpx);
+   fChain->SetBranchAddress("FTOFphotonpy", &FTOFphotonpy, &b_data_FTOFphotonpy);
+   fChain->SetBranchAddress("FTOFphotonpz", &FTOFphotonpz, &b_data_FTOFphotonpz);
    fChain->SetBranchAddress("FTOFphotont", &FTOFphotont, &b_data_FTOFphotont);
    fChain->SetBranchAddress("FTOFdetid", &FTOFdetid, &b_data_FTOFdetid);
    fChain->SetBranchAddress("FTOFdetx", &FTOFdetx, &b_data_FTOFdetx);
@@ -251,11 +285,14 @@ void CRdata::Init(TTree *tree)
    fChain->SetBranchAddress("Trackerdety[4]", Trackerdety, &b_data_Trackerdety);
    fChain->SetBranchAddress("Trackerdetz[4]", Trackerdetz, &b_data_Trackerdetz);
    fChain->SetBranchAddress("Trackerdett[4]", Trackerdett, &b_data_Trackerdett);
+   fChain->SetBranchAddress("CRType", &CRType, &b_data_CRType);
+   fChain->SetBranchAddress("CRParentID", &CRParentID, &b_data_CRParentID);
    fChain->SetBranchAddress("CRE", &CRE, &b_data_CRE);
    fChain->SetBranchAddress("CRpx", &CRpx, &b_data_CRpx);
    fChain->SetBranchAddress("CRpy", &CRpy, &b_data_CRpy);
    fChain->SetBranchAddress("CRpz", &CRpz, &b_data_CRpz);
    fChain->SetBranchAddress("CRtheta", &CRtheta, &b_data_CRtheta);
+   fChain->SetBranchAddress("CRphi", &CRphi, &b_data_CRphi);
    fChain->SetBranchAddress("T0detRBx", &T0detRBx, &b_data_T0detRBx);
    fChain->SetBranchAddress("T0detRBy", &T0detRBy, &b_data_T0detRBy);
    fChain->SetBranchAddress("T0detRBz", &T0detRBz, &b_data_T0detRBz);
@@ -268,6 +305,8 @@ void CRdata::Init(TTree *tree)
    fChain->SetBranchAddress("T0elefittot[4]", T0elefittot, &b_data_T0elefittot);
    fChain->SetBranchAddress("T0elefittime1[4]", T0elefittime1, &b_data_T0elefittime1);
    fChain->SetBranchAddress("T0elefittime2[4]", T0elefittime2, &b_data_T0elefittime2);
+   fChain->SetBranchAddress("T0fasttime[4]", T0fasttime, &b_data_T0fasttime);
+   fChain->SetBranchAddress("T0TOP[4]", T0TOP, &b_data_T0TOP);
    fChain->SetBranchAddress("FTOFdetRBx", &FTOFdetRBx, &b_data_FTOFdetRBx);
    fChain->SetBranchAddress("FTOFdetRBy", &FTOFdetRBy, &b_data_FTOFdetRBy);
    fChain->SetBranchAddress("FTOFdetRBz", &FTOFdetRBz, &b_data_FTOFdetRBz);
@@ -280,10 +319,13 @@ void CRdata::Init(TTree *tree)
    fChain->SetBranchAddress("FTOFelefittot[128]", FTOFelefittot, &b_data_FTOFelefittot);
    fChain->SetBranchAddress("FTOFelefittime1[128]", FTOFelefittime1, &b_data_FTOFelefittime1);
    fChain->SetBranchAddress("FTOFelefittime2[128]", FTOFelefittime2, &b_data_FTOFelefittime2);
+   fChain->SetBranchAddress("FTOFfasttime[128]", FTOFfasttime, &b_data_FTOFfasttime);
+   fChain->SetBranchAddress("FTOFTOP[128]", FTOFTOP, &b_data_FTOFTOP);
    fChain->SetBranchAddress("CRRBpx", &CRRBpx, &b_data_CRRBpx);
    fChain->SetBranchAddress("CRRBpy", &CRRBpy, &b_data_CRRBpy);
    fChain->SetBranchAddress("CRRBpz", &CRRBpz, &b_data_CRRBpz);
    fChain->SetBranchAddress("CRRBtheta", &CRRBtheta, &b_data_CRRBtheta);
+   fChain->SetBranchAddress("CRRBphi", &CRRBphi, &b_data_CRRBphi);
    Notify();
 
   fout = new TFile(output.c_str(),"recreate");

@@ -6,6 +6,7 @@
 #include "TMath.h"
 #include "TRandom3.h"
 #include "TMatrixD.h"
+
 //#include "T0Rec.h"
 
 using namespace TMath;
@@ -32,20 +33,27 @@ public:
   void MirrorTransformation(lightpath);
   void RecHitPos();
   void RecTOF(double);
-  void Reconstruction(double);
+  void Reconstruction(double,double);
 
   /// Set Hit
   void Clear();
   void SetTrackHit();
+  void SetSimuPhotonHit(int i);
   void SetPhotonHit(int i);
   void Simu2Lab(double &x, double &y, double &z);
+  void GetPhotonDirection();
   double GetRemainder(double, double);
   void Loop();
   static bool P(double x, double y){return x>y;};
+  void myswap(double &a, double &b);
+
   /// LUT
   LUT LUT_n;
 
   /// Hit
+  double gammaDx[4];
+  double gammaDy[4];
+  double gammaDz[4];
   double Dx;
   double Dy;
   double Dz;
@@ -278,13 +286,22 @@ void T0Rec::Clear()
 void T0Rec::Simu2Lab(double &x, double &y, double &z)
 {
   double Sdata[] = {x, y, z};
-  double Mdata[] = {0, 0, -1, 1, 0, 0, 0, -1, 0};
+  //double Mdata[] = {0, 0, -1, 1, 0, 0, 0, -1, 0};
+  double Mdata[] = {0, 0, 1, 0, 1, 0, -1,0, 0};
   TMatrixD M(3, 3, Mdata);
   TMatrixD S(1, 3, Sdata);
   TMatrixD L = S * M;
   x = TMatrixDRow(L, 0)(0);
   y = TMatrixDRow(L, 0)(1);
   z = TMatrixDRow(L, 0)(2);
+}
+
+void T0Rec::myswap(double &a, double &b)
+{
+    double temp = 0;
+    temp = a;
+    a = b;
+    b = temp;
 }
 double T0Rec::GetRemainder(double D, double d)
 {
@@ -333,17 +350,76 @@ void T0Rec::SetTrackHit()
   //cout << "FL="<<FL<<endl;
   InitialRefcounter();
 }
+void T0Rec::GetPhotonDirection()
+{
+  vector<double> gammadx[4];
+  vector<double> gammady[4];
+  vector<double> gammadz[4];
+  vector<double> gammat[4];
+  for(int i =0 ; i<T0photont.size();i++)
+  {
+     gammadx[T0photonid[i]].push_back(T0photonpx[i]);
+     gammady[T0photonid[i]].push_back(T0photonpy[i]);
+     gammadz[T0photonid[i]].push_back(T0photonpz[i]);
+     gammat[T0photonid[i]].push_back(T0photont[i]);
+     
+  }
+  for(int i =0; i<4;i++){
+    if(gammat[i].size()<1) continue;
+    for (int kk = 0; kk < gammat[i].size()-1; kk++)
+        {
+            for (int jj = 0; jj < gammat[i].size()-1 - kk; jj++)
+            {
+                if (gammat[i][jj] > gammat[i][jj+1])
+                {
+                    
+                    myswap(gammat[i][jj], gammat[i][jj+1]);
+                    myswap(gammadx[i][jj], gammadx[i][jj+1]);
+                    myswap(gammady[i][jj], gammady[i][jj+1]);
+                    myswap(gammadz[i][jj], gammadz[i][jj+1]);
+                    
+                }
+            }
+        }
+      gammaDx[i] = gammadx[i][0];
+      gammaDy[i] = gammady[i][0];
+      gammaDz[i] = gammadz[i][0];
+      Simu2Lab( gammaDx[i], gammaDy[i], gammaDz[i]);
+      gammaDx[i] = gammaDx[i]/gammaDy[i];
+      gammaDy[i] = gammaDy[i]/gammaDy[i];
+      gammaDz[i] = gammaDz[i]/gammaDy[i];
+  }
+}
+void T0Rec::SetSimuPhotonHit(int i)
+{
+  //fID = FTOFeleid[i];
+  //T = FTOFelefittime1[i] - T0dett; // T= TOF(T0-FTOF) + TOP
+  if(T0eleid[i]==1) fID=3;
+  else if(T0eleid[i]==3) fID=1;
+  else fID = T0eleid[i];
+  //fID = T0photonid[i];
+  T = T0fasttime[i]; // T= TOF(T0-FTOF) + TOP
+  ChX = Power(-1, (fID / 2 + 1)) * (fID % 2 - 1);
+  ChY = Power(-1, (fID / 2 + 1)) * (fID % 2);
+  op << "T= " << T << endl;
+  op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
+  op << "photon direction: ("<<gammaDx[fID]<<","<<gammaDy[fID]<<","<<gammaDz[fID]<<")"<<endl;
+  //T = GlobalTime->at(i)+TTS-T0;
+  //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
+}
 void T0Rec::SetPhotonHit(int i)
 {
   //fID = FTOFeleid[i];
   //T = FTOFelefittime1[i] - T0dett; // T= TOF(T0-FTOF) + TOP
-  if(T0photonid[i]==1) fID=3;
-  else if(T0photonid[i]==3) fID=1;
-  else fID = T0photonid[i];
+ if(T0eleid[i]==1) fID=3;
+  else if(T0eleid[i]==3) fID=1;
+  else fID = T0eleid[i];
   //fID = T0photonid[i];
-  T = T0photont[i]; // T= TOF(T0-FTOF) + TOP
+  T = T0elefittime1[i]+0.3; // T= TOF(T0-FTOF) + TOP
+
   ChX = Power(-1, (fID / 2 + 1)) * (fID % 2 - 1);
   ChY = Power(-1, (fID / 2 + 1)) * (fID % 2);
+  op << "T= " << T << endl;
   op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
   //T = GlobalTime->at(i)+TTS-T0;
   //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
@@ -422,10 +498,11 @@ void T0Rec::RecTOF(double beta)
     //op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << tag2 << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << Z2 << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << L_Z2 << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
   }
 }
-void T0Rec::Reconstruction(double mass)
+void T0Rec::Reconstruction(double mass,double Ek)
 {
   Clear();
-  double beta = 1. / Sqrt(1 + Power(mass / PrimaryMomentum, 2));
+  //double beta = 1. / Sqrt(1 + Power(mass / Ek, 2));
+  double beta = Ek/Sqrt(Ek*Ek+mass*mass);
   //HyFlightTime = FL / TMath::C() / beta * 1e6;
   //cout << "[+] | - Start Reconstruction " << endl;
   //cout<< "beta= "<<beta<<endl;
@@ -561,49 +638,53 @@ void T0Rec::Loop()
     SetTrackHit();
     op << "Track diraction (Dx,Dy,Dz) = (" << Dx << "," << Dy << "," << Dz << ")" << endl;
     op << "Track hit position (Px,Py) = (" << Px << "," << Py << ")" << endl;
-    int N = T0photonid.size();
+    //int N = T0photonid.size();
    op << "Entry$= " << tentry << endl;
+   GetPhotonDirection();
     double sum = 0;
     double wsum = 0;
     HyT0detTime = 0;
     RecT0detTime_Vec.clear();
     Weight_Vec.clear();
+    int N=4;
     for (int i = 0; i < N; i++)
     {
-      //if (FTOFeletot[i] < 0)
-      //  continue;
+      if (T0eletot[i] < 0)
+        continue;
 
-      SetPhotonHit(i);
-      Reconstruction(Mass_Mu / 1e3);
+      SetSimuPhotonHit(i);
+      //SetPhotonHit(i);
+      Reconstruction(Mass_Mu / 1e3,CRE);
       sort(RecT0detTime.begin(), RecT0detTime.end(),P);
       RecT0detTime_Vec.push_back(RecT0detTime);
       Weight_Vec.push_back(Weight);
-
-      for (int j = 0; j < RecT0detTime_Vec[i].size(); j++)
+      chidvec.push_back(fID);
+      for (int j = 0; j < RecT0detTime_Vec.back().size(); j++)
       {
-        if (RecT0detTime_Vec[i][j] < 0)
+        if (RecT0detTime_Vec.back()[j] < 0)
           continue;
-        sum += RecT0detTime_Vec[i][j] * Weight_Vec[i][j];
-        wsum += Weight_Vec[i][j];
+        sum += RecT0detTime_Vec.back()[j] * Weight_Vec.back()[j];
+        wsum += Weight_Vec.back()[j];
       }
     };
-    if (RecT0detTime_Vec.size() < 1)
+    if (RecT0detTime_Vec.size() < 3)
       continue;
     HyT0detTime = sum / wsum;
 
     double HyT0detTime_vec[N];
-
+HyT0detTime = SimuT0dettime;
     int ctr = 0;
-    for (int i = 0; i < N; i++)
+    /*
+    for (int i = 0; i < RecT0detTime_Vec.size(); i++)
     {
       HyT0detTime_vec[i] = RecT0detTime_Vec[i][0];
     }
-    HyT0detTime = Mean(N, HyT0detTime_vec);
-/*
+    HyT0detTime = Mean(RecT0detTime_Vec.size(), HyT0detTime_vec);
+
     for (int s = 0; s < 5; s++)
     {
 
-      for (int i = 0; i < N; i++)
+      for (int i = 0; i <  RecT0detTime_Vec.size(); i++)
       {
         int tag = 0;
         bool flag = 0;
@@ -620,12 +701,12 @@ void T0Rec::Loop()
         {
 
           HyT0detTime_vec[i] = RecT0detTime_Vec[i][tag];
-          HyT0detTime = Mean(N, HyT0detTime_vec);
+          HyT0detTime = Mean(RecT0detTime_Vec.size(), HyT0detTime_vec);
         }
       }
     }
     */
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < RecT0detTime_Vec.size(); i++)
     {
       int tag = 0;
       for (int j = 0; j < RecT0detTime_Vec[i].size(); j++)
@@ -639,15 +720,15 @@ void T0Rec::Loop()
       BestPropLength = RecPropLength[tag];
       BestT0detTime = RecT0detTime_Vec[i][tag];
       op << T0photonid[i] << "\t" << BestPropLength << "\t" << BestT0detTime << "\t" << SimuT0dettime << "\t" << HyT0detTime << endl;
-      RBT0[T0photonid[i]] = BestT0detTime;
-      LOP[T0photonid[i]] = BestPropLength;
-      TOP[T0photonid[i]] = BestPropLength / TMath::C() * Ng * 1e6;
-      trueTOP[T0photonid[i]] = FTOFphotonTOP[i];
+      RBT0[chidvec[i]] = BestT0detTime;
+      LOP[chidvec[i]] = BestPropLength;
+      TOP[chidvec[i]] = BestPropLength / TMath::C() * Ng * 1e6;
+      trueTOP[chidvec[i]] = FTOFphotonTOP[i];
       RBT0vec.push_back(BestT0detTime);
       LOPvec.push_back(BestPropLength);
       TOPvec.push_back(BestPropLength / TMath::C() * Ng * 1e6);
       trueTOPvec.push_back(FTOFphotonTOP[i]);
-      chidvec.push_back(T0photonid[i]);
+      
       Xvec.push_back(ChX);
       Yvec.push_back(ChY);
     }
