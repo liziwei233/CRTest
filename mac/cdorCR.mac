@@ -13,4 +13,4 @@
 /gun/energy 10 GeV
 /gun/position  800 0 0 mm
 /gun/direction -1 0 0    #0 deg
-/run/beamOn 5
+/run/beamOn 2000

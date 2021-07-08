@@ -9,11 +9,11 @@
 <opticalsurface name="FTOF_Blackwrapper_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
 <opticalsurface name="T0_Blackwrapper_surf" model="unified" finish="polished" type="dielectric_metal" value="0.0*deg"/>
 
-<opticalsurface name="T0_skin_surf" model="unified" finish="ground" type="dielectric_dielectric" value="1.0*deg"/>
+<opticalsurface name="T0_skin_surf" model="unified" finish="polished" type="dielectric_dielectric" value="1.0*deg"/>
 <opticalsurface name="FTOF_skin_surf" model="unified" finish="ground" type="dielectric_dielectric" value="1.0*deg"/>
-<opticalsurface name="T0_lgskin_surf" model="unified" finish="ground" type="dielectric_dielectric" value="1.0*deg"/>
+<opticalsurface name="T0_lgskin_surf" model="unified" finish="polished" type="dielectric_dielectric" value="1.0*deg"/>
 
-<opticalsurface name="T02lg_border_surf" model="unified" finish="ground" type="dielectric_dielectric" value="1.0*deg"/>
+<opticalsurface name="T02lg_border_surf" model="unified" finish="polished" type="dielectric_dielectric" value="1.0*deg"/>
 <opticalsurface name="FTOF2window_border_surf" model="unified" finish="ground" type="dielectric_dielectric" value="1.0*deg"/>
 
 

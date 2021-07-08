@@ -346,6 +346,8 @@ void T0Rec::SetTrackHit()
   Dx = Dx / DieL;
   Dy = Dy / DieL;
   Dz = Dz / DieL;
+  SimuT0dettime = T0dett+T0mediumt/2 / Dz*DieL/ TMath::C()* 1e6;
+
 
   //cout << "FL="<<FL<<endl;
   InitialRefcounter();
@@ -362,7 +364,7 @@ void T0Rec::GetPhotonDirection()
      gammady[T0photonid[i]].push_back(T0photonpy[i]);
      gammadz[T0photonid[i]].push_back(T0photonpz[i]);
      gammat[T0photonid[i]].push_back(T0photont[i]);
-     
+     op<<"id="<<T0photonid[i]<<",Direction("<<gammadx[T0photonid[i]].back()<<","<<gammady[T0photonid[i]].back()<<","<<gammadz[T0photonid[i]].back()<<endl;
   }
   for(int i =0; i<4;i++){
     if(gammat[i].size()<1) continue;
@@ -384,10 +386,12 @@ void T0Rec::GetPhotonDirection()
       gammaDx[i] = gammadx[i][0];
       gammaDy[i] = gammady[i][0];
       gammaDz[i] = gammadz[i][0];
+       op<<"id="<<i<<",Direction("<<gammaDx[i]<<","<<gammaDy[i]<<","<<gammaDz[i]<<endl;
       Simu2Lab( gammaDx[i], gammaDy[i], gammaDz[i]);
       gammaDx[i] = gammaDx[i]/gammaDy[i];
-      gammaDy[i] = gammaDy[i]/gammaDy[i];
       gammaDz[i] = gammaDz[i]/gammaDy[i];
+      gammaDy[i] = gammaDy[i]/gammaDy[i];
+       op<<"id="<<i<<",Direction("<<gammaDx[i]<<","<<gammaDy[i]<<","<<gammaDz[i]<<endl;
   }
 }
 void T0Rec::SetSimuPhotonHit(int i)
@@ -407,9 +411,9 @@ void T0Rec::SetSimuPhotonHit(int i)
   /* for simu */
   //ChX = TMath::Power(-1, (fID / 2 )) * (fID % 2 );
   //ChY = TMath::Power(-1, (fID / 2 )) * (fID % 2-1);
-  op << "T= " << T << endl;
-  op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
-  op << "photon direction: ("<<gammaDx[T0eleid[i]]<<","<<gammaDy[T0eleid[i]]<<","<<gammaDz[T0eleid[i]]<<")"<<endl;
+  //op << "T= " << T << endl;
+  //op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
+  //op << "photon direction: ("<<gammaDx[T0eleid[i]]<<","<<gammaDy[T0eleid[i]]<<","<<gammaDz[T0eleid[i]]<<")"<<endl;
   //T = GlobalTime->at(i)+TTS-T0;
   //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
 }
@@ -425,16 +429,16 @@ void T0Rec::SetPhotonHit(int i)
 
   ChX = Power(-1, (fID / 2 + 1)) * (fID % 2 - 1);
   ChY = Power(-1, (fID / 2 + 1)) * (fID % 2);
-  op << "T= " << T << endl;
-  op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
+  //op << "T= " << T << endl;
+  //op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
   //T = GlobalTime->at(i)+TTS-T0;
   //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
 }
 void T0Rec::RecHitPos()
 {
-  HitX = ChX * 90;
-  HitY = ChY * 90;
-  op << "Hit pos (" << HitX << "," << HitY << ")" << endl;
+  HitX = ChX * 95; // Lightguide = 5mm
+  HitY = ChY * 95;
+  //op << "Hit pos (" << HitX << "," << HitY << ")" << endl;
 }
 
 void T0Rec::RecTOF(double beta)
@@ -471,9 +475,9 @@ void T0Rec::RecTOF(double beta)
     double totalref2 = (Power(RecDircX[i], 2) + Power(RecDircY[i], 2)) / (Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Z2 * Z2) * NpMax * NpMax / 0.95;
     double R1 = GetRemainder(L_Z1, 2 * T0mediumt);
     double R2 = GetRemainder(L_Z2, 2 * T0mediumt);
-    //op << "costheta :" << costheta1 << "\t" << costheta2 << endl;
-    //op << "totalref :" << totalref1 << "\t" << totalref2 << endl;
-    //op << "Remainder :" << R1 << "\t" << R2 << endl;
+    ////op << "costheta :" << costheta1 << "\t" << costheta2 << endl;
+    ////op << "totalref :" << totalref1 << "\t" << totalref2 << endl;
+    ////op << "Remainder :" << R1 << "\t" << R2 << endl;
     if (costheta1 > 0 && totalref1 >= 1)
       tag1 = 1;
     if (costheta2 > 0 && totalref2 >= 1)
@@ -498,10 +502,10 @@ void T0Rec::RecTOF(double beta)
       RecPropLength[i] = Abs(RecDeltaY[i] * Sqrt(Power(RecDircX[i], 2) + Power(RecDircY[i], 2) + Power(RecDircZ[i], 2)) / RecDircY[i]);
       RecT0detTime[i] = T - RecPropLength[i] / TMath::C() * Ng * 1e6;
     }
-    op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << RecDircZ[i] << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << Abs(RecDeltaY[i] / RecDircY[i] * RecDircZ[i]) << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
+    //op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << RecDircZ[i] << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << Abs(RecDeltaY[i] / RecDircY[i] * RecDircZ[i]) << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
     hRBT0->Fill(RecT0detTime[i]);
-    //op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << tag1 << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << Z1 << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << L_Z1 << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
-    //op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << tag2 << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << Z2 << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << L_Z2 << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
+    ////op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << tag1 << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << Z1 << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << L_Z1 << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
+    ////op << side0ctr << "\t" << side1ctr << "\t" << side2ctr << "\t" << side3ctr << "\t" << tag2 << "\t" << RecDircX[i] << "\t" << RecDircY[i] << "\t" << Z2 << "\t" << RecDeltaX[i] << "\t" << RecDeltaY[i] << "\t" << L_Z2 << "\t" << RecPropLength[i] << "\t" << RecT0detTime[i] << "\t" << SimuT0dettime << endl;
   }
 }
 void T0Rec::Reconstruction(double mass,double Ek)
@@ -640,12 +644,12 @@ void T0Rec::Loop()
     trueTOPvec.clear();
     Xvec.clear();
     Yvec.clear();
-    SimuT0dettime = T0dett;
+    
     SetTrackHit();
-    op << "Track diraction (Dx,Dy,Dz) = (" << Dx << "," << Dy << "," << Dz << ")" << endl;
-    op << "Track hit position (Px,Py) = (" << Px << "," << Py << ")" << endl;
+    //op << "Track diraction (Dx,Dy,Dz) = (" << Dx << "," << Dy << "," << Dz << ")" << endl;
+    //op << "Track hit position (Px,Py) = (" << Px << "," << Py << ")" << endl;
     //int N = T0photonid.size();
-   op << "Entry$= " << tentry << endl;
+   //op << "Entry$= " << tentry << endl;
    GetPhotonDirection();
     double sum = 0;
     double wsum = 0;
@@ -725,7 +729,7 @@ HyT0detTime = SimuT0dettime;
       }
       BestPropLength = RecPropLength[tag];
       BestT0detTime = RecT0detTime_Vec[i][tag];
-      op << T0photonid[i] << "\t" << BestPropLength << "\t" << BestT0detTime << "\t" << SimuT0dettime << "\t" << HyT0detTime << endl;
+      //op << T0photonid[i] << "\t" << BestPropLength << "\t" << BestT0detTime << "\t" << SimuT0dettime << "\t" << HyT0detTime << endl;
       RBT0[chidvec[i]] = BestT0detTime;
       LOP[chidvec[i]] = BestPropLength;
       TOP[chidvec[i]] = BestPropLength / TMath::C() * Ng * 1e6;
