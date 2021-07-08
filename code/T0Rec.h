@@ -394,16 +394,22 @@ void T0Rec::SetSimuPhotonHit(int i)
 {
   //fID = FTOFeleid[i];
   //T = FTOFelefittime1[i] - T0dett; // T= TOF(T0-FTOF) + TOP
-  if(T0eleid[i]==1) fID=3;
-  else if(T0eleid[i]==3) fID=1;
-  else fID = T0eleid[i];
+  if(T0eleid[i]==1) fID=0;
+  else if(T0eleid[i]==2) fID=3;
+  else if(T0eleid[i]==3) fID=2;
+  else if(T0eleid[i]==0) fID=1;
   //fID = T0photonid[i];
   T = T0fasttime[i]; // T= TOF(T0-FTOF) + TOP
-  ChX = Power(-1, (fID / 2 + 1)) * (fID % 2 - 1);
-  ChY = Power(-1, (fID / 2 + 1)) * (fID % 2);
+  /* for lab */
+  ChX = TMath::Power(-1, (fID / 2 + 1)) * (fID % 2 - 1);
+  ChY = TMath::Power(-1, (fID / 2 + 1)) * (fID % 2);
+
+  /* for simu */
+  //ChX = TMath::Power(-1, (fID / 2 )) * (fID % 2 );
+  //ChY = TMath::Power(-1, (fID / 2 )) * (fID % 2-1);
   op << "T= " << T << endl;
   op << "FID= " << fID << ",(" << ChX << "," << ChY << ")" << endl;
-  op << "photon direction: ("<<gammaDx[fID]<<","<<gammaDy[fID]<<","<<gammaDz[fID]<<")"<<endl;
+  op << "photon direction: ("<<gammaDx[T0eleid[i]]<<","<<gammaDy[T0eleid[i]]<<","<<gammaDz[T0eleid[i]]<<")"<<endl;
   //T = GlobalTime->at(i)+TTS-T0;
   //cout << fID << ",ChX= " << ChX << ", ChY= " << ChY << endl;
 }
