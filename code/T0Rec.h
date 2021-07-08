@@ -286,8 +286,8 @@ void T0Rec::Clear()
 void T0Rec::Simu2Lab(double &x, double &y, double &z)
 {
   double Sdata[] = {x, y, z};
-  //double Mdata[] = {0, 0, -1, 1, 0, 0, 0, -1, 0};
-  double Mdata[] = {0, 0, 1, 0, 1, 0, -1,0, 0};
+  double Mdata[] = {0, 0, -1, 1, 0, 0, 0, -1, 0};
+  //double Mdata[] = {0, 0, 1, 0, 1, 0, -1,0, 0};
   TMatrixD M(3, 3, Mdata);
   TMatrixD S(1, 3, Sdata);
   TMatrixD L = S * M;
